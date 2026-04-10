@@ -15,7 +15,28 @@
         <a href="findings.html">Findings</a>
     </nav>
 
+    <h1>Items</h1>
+    <div id="items-container"></div>
 
+    <script>
+        fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/items")
+          .then(res => res.json())
+          .then(data => {
+            const container = document.getElementById("items-container");
+            data.forEach(item => {
+              const div = document.createElement("div");
+              div.innerHTML = `
+              <h2>${item.Name}</h2>
+              <p><strong>Amount:</strong> ${item.Amount}</p>
+              <p><strong>Locations:</strong> ${item.Locations}</p>
+              <p><strong>Use:</strong> ${item.Use}</p>
+              <p><strong>Description:</strong> ${item.Description}</p>
+              <img src="${item.Icon}" alt="${item.Name}" />
+              `;
+              container.appendChild(div);
+            });
+          });        
+    </script>
     <script src="script.js"></script>
 </body>
 </html>

@@ -14,7 +14,30 @@
         <a href="items.html">Items</a>
         <a href="findings.html">Findings</a>
     </nav>
+
+    <h1>Relics</h1>
+    <div id="relics-container"></div>
     
+    <script>
+        fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/relics")
+          .then(res => res.json())
+          .then(data => {
+            const container = document.getElementById("relics-container");
+            data.forEach(relic => {
+                const div = document.createElement("div");
+                div.innerHTML = `
+                <h2>${relic.Name}</h2>
+                <p><strong>Slots:</strong> ${relic.Slots}</p>
+                <p><strong>Effects:</strong> ${relic.Effects}</p>
+                <p><strong>Location:</strong> ${relic.Location}</p>
+                <p><strong>Description:</strong> ${relic.Description}</p>
+                <img src="${relic.Image}" alt="${relic.Name}" />
+            `;
+                container.appendChild(div);
+            });
+          });
+
+    </script>
     <script src="script.js"></script>
 </body>
 </html>
