@@ -1,0 +1,74 @@
+[
+    {
+    "Name": "Statue Inscription",
+    "Location": "A1",
+    "Contents": "Stone statues in the likeness of the White Priestesses. The inscription below the intact statue reads 'Priestess of the Dawn', while the ruined statue seems to have been one of the Priestess of the Wind."
+  },
+  {
+    "Name": "Eleine's Letter",
+    "Location": "A3",
+    "Contents": "Dear Siegrid, I want you to deliver the amulet unto that White Priestess. It's a necklace I bestow upon all priestesses, but I've imbued it with a blessing. I'm certain the ward will protect her from the threat of the Blighted. Wards can be broken and restored, but that is something only a priestess can manage. I count on you to see this through. Yours, Eleine"
+  },
+  {
+    "Name": "On the Blighted 1",
+    "Location": "A4",
+    "Contents": "As the mind, body, and soul of those afflicted with the Blight is consumed, the rot spreads throughout. The rot possesses superb regenerative properties, granting undying flesh. The link between mind and body is cut in time, and the host is driven purely by the wrath of the Blight."
+  },
+  {
+    "Name": "On the Blighted 2",
+    "Location": "A4",
+    "Contents": "There are Blighted whose minds do not fade. This is no saving grace, however, as it is said that they must endure an eternity of pain and suffering. The miracle of the White Priestess is the only true salvation for those who come to be cursed with the Blight."
+  },
+  {
+    "Name": "Groa's Letter",
+    "Location": "A8",
+    "Contents": "Dear Bale, Thank you for your continued service in ferrying the White Priestess and her Guardians. My son hopes to one day be as fine a coachman as you, to ride as gallantly in as fine a horse. Please do call on us when you visit the parish. Blessed be the tranquil white light, Groa, Chief Guardian"
+  },
+  {
+    "Name": "Hamlet Scrawl",
+    "Location": "B13",
+    "Contents": "An image scrawled using pagodite. It appears to be a doodle of the White Priestess of the Fount playing with the children of the hamlet under a radiant sun."
+  },
+  {
+
+    "Name": "Hamlet Request 1",
+    "Location": "B11",
+    "Contents": "Request: Fearless warrior needed to slay large monsters in the forest. Monsters have settled in the forest near the hamlet, wounding many of the King's soldiers. Rewardswill be given for any of the fiends killed. Stand with us to protect our great nation! Knight of the Fortress, Heiml"
+  },
+  {
+    "Name": "Hamlet Request 2",
+    "Location": "B13",
+    "Contents": "Warning: The catacombs are off-limits! Blighted captured in Land's End are being held in the catacombs. To reduce the risk of further spread of the Blight, the catacombs are off-limits. Also, note that harboring individuals carrying the Blight is a crime. Report any and all sightings of the Blighted to the royal guard immediately"
+  },
+  {
+    "Name": "True Believer's Note",
+    "Location": "B5",
+    "Contents": "After the Blighted started to appear in Land's End, many religions quickly began to die out, including the True Way. Seeking hope, many flocked to the White Priestess. It is likely that the way of the White Parish arose from there and spread amongst the people."
+  },
+  {
+    "Name": "Coven Handbook",
+    "Location": "C5",
+    "Contents": "The Coven is a place for sorcerers who seek deeper knowledge of magic and the abyss. We help the jointly-established White Parish and aid in Blighted eradication when needed. You must meet the approval of multiple sorcerers to join. Researching forbidden arts such as the magic of the Ancients, wielding a weapon in the tower, and leaking intel to other nations are prohibited."
+  },
+  {
+    "Name": "Lover's Letter",
+    "Location": "C7",
+    "Contents": "To my darling, Upon reading your letter, I have decided to return. I have seen and learned much on this half-year journey outside the Coven. I ache to tell you of the scorching sand dunes, strange creatures, and so much more. I will be back soon with your souvenir. All my love, Melville"
+  },
+  {
+    "Name": "Tarnished Picture",
+    "Location": "C10",
+    "Contents": "A picture of the White Priestess of the Fount. It appears that the White Priestess was allowed entrance to the Coven, a space usually exclusive to sorcerers, and a magical tool was made there for her."
+  },
+  {
+    "Name": "Sorcerer's Notes",
+    "Location": "C9",
+    "Contents": "I have been studying the texts of the Ancients, and it appears that there is the possibility of a connection between the Blight and one particular branch of their magicks. If we could decipher more of the old texts found in the Blighted Lands, we could pursue this thread further."
+  },
+  {
+    "Name": "Forbidden Text Scrap",
+    "Location": "H6",
+    "Contents": "Many attempts have been made to create new life through magic. The Creation of Artificial Life: It is thought that by guiding a spirit into the body of a babe, the child would retain control of their body while inheriting the power contained within the spirit. The Creation of Sentient Rock Fo—",
+  }
+
+]
