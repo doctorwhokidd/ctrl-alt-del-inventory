@@ -74,26 +74,26 @@
   {
     "Name": "Hoenir",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-hoenir-icon.png",
-    "Skill": "Launches a blitz of dark blades to shred the enemy to pieces from a distance.",
+    "Skill": "Launches a blitz of dark blades to shred the enemy to pieces from a distance. Their short range is made up for with speed.",
     "Aquatic": true,
     "Number of Uses": 110,
     "Cooldown": 0,
     "Ability": "Executioner's Hook",
     "Location": "H20",
-    "Image": "https://ender.fandom.com/wiki/File:Hoenir. Keeper of the_Abyss.png",
-    "Lore": "Leader of the Dark Executioners, raised Julius, succumbed to the Blight but honored Fretia's request."
+    "Image": "https://ender.fandom.com/wiki/File:Hoenir,_Keeper_of_the_Abyss.png",
+    "Lore": "As the leader of the Dark Executioners who served the Kingdom of End from the shadows, Hoenir was wholeheartedly devoted to his kingdom despite the unsavory nature of his work. He purposely kept his profession a secret from his sister, fearing what she would think of him. After his sister died giving birth to Julius, Hoenir took his nephew in after the King of Land’s End abandoned him, raising him as one of his own until he was ready to face the truth. When the Blight started spreading, Hoenir was tasked with escorting one of the White Priestesses to escape the Blight. However, as they found themselves surrounded by Blighted in the execution grounds, Fretia somehow managed to contact him from the Verboten Domain, pleading him to never let anyone violate the grounds. It is unknown exactly what happened after, but Hoenir eventually succumbed to the Blight, while the priestess he was protecting was eventually killed, with their body being found in a room behind him. Even in his Blighted state, Hoenir still followed Fretia's final request for him."
   },
   {
     "Name": "Faden, The Heretic",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-faden-icon.png",
-    "Skill": "Manipulates Blighted to blast enemies. While slow, this deals heavy damage.",
+    "Skill": "Manipulates Blighted to blast enemies. While slow, this deals heavy damage and can blow enemies away at a distance.",
     "Aquatic": false,
     "Number of Uses": 40,
     "Cooldown": 0,
     "Ability": "Unlock",
     "Location": "I17",
     "Image": "https://ender.fandom.com/wiki/File:Faden.png",
-    "Lore": "Researcher of the Blight, created Deathless Elixir, horrified Silva by cloning Fretia."
+    "Lore": "A researcher under the King’s Mage Brigade, Faden was originally tasked to find a way to alleviate the effects of the Blight on the White Priestess, Fretia. This task sent him and his brigade to the Verboten Domain, where he and his assistant Miriel, continued their research. Eventually, due to the severity of the Blight in the area, Miriel succumbed to its effects, pushing Faden to experiment with prisoners and the Blighted itself in hopes of understanding and reversing the affliction. These experiments resulted in the creation of the Deathless Elixir, and in turn, the Immortal Knights. However, the elixir requires for the subject to have a trace of humanity left in them. Miriel, who had completely transformed at this point in time, was unable to be saved. Unable to find a cure for the Priestess' affliction, and with her having no successor, Faden turns to creating Clones of Fretia, which horrifies Silva, who wonders what will be done with those she calls inferior imitations."
   },
   {
     "Name": "Guardian Siegrid",
@@ -105,7 +105,7 @@
     "Ability": "Guardian's Leap",
     "Location": "A7",
     "Image": "https://ender.fandom.com/wiki/File:Guardian_Siegrid.png",
-    "Lore": "Siegrid tasked herself with watching over Lily and the other youths in the church, resolved to help Fretia despite regrets."
+    "Lore": "Siegrid tasked herself with watching over Lily and presumably, the other youths in the church. Although she regretted being unable to serve Fretia as her Guardian, she still resolved to help her in whatever way she could"
   },
   {
     "Name": "Cliffside Hamlet Youth",
@@ -117,19 +117,19 @@
     "Ability": "",
     "Location": "A10",
     "Image": "",
-    "Lore": "Separated from his mother in a storm, the boy set off for the White Parish but never arrived."
+    "Lore": "Separated from his mother in the midst of a terrible storm, the boy set off for the White Parish in search of help. He never arrived."
   },
   {
     "Name": "Headless Defender",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-headlessdefender-sprite.png",
-    "Skill": "A knight with shield at the ready. Well-timed blocks will counter enemies, leaving them stunned.",
+    "Skill": "A knight with shield at the ready. Well-timed blocks will counter enemies, leaving them stunned and variable.",
     "Aquatic": true,
     "Number of Uses": 12,
     "Cooldown": 4.5,
     "Ability": "",
     "Location": "B10",
     "Image": "",
-    "Lore": "Knight who followed Gerrod, became immortal, was beheaded after attacking fellow knights."
+    "Lore": "A knight who followed in the footsteps of the hero, Gerrod. Suffering from the Blight upon becoming immortal took its toll. He was beheaded for attacking his fellow knights."
   },
   {
     "Name": "Western Merchant",
@@ -141,7 +141,7 @@
     "Ability": "",
     "Location": "B7",
     "Image": "",
-    "Lore": "Merchant from western lands, vibrant salesman who peddled rare stock in Land's End."
+    "Lore": "This merchant from a western land came to Land's End peddling foreign waves. A vibrant salesman who would light up when touting his rare stock."
   },
   {
     "Name": "Castle Town Maiden",
@@ -153,7 +153,7 @@
     "Ability": "",
     "Location": "F1",
     "Image": "",
-    "Lore": "The maiden was tending to her dog when the Rain came. The dog never left her side."
+    "Lore": "The maiden was tending to her dog when the Rain came. The dog nuzzled up against her body in the rain, never again to leave her side."
   },
   {
     "Name": "Fallen Archer",
@@ -165,7 +165,7 @@
     "Ability": "",
     "Location": "D8",
     "Image": "",
-    "Lore": "The kingdom's greatest archer became a Sinner to save his Guardian sister."
+    "Lore": "The kingdom's greatest archer became a Sinner to save his Guardian sister. All Sinners became immortal knights and were charged with defending the Bastion."
   },
   {
     "Name": "Elder Crypt Keeper",
@@ -177,19 +177,19 @@
     "Ability": "",
     "Location": "D12",
     "Image": "",
-    "Lore": "After a lifetime spent guarding the catacombs, the elder crypt keeper wished to be interred under his son's watch."
+    "Lore": "After a lifetime spent guarding the catacombs, the elder crypt keeper had earned eternal rest. His dying wish was to be interred under the watchful eye of his son, the apprentice."
   },
   {
     "Name": "Fungal Sorcerer",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-fungalsorcerer-sprite.png",
-    "Skill": "Generates a toxic mist that reduces enemy health over time. Damage cannot be blocked.",
+    "Skill": "Generates a toxic mist that reduces enemy health over time. Damage from the mist cannot be blocked.",
     "Aquatic": true,
     "Number of Uses": 12,
     "Cooldown": 6,
     "Ability": "",
     "Location": "C7",
     "Image": "",
-    "Lore": "Learned much on travels beyond Land's End, but never reached the Coven where his lover awaited."
+    "Lore": "The sorcerer learned much on his travels beyond the bounds of Land's End. Despite his return home, he never did make it to the Coven where his lover awaited."
   },
   {
     "Name": "Fungal Sorceress",
@@ -201,7 +201,7 @@
     "Ability": "",
     "Location": "C11",
     "Image": "",
-    "Lore": "Charming sorceress, gravely ill, waited amongst flowers for her lover's return."
+    "Lore": "The charming sorceress, beset by grave illness, spent her days alone. Amongst flowers, she waited patiently for her lover's return. He left to seek a cure for her, but she only wished to be with him for what little time was left."
   },
   {
     "Name": "Fallen Sentinel",
@@ -213,55 +213,55 @@
     "Ability": "",
     "Location": "E3",
     "Image": "",
-    "Lore": "Soldiers of the Twin Spires mutated into winged abominations after drinking suspicious elixirs."
+    "Lore": "After the Bastion defense, the heretic sorcerers gave suspicious elixirs to the soldiers of the Twin Spires. When the Rain fell, those who drank the brew mutated into winged abominations."
   },
   {
     "Name": "Hidden Test Subject",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-hiddentestsubject-sprite.png",
-    "Skill": "Uses the urn holding the test subject's body as a shield. Well-timed blocks unleash a counterattack.",
+    "Skill": "Uses the urn holding the test subject's body as a shield. Well-timed blocks unleash a counterattack on surrounding foes.",
     "Aquatic": true,
     "Number of Uses": 10,
     "Cooldown": 5,
     "Ability": "",
     "Location": "H5",
     "Image": "",
-    "Lore": "A heroic bandit branded a Sinner, taken to the Verboten Domain as a test subject."
+    "Lore": "A heroic bandit, who was fearless and confident until he was branded a Sinner and taken to the Verboten Domain as a test subject. There, he would often hide in urns to escape the twisted experiments."
   },
   {
     "Name": "Dark Executioner",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-darkexecutioner-sprite.png",
-    "Skill": "Phases behind an enemy in visible range and brings down their blade.",
+    "Skill": "Phases behind an enemy in visible range and brings down their blade on the unsuspecting victim.",
     "Aquatic": true,
     "Number of Uses": 40,
     "Cooldown": 1.8,
     "Ability": "",
     "Location": "H23",
     "Image": "",
-    "Lore": "Nameless Dark Executioner trained alongside Julius, but his Sinner blood kept him from becoming a knight."
+    "Lore": "The nameless Dark Executioner trained in fierce competition with Knight Captain Julius since their childhood. The blood of the Sinner coursing through his veins kept his dream of becoming a knight from ever coming to fruition."
   },
   {
     "Name": "Incompetent Sinner",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-incompetentsinner-sprite.png",
-    "Skill": "Grabs hold of you and darts forward, propelling both some distance.",
+    "Skill": "The Incompetent Sinner will grab hold of you and dart forward, propelling you both some distance.",
     "Aquatic": true,
     "Number of Uses": 16,
     "Cooldown": 3,
     "Ability": "",
     "Location": "I11",
     "Image": "",
-    "Lore": "A curious man who ventured into the Verboten Domain, later found Blighted but non-violent."
+    "Lore": "A Sinner sealed in the Subterranean Lab. Once a curious and bold man, he ventured into the Blighted and forbidden Verboten Domain. His Blighted form was found some time later, non-violent and lucid."
   },
   {
     "Name": "Verboten Champion",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-verbotenchampion-sprite.png",
-    "Skill": "Leap upward shredding airborne enemies with razor-sharp claws.",
+    "Skill": "Leap upward with the Verboten Champion shredding airborne enemies with his razor-sharp claws.",
     "Aquatic": true,
     "Number of Uses": 14,
     "Cooldown": 3,
     "Ability": "",
     "Location": "I3",
     "Image": "",
-    "Lore": "Former knight who clung to humanity, escaped the Stockade, entered Faden's lab."
+    "Lore": "Despite being Blighted in battle, driven by some purpose, this former knight was able to cling to his humanity. Escaping the Stockade, he headed to the Verboten Quarter and entered Faden's lab."
   },
   {
     "Name": "Cliffside Hamlet Elder",
@@ -273,7 +273,7 @@
     "Ability": "",
     "Location": "B17",
     "Image": "",
-    "Lore": "The Rain rotted and fused the Elder with his cattle into a monstrous anomaly."
+    "Lore": "The Rain rotted and melted the Elder's body, fusing him with his cattle into a monstrous anomaly"
   },
   {
     "Name": "Chief Guardian",
@@ -285,30 +285,30 @@
     "Ability": "",
     "Location": "A12",
     "Image": "",
-    "Lore": "Once protector of the prior priestess, suffered in the Rain and wept at the pain of sacrifice."
+    "Lore": "The Chief Guardian, once-protector of the prior priestess, suffered in the rain. She wept as she came to know the pain of the priestess' sacrifice."
   },
   {
     "Name": "One Eyed Royal Aegis",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-oneeyedroyalaegis-sprite.png",
-    "Skill": "Thrusts greatsword into the ground, creating a shockwave that launches enemies.",
+    "Skill": "The giant knight thrust his greatsword into the ground, creating a shockwave that launches surrounding enemies into the air",
     "Aquatic": true,
     "Number of Uses": 11,
     "Cooldown": 4.7,
     "Ability": "",
     "Location": "F20",
     "Image": "",
-    "Lore": "Royal Aegis elite tasked with protecting the King, betrayed by a peer, consumed by madness."
+    "Lore": "Royal Aegis elite tasked with protecting the King. Defended the castle during the Rain, only to be betrayed by one of his peers. Consumed by madness."
   },
   {
     "Name": "Forsaken Fellwyrm",
     "Icon": "https://ender.fandom.com/wiki/File:Spirit-forsakenfellwyrm-sprite.png",
-    "Skill": "Exhales a breath of toxic mist that spreads over a wide area.",
+    "Skill": "Exhales a breath of toxic mist that spreads over a wide area. Enemies that make contact will lose health over time. Breath damage cannot be guarded",
     "Aquatic": false,
     "Number of Uses": 10,
     "Cooldown": 6.5,
     "Ability": "",
     "Location": "E12",
     "Image": "",
-    "Lore": "Children denied life in the castle were given refuge in the Twin Spires and trained as knights."
+    "Lore": "Many children denied a life within the castle walls were given refuge in the Twin Spires and trained as knights. Among the forsaken, many were orphans of battle or illegitimate children of royal blood."
   }
 ]
