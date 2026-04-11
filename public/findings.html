@@ -6,34 +6,182 @@
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="spirits.html">Spirits</a>
-        <a href="relics.html">Relics</a>
-        <a href="items.html">Items</a>
-        <a href="findings.html">Findings</a>
-    </nav>
+<style>
+    .trackingBtn {
+        border-radius: 50%;
+        width: 10px;
+        height: 12px;
+        cursor: pointer;
+        background-color: rgb(105, 105, 105);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
 
-    <h1>Findings</h1>
-    <div id="findings-container"></div>
+    .trackingBtn.active {
+        background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.4) 30%, rgba(255,255,255,0) 55%), #d32f2f;
+        box-shadow: 0 0 4px rgba(211, 47, 47, 0.6);
+    }
+
+    .foundBtn {
+        border-radius: 0;
+        width: 10px;
+        height: 12px;
+        cursor: pointer;
+        background-color: rgb(105, 105, 105);
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: transparent;
+        font-size: 16px;
+        line-height: 1;
+        transition: color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .foundBtn.active {
+        color: #00c853;
+        background-color: rgb(105, 105, 105);
+    }
     
+    table{
+        width: 45vw;
+        margin: 10px;
+        table-layout: fixed;
+        border-collapse: collapse;
+        text-align: center;
+        color: white;
+    }
+
+    th, td{
+        padding: 10px;
+        border: 1px solid rgb(175, 175, 175);
+    }
+
+    .name-cell {
+        cursor: pointer;
+    }
+
+    .name-cell:hover {
+        text-decoration: underline;
+    }
+
+    .panel{
+        width: 45vw;
+        height: 100%;
+        padding: 10px;
+        margin: 10px;
+        margin-left: 0px;
+        border: 2px solid rgb(175, 175, 175);
+        border-radius: 10px;
+        color: white;
+        overflow-y: auto;
+        position: sticky;
+        top: 10px;
+        left: calc(45vw + 20px);
+    }
+
+    .panel-hidden{
+        display: none;
+    }
+
+    .panel-content{
+        margin-top: 0;
+    }
+</style>
+<body>
+    <header class="site-header">
+        <div class="container nav-container">
+            <a class="site-brand" href="index.html">Ender Lilies Grimoire</a>
+            <nav class="site-nav" aria-label="Primary navigation">
+                <a href="index.html" aria-current="page">Home</a>
+                <a href="spirits.html">Spirits</a>
+                <a href="relics.html">Relics</a>
+                <a href="items.html">Items</a>
+                <a href="findings.html">Findings</a>
+                <a href="map.html">Map</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="login.html" class="nav-login">Log In</a>
+            </nav>
+        </div>
+    </header>
+
+    <div style="display: flex; gap: 10px;">
+      <table>
+          <thead>
+             <tr>
+              <th>Track</th>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Found</th>
+              </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+      </table>
+
+      <div class="panel" id="detailsPanel">
+        <div class="panel-content" id="detailsContent"></div>
+      </div>
+    </div>
+
     <script>
-        fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/findings")
-          .then(res => res.json())
-          .then(data => {
-            const container = document.getElementById("findings-container");
-            data.forEach(finding => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                <h2>${finding.Name}</h2>
-                <p><strong>Location:</strong> ${finding.Location}</p>
-                <p><strong>Contents:</strong> ${finding.Contents}</p>
-                `;
-                container.appendChild(div);
-            });
+      const detailsContent = document.getElementById('detailsContent');
+
+      function renderDetails(finding) {
+        detailsContent.innerHTML = `
+          <p style = "font-size: 20px; font-weight: bold;">${finding.Name}</p>
+          <p>${finding.Contents}</p>
+        `;
+      }
+
+      fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/findings")
+        .then(res => res.json())
+        .then(data => {
+          const tablebody = document.getElementById("tableBody");
+          data.forEach(finding => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+                  <td><button class="trackingBtn"></button></td>
+                  <td class="name-cell">${finding.Name}</td>
+                  <td>${finding.Location}</td>
+                  <td><button class="foundBtn"></button></td>
+              `;
+
+              const nameCell = row.querySelector('.name-cell');
+              nameCell.addEventListener('click', () => renderDetails(finding));
+
+              row.querySelector('.trackingBtn').addEventListener('click', event => {
+                event.stopPropagation();
+                const btn = event.currentTarget;
+                btn.classList.toggle('active');
+              });
+
+              row.querySelector('.foundBtn').addEventListener('click', event => {
+                event.stopPropagation();
+                const btn = event.currentTarget;
+                const isActive = btn.classList.toggle('active');
+                btn.textContent = isActive ? '✓' : '';
+                if (isActive) {
+                    row.style.opacity = '0.5';
+                } else {
+                    row.style.opacity = '1';
+                }
+              });
+
+              tablebody.appendChild(row);
           });
+        })
+        .catch(error => {
+          detailsContent.textContent = 'Unable to load findings. Please try again later.';
+          console.error(error);
+        });
     </script>
+
     <script src="script.js"></script>
 </body>
 </html>
