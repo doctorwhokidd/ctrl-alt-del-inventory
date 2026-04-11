@@ -3,7 +3,7 @@
         "Name": "Soiled Prayer Beads",
         "Image": "https://ender.fandom.com/wiki/File:EL_Soiled_Prayer_Beads.png",
         "Slots": 1,
-        "Effect": "Slightly increases maximum HP by 5%.",
+        "Effects": "Slightly increases maximum HP by 5%.",
         "Location": "A6",
         "Description": "A rosary worn by the White Priestess' Guardian. Extensive training took place underground until someone was chosen to be her protector."
     },
@@ -11,7 +11,7 @@
         "Name": "Royal Aegis' Crest",
         "Image": "https://ender.fandom.com/wiki/File:EL_Royal_Aegis_Crest.png",
         "Slots": 2,
-        "Effect": "Increases maximum HP by 10%.",
+        "Effects": "Increases maximum HP by 10%.",
         "Location": "F5",
         "Description": "Crest of an elite knight who defended the kind. Even after the Rain drove him to kill indiscriminately, the Royal Aegis never forgot his duty."
     },
@@ -19,7 +19,7 @@
         "Name": "Broken Music Box",
         "Image": "https://ender.fandom.com/wiki/File:EL_Broken_Music_Box.png",
         "Slots": 2,
-        "Effect": "Slightly reduces damage received from enemies by 10%.",
+        "Effects": "Slightly reduces damage received from enemies by 10%.",
         "Location": "B3",
         "Description": "An old lullaby still leaks out from this music box destroyed in the heat of battle. A note is attached: 'Dear child, I hope to see you in my dreams.'"
     },
@@ -27,7 +27,7 @@
         "Name": "Cracked Familiar Stone",
         "Image": "https://ender.fandom.com/wiki/File:EL_Cracked_Familiar_Stone.png",
         "Slots": 3,
-        "Effect": "Reduces damage received from enemies by 15%.",
+        "Effects": "Reduces damage received from enemies by 15%.",
         "Location": "C8",
         "Description": "A stone once used by a witch to enhance warding spells. Though long-time use has left it cracked and faded, the stone is still tinged with magic power."
     },
@@ -35,15 +35,15 @@
         "Name": "Snowdrop Bracelet",
         "Image": "https://ender.fandom.com/wiki/File:EL_Snowdrop_Bracelet.png",
         "Slots": "4",
-        "Effect": "Greatly reduces damage received from enemies by 25%.",
+        "Effects": "Greatly reduces damage received from enemies by 25%.",
         "Location": "E8",
-        "Desciption": ": A bracelet made from snowflowers that bloom in chill climes. Imbued with the prayers of a knight from the fort. Wreathed in sincerity and past memories."
+        "Description": "A bracelet made from snowflowers that bloom in chill climes. Imbued with the prayers of a knight from the fort. Wreathed in sincerity and past memories."
     },
     {
         "Name": "Blighted Appendage",
         "Image": "https://ender.fandom.com/wiki/File:EL_Blighted_Appendage.png",
         "Slots": 3,
-        "Effect": "Increases damage dealt by 7.14%.",
+        "Effects": "Increases damage dealt by 7.14%.",
         "Location": "I12",
         "Description": "A tainted extraction from a Blighted subjected to various experiments. Given magical properties and fashioned into a tool by a heretical sorcerer."
     },
@@ -51,7 +51,7 @@
         "Name": "Giant's Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Giant%27s_Ring.png",
         "Slots": 2,
-        "Effect": "Slightly increases damage dealt by 7.14% from attacks made while on the ground.",
+        "Effects": "Slightly increases damage dealt by 7.14% from attacks made while on the ground.",
         "Location": "B4",
         "Description": "A large ring tinged with magic. Worn by the towering warriors of Land's End said to be descended from giants. Its size makes it a viable bracelet on the arms of a young lady." 
     },
@@ -59,7 +59,7 @@
         "Name": "Ancient Dragon Claw",
         "Image": "https://ender.fandom.com/wiki/File:EL_Ancient_Dragon_Claw.png",
         "Slots": 2,
-        "Effect": "Slightly increases damage dealt by 10% from airborne attacks.",
+        "Effects": "Slightly increases damage dealt by 10% from airborne attacks.",
         "Location": "E17",
         "Description": "A magical claw of a dragon said to dwell in the northernmost mountain of Land's End, which was rarely seen by any but knights of the Bastion."
     },
@@ -67,7 +67,7 @@
        "Name": "Rusted Blue Ornament",
        "Image": "https://ender.fandom.com/wiki/File:EL_Rusted_Blue_Ornament.png", 
        "Slots": 1,
-       "Effect": "Increases damage dealt by 29.5% from attacks performed in or on a body of water.",
+       "Effects": "Increases damage dealt by 29.5% from attacks performed in or on a body of water.",
        "Location": "C3",
        "Description": "The first gift ever given to a girl who grew up in the Coven, lost and washed away by the rain. The engraving on this treasured item can no longer be read."
     },
@@ -75,7 +75,7 @@
         "Name": "Executioner's Gloves",
         "Image": "https://ender.fandom.com/wiki/File:EL_Executioner%27s_Gloves.png",
         "Slots": 2,
-        "Effect": "Increases damage dealt by 10% while at maximum HP.",
+        "Effects": "Increases damage dealt by 10% while at maximum HP.",
         "Location": "H15",
         "Description": "Black leather gloves sheathed in magic. Dark Executioners once wore them as they performed their grim work. Seeing their insignia struck fear in Sinners."
     },
@@ -83,7 +83,7 @@
         "Name": "Decayed Crown",
         "Image": "https://ender.fandom.com/wiki/File:EL_Decayed_Crown.png",
         "Slots": 3,
-        "Effect": "Enemies will be more easily stunned by attacks.",
+        "Effects": "Enemies will be more easily stunned by attacks.",
         "Location": "F1",
         "Description": "A crown of highest royalty worn by the king of Land's End. Having lost its former glory, the decayed crown was forsaken someplace far from the castle"
     },
@@ -91,7 +91,7 @@
        "Name": "Weathered Necklace",
        "Image": "https://ender.fandom.com/wiki/File:EL_Weathered_Necklace.png",
        "Slots": 2,
-       "Effect": "Recover 6% of maximum HP whenever you defeat an enemy.",
+       "Effects": "Recover 6% of maximum HP whenever you defeat an enemy.",
        "Location": "I6",
        "Description": "A mysterious necklace found in the Blighted Lands, once worn by the Ancients. It is said the Ancients ruled the world wielding a long-forgotten form of magic." 
     },
@@ -99,7 +99,7 @@
         "Name": "Immortal's Crest",
         "Image": "https://ender.fandom.com/wiki/File:EL_Immortal%27s_Crest.png",
         "Slots": 3,
-        "Effect": "Recover 0.5% of maximum HP when you deal damage.",
+        "Effects": "Recover 0.5% of maximum HP when you deal damage.",
         "Location": "E14",
         "Description": "Crest of an immortal knight who sacrificed everything to defend the kingdom. The lotus and sword insignia is wreathed in the Blight."
     },
@@ -107,7 +107,7 @@
       "Name": "Manisa's Ring",
       "Image": "https://ender.fandom.com/wiki/File:EL_Manisa%27s_Ring.png",
       "Slots": 2,
-      "Effect": "Slightly increases Spirit uses.",
+      "Effects": "Slightly increases Spirit uses.",
       "Location": "C8",
       "Description": ": A relic left behind by the Ancients and kept in the Coven. Once treasured by a woman fond of flowers. An enchantment on this old ring causes it to glow when held by a White Priestess."  
     },
@@ -115,7 +115,7 @@
         "Name": "Aura's Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Aura%27s_Ring.png",
         "Slots": 3,
-        "Effect": "Increases Spirit uses.",
+        "Effects": "Increases Spirit uses.",
         "Location": "H24",
         "Description": "'Priestess Aura kills with a barrage of Blight.' It's been ages since someone has been able to awaken this ring's ring's[sic] power."
     },
@@ -123,7 +123,7 @@
         "Name": "Kilteus' Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Kilteus%27_Ring.png",
         "Slots": 2,
-        "Effect": "Slightly reduced Cooldown times.",
+        "Effects": "Slightly reduced Cooldown times.",
         "Location": "D13",
         "Description": "'Kilteus, priestess of guidance and inheritor of souls.' Unearthed from Blighted muck, this ring predates the founding of Land's End."
     },
@@ -131,7 +131,7 @@
         "Name": "Calivia's Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Calivia%27s_Ring.png",
         "Slots": 3,
-        "Effect": "Reduced Cooldown times.",
+        "Effects": "Reduced Cooldown times.",
         "Location": "I14",
         "Description": "A ring of the Ancients that lay dormant deep below the earth. A set of Ancients lived underground alongside the Blight flowing from the depths. They were called Priestesses."
     },
@@ -139,7 +139,7 @@
         "Name": "White Priestess Statue",
         "Image": "https://ender.fandom.com/wiki/File:EL_White_Priestess_Statue.png",
         "Slots": 4,
-        "Effect": "Increases the maximum number of uses for the Healing Prayer by 1.",
+        "Effects": "Increases the maximum number of uses for the Healing Prayer by 1.",
         "Location": "D22",
         "Description": "A statue of the White Priestess of the Dawn, unearthed by a follower of the White Parish. She who saved Land's End from the Blight became an object of hope and faith."
     },
@@ -147,7 +147,7 @@
         "Name": "Priestess' Doll",
         "Image": "https://ender.fandom.com/wiki/File:EL_Priestess%27_Doll.png",
         "Slots": 3,
-        "Effect": "Increases the maximum number of uses for the Healing Prayer by 1.",
+        "Effects": "Increases the maximum number of uses for the Healing Prayer by 1.",
         "Location": "F1",
         "Description": "A doll made for the White Priestess by a girl from Land's End. Said to honor the Priestess who saved the kingdom while defending the Bastion."
     },
@@ -155,7 +155,7 @@
         "Name": "White Priestess' Earrings",
         "Image": "https://ender.fandom.com/wiki/File:EL_White_Priestess%27_Earrings.png",
         "Slots": 2,
-        "Effect": "Increases the maximum number of uses for the Healing Prayer by 1.",
+        "Effects": "Increases the maximum number of uses for the Healing Prayer by 1.",
         "Location": "J2",
         "Description": "Earrings worn by the White Priestess of the Found, bestowed as a gift from the prior priestess. She became the White Priestess on the day of her fourteenth birthday"
     },
@@ -163,7 +163,7 @@
         "Name": "Holy Spring Water",
         "Image": "https://ender.fandom.com/wiki/File:EL_Holy_Spring_Water.png",
         "Slots": 1,
-        "Effect": "Increases the potency of the Healing Prayer by 25%.",
+        "Effects": "Increases the potency of the Healing Prayer by 25%.",
         "Location": "D21",
         "Description": "A bottle of water drawn from the Fountainhead, a spring in the Hinterlands where the White Priestess of the Fount was born. It is said the Priestess was named after the place of her birth, and named so just like the priestesses that came before her."
     },
@@ -171,7 +171,7 @@
         "Name": "Nymphilia's Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Nymphilia%27s_Ring.png",
         "Slots": 1,
-        "Effect": "Hastens the Healing Prayer.",
+        "Effects": "Hastens the Healing Prayer.",
         "Location": "E22",
         "Description": "A ring engraved with the name of Nymphilia, the White Priestess of Dawn. It is said white priestesses are bornwith[sic] a shining mark emblazoned on their foreheads."
     },
@@ -179,7 +179,7 @@
         "Name": "Spellbound Anklet",
         "Image": "https://ender.fandom.com/wiki/File:EL_Spellbound_Anklet.png",
         "Slots": 2,
-        "Effect": "Slightly increases movement and dashing speed.",
+        "Effects": "Slightly increases movement and dashing speed.",
         "Location": "C18",
         "Description": "An enchanted anklet made by combining strands of magic thread. The Blight makes it difficult to walk, so the Black Witch created this for the White Priestess of the Foun"
     },
@@ -187,7 +187,7 @@
         "Name": "Vibrant Plume",
         "Image": "https://ender.fandom.com/wiki/File:EL_Vibrant_Plume.png",
         "Slots": 2,
-        "Effect": "Slightly increases the height of your jump.",
+        "Effects": "Slightly increases the height of your jump.",
         "Location": "A12",
         "Description": "A feather ornament Silva bequeathed to her doting sister, who never once wore it. Crafted by a sorcerer, it seemingly grants the ability to harness the wind."
     },
@@ -195,7 +195,7 @@
         "Name": "Ruined Witch's Book",
         "Image": "https://ender.fandom.com/wiki/File:EL_Ruined_Witch%27s_Book.png",
         "Slots": 1,
-        "Effect": "Increases aquatic movement speed.",
+        "Effects": "Increases aquatic movement speed.",
         "Location": "C10",
         "Description": "A grimoire that archives all manner of witchcraft and has taken on a witch's power. The rot of the Blighted eats away at it, but its power yet remains."
     },
@@ -203,7 +203,7 @@
         "Name": "Bloodstained Ribbon",
         "Image": "https://ender.fandom.com/wiki/File:EL_Bloodstained_Ribbon.png",
         "Slots": 1,
-        "Effect": "Slightly increases the amount of the Blight (experience) acquired.",
+        "Effects": "Slightly increases the amount of the Blight (experience) acquired.",
         "Location": "B6",
         "Description": "Steeped in blood, this red ribbon is now stained a deeper crimson. After becoming Blighted, the girl held onto her beloved ribbon, tainting it as well."
     },
@@ -211,7 +211,7 @@
         "Name": "Blightwreathed Blade",
         "Image": "https://ender.fandom.com/wiki/File:EL_Blightwreathed_Blade.png",
         "Slots": 2,
-        "Effect": "Increases the amount of Blight (experience) acquired.",
+        "Effects": "Increases the amount of Blight (experience) acquired.",
         "Location": "F9",
         "Description": "A kitchen knife treasured by the castle chef. After the madness consumed him, the blade he used to take countless lives became wreathed in Blight."
     },
@@ -219,7 +219,7 @@
         "Name": "Heretic's Mask",
         "Image": "https://ender.fandom.com/wiki/File:EL_Heretic%27s_Mask.png",
         "Slots": 1,
-        "Effect": "Greatly reduces damage sustained while in blighted fog and while in or on water.",
+        "Effects": "Greatly reduces damage sustained while in blighted fog and while in or on water.",
         "Location": "I6",
         "Description": "A mask worn by sorcerers entering the Verboten Domain. Provides protection against the poisonous miasma therein."
     },
@@ -227,7 +227,7 @@
         "Name": "Eldred's Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Eldred%27s_Ring.png",
         "Slots": 3,
-        "Effect": "Speeds up accumulation of the SP Gauge.",
+        "Effects": "Speeds up accumulation of the SP Gauge.",
         "Location": "F17",
         "Description": "An Ancient warrior's gift to a Priestess. The two were quite close, despite his being a disembodied spirit and her his master. Though she has passed on, the warrior's spirit yet remains, thinking fondly of the time they spent together."
     },
@@ -235,7 +235,7 @@
         "Name": "Ricorus' Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Ricorus%27_Ring.png",
         "Slots": 2,
-        "Effect": "Increases the SP Gauge by 1.",
+        "Effects": "Increases the SP Gauge by 1.",
         "Location": "E11",
         "Description": "'Ricorus the Ripper dances with spirits on the battlefield.' An old relic unearthed when the Ancients were destroyed. Resistant to rust."
     },
@@ -243,7 +243,7 @@
         "Name": "Luminant Aegis Curio",
         "Image": "https://ender.fandom.com/wiki/File:EL_Luminant_Aegis_Curio.png",
         "Slots": 0,
-        "Effect": "Protects from the pain of purification.",
+        "Effects": "Protects from the pain of purification.",
         "Location": "A14",
         "Description": "An amulet whose form and power were restored by Faden's magic. The Ancients crafted it long ago and dubbed it the Aegis Curio. The power it holds lessens the suffering caused by the Blight during a priestess' purification ritual."
     },
@@ -251,7 +251,7 @@
         "Name": "Lost Heirloom",
         "Image": "https://ender.fandom.com/wiki/File:EL_Lost_Heirloom.png",
         "Slots": 0,
-        "Effect": "Allows the recollection of one's unblighted form.",
+        "Effects": "Allows the recollection of one's unblighted form.",
         "Location": "J2",
         "Description": "A hair ornament made from a pale flower. Received from the White Priestess of the Fount. After the Blight immobilized her, the Priestess of the Fount gifted these handmade ornaments as blessings to other priestesses in her stead."
     },
@@ -259,7 +259,7 @@
        "Name": "Blighted Phantom",
        "Image": "https://ender.fandom.com/wiki/File:EL_Blighted_Phantom.png",
        "Slots": 0,
-       "Effect": "Calls forth the visage of the Blighted White Priestess.",
+       "Effects": "Calls forth the visage of the Blighted White Priestess.",
        "Location": "J2",
        "Description": "A phantom of Blight since purified? Or Blight yet to stain the White Priestess? Curious that Blight should appear so eerily reminiscent of tears." 
     },
@@ -267,7 +267,7 @@
         "Name": "Fretia's Ring",
         "Image": "https://ender.fandom.com/wiki/File:EL_Fretia%27s_Ring.png",
         "Slots": 0,
-        "Effect": "Grants the ability to parry once equipped.",
+        "Effects": "Grants the ability to parry once equipped.",
         "Location": "D1",
         "Description": "The ring worn by the White Priestess of the Fount. The third Priestess of the Fount was of special note in that she was less susceptible to the Blight, allowing her to bestow salvation upon its sufferers."
     }

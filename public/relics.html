@@ -28,7 +28,7 @@
                 div.innerHTML = `
                 <h2>${relic.Name}</h2>
                 <p><strong>Slots:</strong> ${relic.Slots}</p>
-                <p><strong>Effects:</strong> ${relic.Effects}</p>
+                <p><strong>Effects:</strong> ${relic.Effects || "N/A"}</p>
                 <p><strong>Location:</strong> ${relic.Location}</p>
                 <p><strong>Description:</strong> ${relic.Description}</p>
                 <img src="${relic.Image}" alt="${relic.Name}" />
