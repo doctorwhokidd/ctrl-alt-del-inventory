@@ -20,27 +20,36 @@
 
     <script>
         fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/spirits")
-          .then(res => res.json())
-          .then(data => {
-            const container = document.getElementById("spirits-container");
-            data.forEach(spirit => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                <h2>${spirit.Name}</h2>
-                <p><strong>Skill:</strong> ${spirit.Skill}</p>
-                <p><strong>Aquatic:</strong> ${spirit.Aquatic}</p>
-                <p><strong>Number of Uses:</strong> ${spirit.Uses}</p>
-                <p><strong>Cooldown:</strong> ${spirit.Cooldown}</p>
-                <p><strong>Ability:</strong> ${spirit.Ability || "None"}</p>
-                <p><strong>Location:</strong> ${spirit.Location}</p>
-                <p><strong>Lore:</strong> ${spirit.Lore}</p>
-                <img src="${spirit.Icon}" alt="${spirit.Name}" />
-                <img src="${spirit.Image}" alt="${spirit.Name}" />
-                `;
-                container.appendChild(div);
-            });
-          })
+        .then(res => res.json())
+        .then(data => {
+        const container = document.getElementById("spirits-container");
+        data.forEach(spirit => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+        <h2>${spirit.Name}</h2>
+        ${spirit.Icon 
+          ? `<img src="${spirit.Icon}" alt="${spirit.Name}" />` 
+          : `<p><strong>Icon:</strong> None</p>`}
+        <p><strong>Skill:</strong> ${spirit.Skill}</p>
+        <p><strong>Aquatic:</strong> ${spirit.Aquatic}</p>
+        <p><strong>Number of Uses:</strong> ${spirit.Uses}</p>
+        <p><strong>Cooldown:</strong> ${spirit.Cooldown}</p>
+        <p><strong>Ability:</strong> ${spirit.Ability || "None"}</p>
+        <p><strong>Location:</strong> ${spirit.Location}</p>
+        ${spirit.Image 
+          ? `<img src="${spirit.Image}" alt="${spirit.Name}" />` 
+          : `<p><strong>Image:</strong> None</p>`}
+        ${spirit.Image2 
+          ? `<img src="${spirit.Image2}" alt="${spirit.Name} (Second)" />` 
+          : ``}
+        <p><strong>Lore:</strong> ${spirit.Lore}</p>
+      `;
+      container.appendChild(div);
+    });
+  });
+
     </script>
+
 
 
     <script src="script.js"></script>
