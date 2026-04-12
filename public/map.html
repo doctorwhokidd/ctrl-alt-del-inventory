@@ -238,8 +238,6 @@
 		}
 
 		function getAllFoundEntries(spiritsData, relicsData, itemsData, findingsData) {
-			if (!isTrackingEnabled()) return [];
-
 			return [
 				...getSpiritFoundEntries(spiritsData),
 				...getNamedFoundEntries("relics_found", relicsData, "Relic", "Location"),
@@ -275,12 +273,6 @@
 		}
 
 		function renderFoundPins(pinLayer, mapImage, counter, spiritsData, relicsData, itemsData, findingsData) {
-			if (!isTrackingEnabled()) {
-				if (counter) counter.textContent = "Log in to view your found locations on the map.";
-				if (pinLayer) pinLayer.querySelectorAll(".map-spirit-pin").forEach(pin => pin.remove());
-				return;
-			}
-
 			const foundEntries = getAllFoundEntries(spiritsData, relicsData, itemsData, findingsData);
 			const locationsByCode = new Map();
 			foundEntries.forEach(entry => {
