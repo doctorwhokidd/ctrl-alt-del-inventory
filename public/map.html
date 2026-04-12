@@ -105,26 +105,32 @@
 
 		function loadManualPinpoints() {
 			const overrideKey = getProgressKey(MAP_OVERRIDES_BASE_KEY);
-			if (!overrideKey) return {};
+			const keyCandidates = Array.from(new Set([
+				overrideKey,
+				MAP_OVERRIDES_BASE_KEY,
+			].filter(Boolean)));
 
-			try {
-				const raw = JSON.parse(localStorage.getItem(overrideKey) || "{}");
-				const cleaned = {};
-				Object.entries(raw).forEach(([code, coords]) => {
-					const normalized = String(code || "").trim().toUpperCase();
-					if (!Array.isArray(coords) || coords.length < 2) return;
-					const x = Number(coords[0]);
-					const y = Number(coords[1]);
-					if (!Number.isFinite(x) || !Number.isFinite(y)) return;
-					cleaned[normalized] = [
-						Math.max(0, Math.min(MAP_BASE_SIZE.width, x)),
-						Math.max(0, Math.min(MAP_BASE_SIZE.height, y)),
-					];
-				});
-				return cleaned;
-			} catch (_) {
-				return {};
-			}
+			const cleaned = {};
+			keyCandidates.forEach(key => {
+				try {
+					const raw = JSON.parse(localStorage.getItem(key) || "{}");
+					Object.entries(raw).forEach(([code, coords]) => {
+						const normalized = String(code || "").trim().toUpperCase();
+						if (!Array.isArray(coords) || coords.length < 2) return;
+						const x = Number(coords[0]);
+						const y = Number(coords[1]);
+						if (!Number.isFinite(x) || !Number.isFinite(y)) return;
+						if (!cleaned[normalized]) {
+							cleaned[normalized] = [
+								Math.max(0, Math.min(MAP_BASE_SIZE.width, x)),
+								Math.max(0, Math.min(MAP_BASE_SIZE.height, y)),
+							];
+						}
+					});
+				} catch (_) {}
+			});
+
+			return cleaned;
 		}
 
 		function toHardcodedPixel(locationCode) {
@@ -135,59 +141,164 @@
 			return null;
 		}
 
-		function getFoundLocations(spiritsData) {
-			if (!isTrackingEnabled()) return [];
+		function getStoredArray(baseKey) {
+			const scopedKey = getProgressKey(baseKey);
+			const guestKey = `guest_${String(baseKey || "")}`;
 
-			let locationCodes = [];
-			try {
-				const locationsKey = getProgressKey("spirits_found_locations");
-				if (!locationsKey) return [];
-				locationCodes = JSON.parse(localStorage.getItem(locationsKey) || "[]");
-			} catch (_) {}
-
-			const fromLocations = Array.from(new Set(
-				locationCodes
-					.map(code => String(code || "").trim().toUpperCase())
-					.filter(code => code && MAP_COORDS[code])
-			));
-			if (fromLocations.length > 0) {
-				return fromLocations;
+			if (!isTrackingEnabled()) {
+				try {
+					const guestValue = JSON.parse(sessionStorage.getItem(guestKey) || "[]");
+					return Array.isArray(guestValue) ? guestValue : [];
+				} catch (_) {
+					return [];
+				}
 			}
 
-			// Legacy fallback for previously saved index-based state.
+			const keyCandidates = Array.from(new Set([scopedKey, baseKey].filter(Boolean)));
+			for (const key of keyCandidates) {
+				try {
+					const value = JSON.parse(localStorage.getItem(key) || "[]");
+					if (Array.isArray(value) && value.length > 0) return value;
+				} catch (_) {}
+			}
+
 			try {
-				const foundKey = getProgressKey("spirits_found");
-				if (!foundKey) return [];
-				const stored = JSON.parse(localStorage.getItem(foundKey) || "[]");
-				const indices = Array.from(new Set(stored.filter(Number.isInteger)));
-				return indices
-					.map(index => spiritsData[index])
-					.filter(Boolean)
-					.map(spirit => String(spirit.Location || "").trim().toUpperCase())
-					.filter(code => code && MAP_COORDS[code]);
+				const fallback = JSON.parse(localStorage.getItem(keyCandidates[0] || "") || "[]");
+				return Array.isArray(fallback) ? fallback : [];
 			} catch (_) {
 				return [];
 			}
 		}
 
-		function renderFoundPins(pinLayer, mapImage, counter, spiritsData) {
+		function normalizeLocationCode(value) {
+			return String(value || "").trim().toUpperCase();
+		}
+
+		function extractLocationCodes(rawValue) {
+			const text = String(rawValue || "").toUpperCase();
+			const matches = text.match(/[A-Z]+\d+/g) || [];
+			return Array.from(new Set(matches.filter(code => MAP_COORDS[code])));
+		}
+
+		function getSpiritFoundEntries(spiritsData) {
+			const results = [];
+			const foundLocations = getStoredArray("spirits_found_locations")
+				.map(normalizeLocationCode)
+				.filter(code => code && MAP_COORDS[code]);
+
+			if (foundLocations.length > 0) {
+				foundLocations.forEach(code => {
+					const match = Array.isArray(spiritsData)
+						? spiritsData.find(spirit => normalizeLocationCode(spirit.Location) === code)
+						: null;
+					results.push({
+						type: "Spirit",
+						name: match && match.Name ? match.Name : "Unknown Spirit",
+						code,
+					});
+				});
+				return results;
+			}
+
+			// Legacy fallback for older index-based spirit saves.
+			const indices = Array.from(new Set(getStoredArray("spirits_found").filter(Number.isInteger)));
+			indices.forEach(index => {
+				const spirit = Array.isArray(spiritsData) ? spiritsData[index] : null;
+				if (!spirit) return;
+				const code = normalizeLocationCode(spirit.Location);
+				if (!MAP_COORDS[code]) return;
+				results.push({
+					type: "Spirit",
+					name: spirit.Name || "Unknown Spirit",
+					code,
+				});
+			});
+
+			return results;
+		}
+
+		function getNamedFoundEntries(foundKey, data, type, locationField) {
+			if (!Array.isArray(data)) return [];
+			const foundNames = new Set(
+				getStoredArray(foundKey)
+					.map(value => String(value || "").trim())
+					.filter(Boolean)
+			);
+			if (foundNames.size === 0) return [];
+
+			const results = [];
+			data.forEach(entry => {
+				const name = String(entry && entry.Name ? entry.Name : "").trim();
+				if (!name || !foundNames.has(name)) return;
+				extractLocationCodes(entry[locationField]).forEach(code => {
+					results.push({ type, name, code });
+				});
+			});
+			return results;
+		}
+
+		function getAllFoundEntries(spiritsData, relicsData, itemsData, findingsData) {
+			if (!isTrackingEnabled()) return [];
+
+			return [
+				...getSpiritFoundEntries(spiritsData),
+				...getNamedFoundEntries("relics_found", relicsData, "Relic", "Location"),
+				...getNamedFoundEntries("items_found", itemsData, "Item", "Locations"),
+				...getNamedFoundEntries("findings_found", findingsData, "Finding", "Location"),
+			];
+		}
+
+		function getFoundStats(spiritsData, relicsData, itemsData, findingsData) {
+			const spiritFoundIndices = Array.from(new Set(getStoredArray("spirits_found").filter(Number.isInteger)));
+			const spiritFoundLocations = Array.from(new Set(
+				getStoredArray("spirits_found_locations")
+					.map(normalizeLocationCode)
+					.filter(code => code && MAP_COORDS[code])
+			));
+			const spiritFoundCount = spiritFoundIndices.length > 0 ? spiritFoundIndices.length : spiritFoundLocations.length;
+			const relicFoundCount = getStoredArray("relics_found").length;
+			const itemFoundCount = getStoredArray("items_found").length;
+			const findingFoundCount = getStoredArray("findings_found").length;
+
+			return {
+				spiritFoundCount,
+				relicFoundCount,
+				itemFoundCount,
+				findingFoundCount,
+				totalFoundCount: spiritFoundCount + relicFoundCount + itemFoundCount + findingFoundCount,
+				totalRecords:
+					(Array.isArray(spiritsData) ? spiritsData.length : 0) +
+					(Array.isArray(relicsData) ? relicsData.length : 0) +
+					(Array.isArray(itemsData) ? itemsData.length : 0) +
+					(Array.isArray(findingsData) ? findingsData.length : 0),
+			};
+		}
+
+		function renderFoundPins(pinLayer, mapImage, counter, spiritsData, relicsData, itemsData, findingsData) {
 			if (!isTrackingEnabled()) {
-				if (counter) counter.textContent = "Log in to view your tracked spirit progress on the map.";
+				if (counter) counter.textContent = "Log in to view your found locations on the map.";
 				if (pinLayer) pinLayer.querySelectorAll(".map-spirit-pin").forEach(pin => pin.remove());
 				return;
 			}
 
-			const foundLocations = getFoundLocations(spiritsData);
+			const foundEntries = getAllFoundEntries(spiritsData, relicsData, itemsData, findingsData);
+			const locationsByCode = new Map();
+			foundEntries.forEach(entry => {
+				if (!entry || !entry.code) return;
+				if (!locationsByCode.has(entry.code)) locationsByCode.set(entry.code, []);
+				locationsByCode.get(entry.code).push(entry);
+			});
+
+			const foundLocations = Array.from(locationsByCode.keys());
 			const pinnedLocations = foundLocations.filter(locationCode => Boolean(toHardcodedPixel(locationCode)));
+			const stats = getFoundStats(spiritsData, relicsData, itemsData, findingsData);
+			const remainingCount = Math.max(0, stats.totalRecords - stats.totalFoundCount);
 
 			if (counter) {
-				const total = Array.isArray(spiritsData) ? spiritsData.length : "?";
-				counter.textContent = foundLocations.length > 0
-					? `${pinnedLocations.length} / ${foundLocations.length} found spirits pinned from manual points (${total} total spirits)`
-					: "No spirits marked as found yet. Mark spirits on the Spirits page to see pins here.";
+				counter.textContent = `Found ${stats.totalFoundCount} / ${stats.totalRecords} (${remainingCount} remaining) | ${stats.spiritFoundCount} spirits, ${stats.relicFoundCount} relics, ${stats.itemFoundCount} items, ${stats.findingFoundCount} findings`;
 			}
 
-			if (!pinLayer || !mapImage || !Array.isArray(spiritsData)) return;
+			if (!pinLayer || !mapImage) return;
 
 			const renderedWidth = mapImage.clientWidth;
 			const renderedHeight = mapImage.clientHeight;
@@ -201,7 +312,7 @@
 			pinnedLocations.forEach(locationCode => {
 				const coordsPx = toHardcodedPixel(locationCode);
 				if (!coordsPx) return;
-				const spirit = spiritsData.find(item => item.Location === locationCode);
+				const entriesAtCode = locationsByCode.get(locationCode) || [];
 				const x = coordsPx[0] * scaleX;
 				const y = coordsPx[1] * scaleY;
 
@@ -209,7 +320,12 @@
 				pin.className = "map-spirit-pin";
 				pin.style.left = x.toFixed(2) + "px";
 				pin.style.top = y.toFixed(2) + "px";
-				pin.title = (spirit ? spirit.Name : "Spirit") + " \u2014 " + locationCode;
+				if (entriesAtCode.length > 0) {
+					const labels = entriesAtCode.map(entry => `${entry.type}: ${entry.name}`);
+					pin.title = `${locationCode} \u2014 ${labels.join(" | ")}`;
+				} else {
+					pin.title = `Found location ${locationCode}`;
+				}
 				pinLayer.appendChild(pin);
 			});
 		}
@@ -219,13 +335,25 @@
 			const mapImage = document.getElementById("map-full-image");
 			const counter = document.getElementById("map-found-counter");
 			let spiritsData = [];
+			let relicsData = [];
+			let itemsData = [];
+			let findingsData = [];
 
 			try {
-				const res = await fetch("data/spirits.json", { cache: "force-cache" });
-				if (res.ok) spiritsData = await res.json();
+				const [spiritsRes, relicsRes, itemsRes, findingsRes] = await Promise.all([
+					fetch("data/spirits.json", { cache: "force-cache" }),
+					fetch("data/relics.json", { cache: "force-cache" }),
+					fetch("data/items.json", { cache: "force-cache" }),
+					fetch("data/findings.json", { cache: "force-cache" }),
+				]);
+
+				if (spiritsRes.ok) spiritsData = await spiritsRes.json();
+				if (relicsRes.ok) relicsData = await relicsRes.json();
+				if (itemsRes.ok) itemsData = await itemsRes.json();
+				if (findingsRes.ok) findingsData = await findingsRes.json();
 			} catch (_) {}
 
-			const repaintPins = () => renderFoundPins(pinLayer, mapImage, counter, spiritsData);
+			const repaintPins = () => renderFoundPins(pinLayer, mapImage, counter, spiritsData, relicsData, itemsData, findingsData);
 
 			repaintPins();
 
@@ -238,7 +366,15 @@
 			}
 
 			window.addEventListener("storage", event => {
-				if (event.key === null || event.key.includes("spirits_found") || event.key.includes(MAP_OVERRIDES_BASE_KEY) || event.key === "elg_session_v1") {
+				if (
+					event.key === null ||
+					event.key.includes("spirits_found") ||
+					event.key.includes("relics_found") ||
+					event.key.includes("items_found") ||
+					event.key.includes("findings_found") ||
+					event.key.includes(MAP_OVERRIDES_BASE_KEY) ||
+					event.key === "elg_session_v1"
+				) {
 					manualPinpoints = loadManualPinpoints();
 					repaintPins();
 				}

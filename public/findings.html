@@ -32,6 +32,7 @@
 			<div class="page-header">
 				<h1>Findings</h1>
 				<p class="page-subtitle">Track notes, letters, and records, then inspect full contents in the detail panel.</p>
+				<p id="findings-access-note" class="tracking-mode-note" aria-live="polite"></p>
 			</div>
 
 			<div class="collection-toolbar">
@@ -66,9 +67,14 @@
 					</div>
 				</div>
 
-				<div class="collection-detail-section" id="finding-detail-section">
-					<div class="detail-placeholder">
-						<p>Select a finding to view full contents</p>
+				<div class="collection-detail-shell">
+					<div class="collection-mini-panel" id="findings-mini-panel" aria-live="polite">
+						<p class="collection-mini-loading">Loading quick dashboard...</p>
+					</div>
+					<div class="collection-detail-section" id="finding-detail-section">
+						<div class="detail-placeholder">
+							<p>Select a finding to view full contents</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -82,8 +88,11 @@
 		const findingDetailSection = document.getElementById("finding-detail-section");
 		const findingsSearchInput = document.getElementById("findings-search");
 		const findingsMeta = document.getElementById("findings-meta");
+		const findingsAccessNote = document.getElementById("findings-access-note");
+		const findingsMiniPanel = document.getElementById("findings-mini-panel");
 		let findingsData = [];
 		let findingsFilter = "";
+		let dashboardTotals = null;
 
 		function getProgressKey(baseKey) {
 			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
@@ -96,19 +105,64 @@
 			return Boolean(window.Auth && typeof window.Auth.isLoggedIn === "function" && window.Auth.isLoggedIn());
 		}
 
+		function getTrackingStore() {
+			return isTrackingEnabled() ? localStorage : sessionStorage;
+		}
+
+		function getTrackingKey(baseKey) {
+			const scoped = getProgressKey(baseKey);
+			if (scoped) return scoped;
+			return `guest_${String(baseKey || "")}`;
+		}
+
 		function applyTrackingAccessState() {
 			const enabled = isTrackingEnabled();
 			const checkboxes = findingsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
 			checkboxes.forEach(cb => {
-				cb.disabled = !enabled;
-				cb.title = enabled ? "" : "Log in to track progress";
+				cb.disabled = false;
+				cb.title = enabled ? "" : "Guest mode: progress is temporary for this session";
 			});
+			if (findingsAccessNote) {
+				findingsAccessNote.textContent = enabled
+					? "Tracking mode: progress saves to your account."
+					: "Guest tracking mode: progress is temporary until you log in.";
+			}
 			if (!enabled && findingsMeta) {
-				findingsMeta.textContent = "Log in to access tracked progress.";
+				findingsMeta.textContent = "Guest mode active. Log in to save progress for later.";
+			}
+			renderMiniDashboard();
+		}
+
+		async function fetchDashboardCount(url) {
+			try {
+				const response = await fetch(url, { cache: "force-cache" });
+				if (!response.ok) return 0;
+				const data = await response.json();
+				return Array.isArray(data) ? data.length : 0;
+			} catch (_) {
+				return 0;
 			}
 		}
 
+		async function ensureDashboardTotals() {
+			if (dashboardTotals) return dashboardTotals;
+			const [spirits, relics, items, findings] = await Promise.all([
+				fetchDashboardCount("data/spirits.json"),
+				fetchDashboardCount("data/relics.json"),
+				fetchDashboardCount("data/items.json"),
+				fetchDashboardCount("data/findings.json"),
+			]);
+			dashboardTotals = { spirits, relics, items, findings };
+			return dashboardTotals;
+		}
+
+		function renderMiniDashboard() {
+			if (!findingsMiniPanel || !dashboardTotals || !window.Auth || typeof window.Auth.renderCollectionMiniDashboard !== "function") return;
+			window.Auth.renderCollectionMiniDashboard(findingsMiniPanel, dashboardTotals);
+		}
+
 		initFindingsPage();
+		ensureDashboardTotals().then(renderMiniDashboard);
 
 		async function initFindingsPage() {
 			try {
@@ -149,8 +203,26 @@
 					});
 				}
 				saveFindingState();
+				if (checkbox.matches(".track-checkbox")) {
+					reorderByTracked(findingsTbody);
+				}
+				const actionLabel = checkbox.classList.contains("found-checkbox")
+					? (checkbox.checked ? "found" : "unfound")
+					: (checkbox.checked ? "tracked" : "untracked");
+				if (finding && window.Auth && typeof window.Auth.showNotification === "function") {
+					window.Auth.showNotification(`${finding.Name || "Finding"} ${actionLabel}.`);
+				}
 			}
 		});
+
+		function reorderByTracked(tbody) {
+			const rows = [...tbody.querySelectorAll("tr[data-index]")];
+			const tracked = rows.filter(r => r.querySelector(".track-checkbox")?.checked);
+			const untracked = rows.filter(r => !r.querySelector(".track-checkbox")?.checked);
+			tracked.forEach(r => r.classList.add("row-tracked"));
+			untracked.forEach(r => r.classList.remove("row-tracked"));
+			[...tracked, ...untracked].forEach(r => tbody.appendChild(r));
+		}
 
 		findingsTbody.addEventListener("click", event => {
 			const row = event.target.closest("tr[data-index]");
@@ -226,26 +298,27 @@
 		}
 
 		function saveFindingState() {
-			if (!isTrackingEnabled()) return;
 			const tracked = [];
 			const found = [];
 			document.querySelectorAll("#findings-tbody .track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
 			document.querySelectorAll("#findings-tbody .found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
-			const trackedKey = getProgressKey("findings_tracked");
-			const foundKey = getProgressKey("findings_found");
+			const trackedKey = getTrackingKey("findings_tracked");
+			const foundKey = getTrackingKey("findings_found");
 			if (!trackedKey || !foundKey) return;
-			localStorage.setItem(trackedKey, JSON.stringify(tracked));
-			localStorage.setItem(foundKey, JSON.stringify(found));
+			const store = getTrackingStore();
+			store.setItem(trackedKey, JSON.stringify(tracked));
+			store.setItem(foundKey, JSON.stringify(found));
+			renderMiniDashboard();
 		}
 
 		function restoreFindingState() {
-			if (!isTrackingEnabled()) return;
 			try {
-				const trackedKey = getProgressKey("findings_tracked");
-				const foundKey = getProgressKey("findings_found");
+				const trackedKey = getTrackingKey("findings_tracked");
+				const foundKey = getTrackingKey("findings_found");
 				if (!trackedKey || !foundKey) return;
-				const tracked = JSON.parse(localStorage.getItem(trackedKey) || "[]");
-				const found = JSON.parse(localStorage.getItem(foundKey) || "[]");
+				const store = getTrackingStore();
+				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+				const found = JSON.parse(store.getItem(foundKey) || "[]");
 				tracked.forEach(key => {
 					const cb = findingsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
 					if (cb) cb.checked = true;
@@ -254,6 +327,7 @@
 					const cb = findingsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
 					if (cb) cb.checked = true;
 				});
+				reorderByTracked(findingsTbody);
 			} catch (_) {}
 		}
 
@@ -276,6 +350,21 @@
 				.replace(/</g, "&lt;")
 				.replace(/>/g, "&gt;");
 		}
+
+		window.addEventListener("storage", event => {
+			if (!event.key || event.key.includes("_found") || event.key.includes("_tracked") || event.key.includes("recent_activity") || event.key === "elg_session_v1") {
+				renderMiniDashboard();
+			}
+		});
+
+		window.addEventListener("focus", () => {
+			renderMiniDashboard();
+		});
+
+		window.addEventListener("elg-progress-changed", () => {
+			applyFindingsFilterAndRender();
+			renderMiniDashboard();
+		});
 	</script>
 </body>
 </html>

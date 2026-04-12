@@ -308,14 +308,66 @@ img {
 }
 
 .home-recent-item {
-	display: grid;
-	gap: 0.25rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.45rem;
 }
 
 .home-recent-main {
 	font-size: 0.94rem;
 	color: #dde6f8;
 	line-height: 1.45;
+}
+
+.home-recent-untrack {
+	flex-shrink: 0;
+	padding: 0.2rem 0.5rem;
+	border-radius: 7px;
+	border: 1px solid rgba(173, 184, 209, 0.22);
+	background: rgba(173, 184, 209, 0.06);
+	color: #d7e0f5;
+	font-size: 0.74rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.home-recent-untrack:hover {
+	border-color: rgba(244, 182, 210, 0.52);
+	background: rgba(244, 182, 210, 0.1);
+	color: #fff2f8;
+}
+
+.elg-toast-root {
+	position: fixed;
+	right: 1rem;
+	bottom: 1rem;
+	display: grid;
+	gap: 0.45rem;
+	z-index: 1200;
+	pointer-events: none;
+}
+
+.elg-toast {
+	min-width: 210px;
+	max-width: 320px;
+	padding: 0.58rem 0.72rem;
+	border-radius: 10px;
+	border: 1px solid rgba(173, 184, 209, 0.28);
+	background: rgba(12, 18, 31, 0.9);
+	backdrop-filter: blur(6px);
+	color: #eff4ff;
+	font-size: 0.82rem;
+	line-height: 1.35;
+	opacity: 0;
+	transform: translateY(6px);
+	transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.elg-toast.is-visible {
+	opacity: 1;
+	transform: translateY(0);
 }
 
 .home-recent-location {
@@ -809,6 +861,16 @@ img {
 	.home-stats-grid {
 		grid-template-columns: 1fr;
 	}
+
+	.collection-mini-panel {
+		position: static;
+		transform: none;
+		margin-bottom: 0.75rem;
+	}
+
+	.collection-mini-stats-grid {
+		grid-template-columns: 1fr;
+	}
 }
 
 @media (max-width: 760px) {
@@ -923,6 +985,14 @@ img {
 	line-height: 1.5;
 }
 
+.tracking-mode-note {
+	margin: 0.6rem 0 0;
+	font-size: 0.92rem;
+	font-weight: 600;
+	color: #b8c4dc;
+	letter-spacing: 0.02em;
+}
+
 .collection-toolbar {
 	display: flex;
 	align-items: center;
@@ -947,9 +1017,148 @@ img {
 
 .collection-layout {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	gap: 2rem;
-	align-items: start;
+	align-items: stretch;
+}
+
+.collection-detail-shell {
+	position: relative;
+	min-width: 0;
+}
+
+.collection-mini-panel {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	transform: translateY(calc(-100% - 0.45rem));
+	z-index: 3;
+	padding: 0.72rem 0.78rem;
+	border-radius: 12px;
+	border: 1px solid rgba(214, 224, 245, 0.18);
+	background: linear-gradient(180deg, rgba(12, 18, 31, 0.94) 0%, rgba(16, 23, 37, 0.88) 100%);
+	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+	backdrop-filter: blur(6px);
+}
+
+.collection-mini-loading,
+.collection-mini-note,
+.collection-mini-total,
+.collection-mini-recent-item,
+.collection-mini-recent-empty {
+	margin: 0;
+	color: #c4d0e8;
+	font-size: 0.78rem;
+	line-height: 1.35;
+}
+
+.collection-mini-title,
+.collection-mini-recent-title {
+	margin: 0;
+	font-size: 0.82rem;
+	font-weight: 800;
+	color: #f2f6ff;
+	letter-spacing: 0.03em;
+}
+
+.collection-mini-note {
+	margin-top: 0.22rem;
+}
+
+.collection-mini-stats-grid {
+	margin-top: 0.5rem;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 0.42rem;
+}
+
+.collection-mini-stat {
+	padding: 0.42rem 0.48rem;
+	border-radius: 9px;
+	border: 1px solid rgba(173, 184, 209, 0.16);
+	background: rgba(173, 184, 209, 0.07);
+	display: grid;
+	gap: 0.08rem;
+	min-height: 3.15rem;
+	align-content: space-between;
+}
+
+.collection-mini-stat span {
+	font-size: 0.62rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-weight: 800;
+	color: #dbe4f8;
+}
+
+.collection-mini-stat strong {
+	font-size: 0.85rem;
+	color: #f6f9ff;
+}
+
+.collection-mini-total {
+	margin-top: 0.45rem;
+	font-weight: 700;
+	color: #dfe7f8;
+}
+
+.collection-mini-recent {
+	margin-top: 0.45rem;
+	padding-top: 0.45rem;
+	border-top: 1px solid rgba(173, 184, 209, 0.12);
+}
+
+.collection-mini-recent-list {
+	list-style: none;
+	margin: 0.35rem 0 0;
+	padding: 0;
+	display: grid;
+	gap: 0.3rem;
+}
+
+.collection-mini-recent-item,
+.collection-mini-recent-empty {
+	padding: 0.36rem 0.42rem;
+	border-radius: 8px;
+	border: 1px solid rgba(173, 184, 209, 0.12);
+	background: rgba(173, 184, 209, 0.05);
+}
+
+.collection-mini-recent-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.3rem;
+}
+
+.collection-mini-recent-text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.collection-mini-untrack {
+	flex-shrink: 0;
+	padding: 0.12rem 0.34rem;
+	border-radius: 6px;
+	border: 1px solid rgba(173, 184, 209, 0.22);
+	background: rgba(173, 184, 209, 0.05);
+	color: #d5deef;
+	font-size: 0.66rem;
+	font-weight: 700;
+	cursor: pointer;
+	transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.collection-mini-untrack:hover {
+	border-color: rgba(244, 182, 210, 0.5);
+	background: rgba(244, 182, 210, 0.09);
+	color: #fff2f8;
+}
+
+.collection-mini-location {
+	color: #aebad2;
+	font-size: 0.74rem;
 }
 
 .collection-table-section {
@@ -958,9 +1167,13 @@ img {
 	border: 1px solid rgba(173, 184, 209, 0.16);
 	overflow: hidden;
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+	display: flex;
+	flex-direction: column;
+	min-height: 400px;
 }
 
 .table-wrapper {
+	flex: 1 1 auto;
 	overflow-x: auto;
 	max-height: 70vh;
 	overflow-y: auto;
@@ -998,6 +1211,15 @@ img {
 
 .collection-table tbody tr:hover {
 	background-color: rgba(173, 184, 209, 0.08);
+}
+
+.collection-table tbody tr.row-tracked {
+	opacity: 0.42;
+	transition: opacity 0.25s ease;
+}
+
+.collection-table tbody tr.row-tracked:hover {
+	opacity: 0.65;
 }
 
 .collection-table td {
@@ -1082,6 +1304,7 @@ img {
 	border: 1px solid rgba(173, 184, 209, 0.16);
 	padding: 1.5rem;
 	min-height: 400px;
+	height: 100%;
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
 	position: sticky;
 	top: 100px;
@@ -1242,11 +1465,6 @@ img {
 /* Spirits Left Section Formatting */
 .spirits-page .table-wrapper {
 	overflow-x: hidden;
-}
-
-.spirits-page .collection-layout {
-	grid-template-columns: minmax(0, 1.25fr) minmax(360px, 1.1fr);
-	gap: 1.5rem;
 }
 
 .spirits-page .collection-detail-section {

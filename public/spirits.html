@@ -32,6 +32,7 @@
 			<div class="page-header">
 				<h1>Spirits</h1>
 				<p class="page-subtitle">Track all spirits with their skills, locations, and completion status.</p>
+				<p id="spirits-access-note" class="tracking-mode-note" aria-live="polite"></p>
 			</div>
 
 			<div class="collection-toolbar">
@@ -70,9 +71,14 @@
 					</div>
 				</div>
 
-				<div class="collection-detail-section" id="detail-section">
-					<div class="detail-placeholder">
-						<p>Select a spirit to view details</p>
+				<div class="collection-detail-shell">
+					<div class="collection-mini-panel" id="spirits-mini-panel" aria-live="polite">
+						<p class="collection-mini-loading">Loading quick dashboard...</p>
+					</div>
+					<div class="collection-detail-section" id="detail-section">
+						<div class="detail-placeholder">
+							<p>Select a spirit to view details</p>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -86,8 +92,11 @@
 		const detailSection = document.getElementById("detail-section");
 		const spiritsSearchInput = document.getElementById("spirits-search");
 		const spiritsMeta = document.getElementById("spirits-meta");
+		const spiritsAccessNote = document.getElementById("spirits-access-note");
+		const spiritsMiniPanel = document.getElementById("spirits-mini-panel");
 		let spiritsData = [];
 		let spiritsFilter = "";
+		let dashboardTotals = null;
 
 		function getProgressKey(baseKey) {
 			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
@@ -100,19 +109,64 @@
 			return Boolean(window.Auth && typeof window.Auth.isLoggedIn === "function" && window.Auth.isLoggedIn());
 		}
 
+		function getTrackingStore() {
+			return isTrackingEnabled() ? localStorage : sessionStorage;
+		}
+
+		function getTrackingKey(baseKey) {
+			const scoped = getProgressKey(baseKey);
+			if (scoped) return scoped;
+			return `guest_${String(baseKey || "")}`;
+		}
+
 		function applyTrackingAccessState() {
 			const enabled = isTrackingEnabled();
 			const checkboxes = spiritsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
 			checkboxes.forEach(cb => {
-				cb.disabled = !enabled;
-				cb.title = enabled ? "" : "Log in to track progress";
+				cb.disabled = false;
+				cb.title = enabled ? "" : "Guest mode: progress is temporary for this session";
 			});
+			if (spiritsAccessNote) {
+				spiritsAccessNote.textContent = enabled
+					? "Tracking mode: progress saves to your account."
+					: "Guest tracking mode: progress is temporary until you log in.";
+			}
 			if (!enabled && spiritsMeta) {
-				spiritsMeta.textContent = "Log in to access tracked progress.";
+				spiritsMeta.textContent = "Guest mode active. Log in to save progress for later.";
+			}
+			renderMiniDashboard();
+		}
+
+		async function fetchDashboardCount(url) {
+			try {
+				const response = await fetch(url, { cache: "force-cache" });
+				if (!response.ok) return 0;
+				const data = await response.json();
+				return Array.isArray(data) ? data.length : 0;
+			} catch (_) {
+				return 0;
 			}
 		}
 
+		async function ensureDashboardTotals() {
+			if (dashboardTotals) return dashboardTotals;
+			const [spirits, relics, items, findings] = await Promise.all([
+				fetchDashboardCount("data/spirits.json"),
+				fetchDashboardCount("data/relics.json"),
+				fetchDashboardCount("data/items.json"),
+				fetchDashboardCount("data/findings.json"),
+			]);
+			dashboardTotals = { spirits, relics, items, findings };
+			return dashboardTotals;
+		}
+
+		function renderMiniDashboard() {
+			if (!spiritsMiniPanel || !dashboardTotals || !window.Auth || typeof window.Auth.renderCollectionMiniDashboard !== "function") return;
+			window.Auth.renderCollectionMiniDashboard(spiritsMiniPanel, dashboardTotals);
+		}
+
 		initSpiritsPage();
+		ensureDashboardTotals().then(renderMiniDashboard);
 
 		async function initSpiritsPage() {
 			try {
@@ -219,12 +273,28 @@
 					});
 				}
 				saveCheckboxState();
+				if (checkbox.matches(".track-checkbox")) {
+					reorderByTracked(spiritsTbody);
+				}
+				const actionLabel = checkbox.classList.contains("found-checkbox")
+					? (checkbox.checked ? "found" : "unfound")
+					: (checkbox.checked ? "tracked" : "untracked");
+				if (spirit && window.Auth && typeof window.Auth.showNotification === "function") {
+					window.Auth.showNotification(`${spirit.Name || "Spirit"} ${actionLabel}.`);
+				}
 			}
 		});
 
-		function saveCheckboxState() {
-			if (!isTrackingEnabled()) return;
+		function reorderByTracked(tbody) {
+			const rows = [...tbody.querySelectorAll("tr[data-index]")];
+			const tracked = rows.filter(r => r.querySelector(".track-checkbox")?.checked);
+			const untracked = rows.filter(r => !r.querySelector(".track-checkbox")?.checked);
+			tracked.forEach(r => r.classList.add("row-tracked"));
+			untracked.forEach(r => r.classList.remove("row-tracked"));
+			[...tracked, ...untracked].forEach(r => tbody.appendChild(r));
+		}
 
+		function saveCheckboxState() {
 			const found = [];
 			const tracked = [];
 			const foundLocations = [];
@@ -237,32 +307,33 @@
 				tracked.push(Number(cb.dataset.index));
 				if (cb.dataset.location) trackedLocations.push(cb.dataset.location);
 			});
-			const foundKey = getProgressKey("spirits_found");
-			const trackedKey = getProgressKey("spirits_tracked");
-			const foundLocationsKey = getProgressKey("spirits_found_locations");
-			const trackedLocationsKey = getProgressKey("spirits_tracked_locations");
+			const foundKey = getTrackingKey("spirits_found");
+			const trackedKey = getTrackingKey("spirits_tracked");
+			const foundLocationsKey = getTrackingKey("spirits_found_locations");
+			const trackedLocationsKey = getTrackingKey("spirits_tracked_locations");
 			if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
+			const store = getTrackingStore();
 
-			localStorage.setItem(foundKey, JSON.stringify(found));
-			localStorage.setItem(trackedKey, JSON.stringify(tracked));
-			localStorage.setItem(foundLocationsKey, JSON.stringify(Array.from(new Set(foundLocations))));
-			localStorage.setItem(trackedLocationsKey, JSON.stringify(Array.from(new Set(trackedLocations))));
+			store.setItem(foundKey, JSON.stringify(found));
+			store.setItem(trackedKey, JSON.stringify(tracked));
+			store.setItem(foundLocationsKey, JSON.stringify(Array.from(new Set(foundLocations))));
+			store.setItem(trackedLocationsKey, JSON.stringify(Array.from(new Set(trackedLocations))));
+			renderMiniDashboard();
 		}
 
 		function restoreCheckboxState() {
-			if (!isTrackingEnabled()) return;
-
 			try {
-				const foundKey = getProgressKey("spirits_found");
-				const trackedKey = getProgressKey("spirits_tracked");
-				const foundLocationsKey = getProgressKey("spirits_found_locations");
-				const trackedLocationsKey = getProgressKey("spirits_tracked_locations");
+				const foundKey = getTrackingKey("spirits_found");
+				const trackedKey = getTrackingKey("spirits_tracked");
+				const foundLocationsKey = getTrackingKey("spirits_found_locations");
+				const trackedLocationsKey = getTrackingKey("spirits_tracked_locations");
 				if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
+				const store = getTrackingStore();
 
-				const found = JSON.parse(localStorage.getItem(foundKey) || "[]");
-				const tracked = JSON.parse(localStorage.getItem(trackedKey) || "[]");
-				const foundLocations = JSON.parse(localStorage.getItem(foundLocationsKey) || "[]");
-				const trackedLocations = JSON.parse(localStorage.getItem(trackedLocationsKey) || "[]");
+				const found = JSON.parse(store.getItem(foundKey) || "[]");
+				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+				const foundLocations = JSON.parse(store.getItem(foundLocationsKey) || "[]");
+				const trackedLocations = JSON.parse(store.getItem(trackedLocationsKey) || "[]");
 
 				foundLocations.forEach(code => {
 					const cb = spiritsTbody.querySelector(`.found-checkbox[data-location="${code}"]`);
@@ -281,6 +352,7 @@
 					const cb = spiritsTbody.querySelector(`.track-checkbox[data-index="${i}"]`);
 					if (cb) cb.checked = true;
 				});
+				reorderByTracked(spiritsTbody);
 			} catch (_) {}
 		}
 
@@ -370,6 +442,21 @@
 
 			return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 		}
+
+		window.addEventListener("storage", event => {
+			if (!event.key || event.key.includes("_found") || event.key.includes("_tracked") || event.key.includes("recent_activity") || event.key === "elg_session_v1") {
+				renderMiniDashboard();
+			}
+		});
+
+		window.addEventListener("focus", () => {
+			renderMiniDashboard();
+		});
+
+		window.addEventListener("elg-progress-changed", () => {
+			applySpiritsFilterAndRender();
+			renderMiniDashboard();
+		});
 	</script>
 </body>
 </html>

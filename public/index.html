@@ -136,6 +136,14 @@
                     .replace(/>/g, "&gt;");
             }
 
+            function escapeAttr(value) {
+                return String(value ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+            }
+
             function readArrayForKey(rawKey) {
                 if (!rawKey) return [];
                 try {
@@ -204,7 +212,7 @@
                 const recentMarkup = recentActivity.length > 0
                     ? recentActivity.slice(0, 6).map(entry => {
                         const locationText = entry.location ? ` <span class="home-recent-location">${escapeHtml(entry.location)}</span>` : "";
-                        return `<li class="home-recent-item"><span class="home-recent-main"><strong>${escapeHtml(entry.action)}</strong> ${escapeHtml(entry.type)}: ${escapeHtml(entry.name)}${locationText}</span></li>`;
+                        return `<li class="home-recent-item"><span class="home-recent-main"><strong>${escapeHtml(entry.action)}</strong> ${escapeHtml(entry.type)}: ${escapeHtml(entry.name)}${locationText}</span><button class="home-recent-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button></li>`;
                     }).join("")
                     : '<li class="home-recent-empty">No recent tracked or found activity yet.</li>';
 
@@ -248,6 +256,32 @@
                         renderStats(totals);
                     }
                 });
+
+                if (recentRoot) {
+                    recentRoot.addEventListener("click", event => {
+                        const button = event.target.closest(".home-recent-untrack");
+                        if (!button) return;
+                        event.preventDefault();
+                        const auth = window.Auth;
+                        if (!auth || !auth.isLoggedIn || !auth.isLoggedIn()) return;
+                        if (typeof auth.undoProgressEntry === "function") {
+                            auth.undoProgressEntry({
+                                action: button.dataset.action,
+                                type: button.dataset.type,
+                                name: button.dataset.name,
+                                entryId: button.dataset.id,
+                            });
+                        }
+                        if (typeof auth.removeRecentActivity === "function") {
+                            auth.removeRecentActivity(button.dataset.id);
+                        }
+                        if (typeof auth.showNotification === "function") {
+                            auth.showNotification(`${button.dataset.name || "Entry"} ${String(button.dataset.action || "").toLowerCase() === "found" ? "unfound" : "untracked"}.`);
+                        }
+                        renderStats(totals);
+                        window.dispatchEvent(new CustomEvent("elg-progress-changed"));
+                    });
+                }
             })();
         });
     </script>

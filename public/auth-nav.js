@@ -4,8 +4,7 @@
 	const USERS_KEY = "elg_users_v1";
 	const SESSION_KEY = "elg_session_v1";
 	const RECENT_ACTIVITY_KEY = "recent_activity";
-	const PUBLIC_PAGES = new Set(["", "index.html", "about.html", "contact.html", "login.html", "signup.html"]);
-	const RESTRICTED_PAGES = new Set(["spirits.html", "relics.html", "items.html", "findings.html", "map.html"]);
+	const GUEST_RECENT_ACTIVITY_KEY = "guest_recent_activity";
 	const DEMO_USER = {
 		id: "demo-bob",
 		firstName: "Bob",
@@ -30,6 +29,48 @@
 
 	function normalizeLookup(value) {
 		return normalizeText(value).toLowerCase();
+	}
+
+	function escapeHtml(value) {
+		return String(value ?? "")
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;");
+	}
+
+	function escapeAttr(value) {
+		return String(value ?? "")
+			.replace(/&/g, "&amp;")
+			.replace(/"/g, "&quot;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;");
+	}
+
+	function getToastRoot() {
+		let root = document.getElementById("elg-toast-root");
+		if (!root) {
+			root = document.createElement("div");
+			root.id = "elg-toast-root";
+			root.className = "elg-toast-root";
+			root.setAttribute("aria-live", "polite");
+			root.setAttribute("aria-atomic", "false");
+			document.body.appendChild(root);
+		}
+		return root;
+	}
+
+	function showToast(message) {
+		if (!message) return;
+		const root = getToastRoot();
+		const toast = document.createElement("div");
+		toast.className = "elg-toast";
+		toast.textContent = String(message);
+		root.appendChild(toast);
+		requestAnimationFrame(() => toast.classList.add("is-visible"));
+		window.setTimeout(() => {
+			toast.classList.remove("is-visible");
+			window.setTimeout(() => toast.remove(), 220);
+		}, 1800);
 	}
 
 	function readUsers() {
@@ -88,67 +129,6 @@
 			email: user.email,
 			displayName: user.firstName || user.username || "Player",
 		};
-	}
-
-	function getCurrentPageName() {
-		const path = String(window.location.pathname || "");
-		const raw = path.split("/").pop() || "";
-		return normalizeText(raw).toLowerCase();
-	}
-
-	function resolveInternalPage(href) {
-		const text = normalizeText(href);
-		if (!text || text.startsWith("#") || /^https?:/i.test(text) || /^mailto:/i.test(text) || /^tel:/i.test(text)) {
-			return "";
-		}
-		const noHash = text.split("#")[0];
-		const noQuery = noHash.split("?")[0];
-		return normalizeText(noQuery.split("/").pop() || "").toLowerCase();
-	}
-
-	function redirectToLogin(targetPage) {
-		const target = normalizeText(targetPage || "index.html").toLowerCase();
-		window.location.href = "login.html?redirect=" + encodeURIComponent(target);
-	}
-
-	function enforcePageAccess() {
-		const session = readSession();
-		if (session) return;
-
-		const page = getCurrentPageName();
-		if (RESTRICTED_PAGES.has(page)) {
-			redirectToLogin(page);
-		}
-	}
-
-	function gateRestrictedLinksForGuests() {
-		const session = readSession();
-		if (session) return;
-
-		document.querySelectorAll("a[href]").forEach(link => {
-			const href = link.getAttribute("href") || "";
-			const page = resolveInternalPage(href);
-			if (!page || !RESTRICTED_PAGES.has(page)) return;
-
-			link.setAttribute("href", "login.html?redirect=" + encodeURIComponent(page));
-			link.setAttribute("title", "Log in required");
-		});
-	}
-
-	function removeRestrictedNavForGuests() {
-		const session = readSession();
-		if (session) return;
-
-		const nav = document.querySelector(".site-nav");
-		if (!nav) return;
-
-		nav.querySelectorAll("a[href]").forEach(link => {
-			const href = link.getAttribute("href") || "";
-			const page = resolveInternalPage(href);
-			if (RESTRICTED_PAGES.has(page)) {
-				link.remove();
-			}
-		});
 	}
 
 	function createStatusNode(form) {
@@ -306,11 +286,87 @@
 			if (!session || !session.id) return null;
 			return String(baseKey || "") + "__" + session.id;
 		},
-		recordRecentActivity(entry) {
-			const key = this.getProgressKey(RECENT_ACTIVITY_KEY);
-			if (!key || !entry || typeof entry !== "object") return;
+		getStoredProgressArray(baseKey) {
+			const normalizedBaseKey = String(baseKey || "");
+			if (!normalizedBaseKey) return [];
 
-			const existing = readArrayKey(key);
+			if (this.isLoggedIn()) {
+				return readArrayKey(this.getProgressKey(normalizedBaseKey));
+			}
+
+			const guestValue = safeParseJson(sessionStorage.getItem(`guest_${normalizedBaseKey}`) || "[]", []);
+			return Array.isArray(guestValue) ? guestValue : [];
+		},
+		renderCollectionMiniDashboard(root, totalCounts) {
+			if (!root || !totalCounts) return;
+
+			const loggedIn = this.isLoggedIn();
+			const spiritFound = this.getStoredProgressArray("spirits_found").length;
+			const relicFound = this.getStoredProgressArray("relics_found").length;
+			const itemFound = this.getStoredProgressArray("items_found").length;
+			const findingFound = this.getStoredProgressArray("findings_found").length;
+			const totalFound = spiritFound + relicFound + itemFound + findingFound;
+			const totalAll = (totalCounts.spirits || 0) + (totalCounts.relics || 0) + (totalCounts.items || 0) + (totalCounts.findings || 0);
+			const progressPct = totalAll > 0 ? Math.round((totalFound / totalAll) * 100) : 0;
+			const recentActivity = this.getRecentActivity();
+			const recentMarkup = recentActivity.length > 0
+				? recentActivity.slice(0, 2).map(entry => {
+					const locationText = entry.location ? ` <span class="collection-mini-location">${escapeHtml(entry.location)}</span>` : "";
+					const untrackButton = loggedIn
+						? `<button class="collection-mini-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button>`
+						: "";
+					return `<li class="collection-mini-recent-item"><span class="collection-mini-recent-text"><strong>${escapeHtml(entry.action)}</strong> ${escapeHtml(entry.type)}: ${escapeHtml(entry.name)}${locationText}</span>${untrackButton}</li>`;
+				}).join("")
+				: '<li class="collection-mini-recent-empty">No recent tracked or found activity yet.</li>';
+
+			root.__dashTotalCounts = totalCounts;
+
+			root.innerHTML = `
+				<p class="collection-mini-title">${loggedIn ? "Quick Dashboard" : "Guest Quick Dashboard"}</p>
+				<p class="collection-mini-note">${loggedIn ? "Use Untrack to quickly undo recent tracked/found actions." : "Guest progress is temporary until you log in."}</p>
+				<div class="collection-mini-stats-grid">
+					<div class="collection-mini-stat"><span>Spirits</span><strong>${spiritFound} / ${totalCounts.spirits || 0}</strong></div>
+					<div class="collection-mini-stat"><span>Relics</span><strong>${relicFound} / ${totalCounts.relics || 0}</strong></div>
+					<div class="collection-mini-stat"><span>Items</span><strong>${itemFound} / ${totalCounts.items || 0}</strong></div>
+					<div class="collection-mini-stat"><span>Findings</span><strong>${findingFound} / ${totalCounts.findings || 0}</strong></div>
+				</div>
+				<p class="collection-mini-total">Overall: ${totalFound} / ${totalAll} (${progressPct}%)</p>
+				<div class="collection-mini-recent">
+					<p class="collection-mini-recent-title">Most Recent Tracked and Found</p>
+					<ul class="collection-mini-recent-list">${recentMarkup}</ul>
+				</div>
+			`;
+
+			if (!root.__miniUntrackBound) {
+				root.__miniUntrackBound = true;
+				root.addEventListener("click", event => {
+					const button = event.target.closest(".collection-mini-untrack");
+					if (!button) return;
+					event.preventDefault();
+					const action = String(button.dataset.action || "").toLowerCase();
+					const type = String(button.dataset.type || "").toLowerCase();
+					const name = String(button.dataset.name || "");
+					const entryId = String(button.dataset.id || "");
+
+					if (this.isLoggedIn()) {
+						this.undoProgressEntry({ action, type, name, entryId });
+						this.removeRecentActivity(entryId);
+						this.showNotification(`${name} ${action === "found" ? "unfound" : "untracked"}.`);
+						if (root.__dashTotalCounts) {
+							this.renderCollectionMiniDashboard(root, root.__dashTotalCounts);
+						}
+						window.dispatchEvent(new CustomEvent("elg-progress-changed"));
+					}
+				});
+			}
+		},
+		recordRecentActivity(entry) {
+			if (!entry || typeof entry !== "object") return;
+
+			const key = this.getProgressKey(RECENT_ACTIVITY_KEY) || GUEST_RECENT_ACTIVITY_KEY;
+			const storage = this.isLoggedIn() ? localStorage : sessionStorage;
+
+			const existing = safeParseJson(storage.getItem(key) || "[]", []);
 			const next = [{
 				id: String(entry.id || "") || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
 				type: String(entry.type || "").trim(),
@@ -320,11 +376,65 @@
 				timestamp: Number(entry.timestamp) || Date.now(),
 			}].concat(existing.filter(item => item && item.id !== entry.id)).slice(0, 12);
 
-			writeArrayKey(key, next);
+			storage.setItem(key, JSON.stringify(next));
 		},
 		getRecentActivity() {
-			const key = this.getProgressKey(RECENT_ACTIVITY_KEY);
-			return readArrayKey(key);
+			const key = this.getProgressKey(RECENT_ACTIVITY_KEY) || GUEST_RECENT_ACTIVITY_KEY;
+			const storage = this.isLoggedIn() ? localStorage : sessionStorage;
+			const value = safeParseJson(storage.getItem(key) || "[]", []);
+			return Array.isArray(value) ? value : [];
+		},
+		removeRecentActivity(entryId) {
+			if (!entryId) return;
+			const key = this.getProgressKey(RECENT_ACTIVITY_KEY) || GUEST_RECENT_ACTIVITY_KEY;
+			const storage = this.isLoggedIn() ? localStorage : sessionStorage;
+			const value = safeParseJson(storage.getItem(key) || "[]", []);
+			const next = Array.isArray(value) ? value.filter(entry => String(entry && entry.id ? entry.id : "") !== String(entryId)) : [];
+			storage.setItem(key, JSON.stringify(next));
+		},
+		undoProgressEntry(entry) {
+			if (!entry || !this.isLoggedIn()) return;
+			const action = String(entry.action || "").toLowerCase();
+			const type = String(entry.type || "").toLowerCase();
+			const entryName = String(entry.name || "");
+			const entryId = String(entry.entryId || "");
+			if (!type || !entryName) return;
+
+			const collectionKeyMap = {
+				spirit: "spirits",
+				relic: "relics",
+				item: "items",
+				finding: "findings",
+			};
+			const collectionKey = collectionKeyMap[type];
+			if (!collectionKey) return;
+
+			let targetKey = "";
+			if (action === "tracked") targetKey = `${collectionKey}_tracked`;
+			if (action === "found") targetKey = `${collectionKey}_found`;
+			if (!targetKey) return;
+
+			const scopedKey = this.getProgressKey(targetKey);
+			if (!scopedKey) return;
+			const existing = readArrayKey(scopedKey);
+
+			let next = existing;
+			if (type === "spirit") {
+				const match = entryId.match(/-(\d+)$/);
+				if (match) {
+					const indexValue = Number(match[1]);
+					next = existing.filter(item => Number(item) !== indexValue);
+				} else {
+					next = existing.filter(item => String(item) !== entryName);
+				}
+			} else {
+				next = existing.filter(item => String(item) !== entryName);
+			}
+
+			writeArrayKey(scopedKey, next);
+		},
+		showNotification(message) {
+			showToast(message);
 		},
 		requireLogin(redirectPath) {
 			if (readSession()) return true;
@@ -340,9 +450,6 @@
 	window.Auth = Auth;
 
 	ensureDemoUser();
-	enforcePageAccess();
-	removeRestrictedNavForGuests();
-	gateRestrictedLinksForGuests();
 	updateNavAuthState();
 	setupLoginForm();
 	setupSignupForm();
