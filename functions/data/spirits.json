@@ -291,7 +291,7 @@
   {
     "Name": "One Eyed Royal Aegis",
     "Icon": "https://static.wikia.nocookie.net/enderlilies/images/8/8a/Spirit-oneeyedroyalaegis-sprite.png",
-    "Skill": "The giant knight thrust his greatsword into the ground, creating a shockwave that launches surrounding enemies into the air",
+    "Skill": "The giant knight thrust his greatsword into the ground, creating a shockwave that launches surrounding enemies into the air.",
     "Aquatic": true,
     "Uses": 11,
     "Cooldown": 4.7,
@@ -303,7 +303,7 @@
   {
     "Name": "Forsaken Fellwyrm",
     "Icon": "https://static.wikia.nocookie.net/enderlilies/images/1/1e/Spirit-forsakenfellwyrm-sprite.png",
-    "Skill": "Exhales a breath of toxic mist that spreads over a wide area. Enemies that make contact will lose health over time. Breath damage cannot be guarded",
+    "Skill": "Exhales a breath of toxic mist that spreads over a wide area. Enemies that make contact will lose health over time. Breath damage cannot be guarded.",
     "Aquatic": false,
     "Uses": 10,
     "Cooldown": 6.5,
