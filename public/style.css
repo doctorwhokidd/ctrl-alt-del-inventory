@@ -1334,13 +1334,17 @@ img {
 	width: 12%;
 }
 
+
 .spirit-icon {
 	width: 40px;
 	height: 40px;
 	border-radius: 6px;
 	border: 1px solid rgba(173, 184, 209, 0.18);
 	background: rgba(10, 13, 21, 0.6);
-	object-fit: cover;
+	object-fit: contain;
+	display: block;
+	margin: 0 auto;
+	box-shadow: 0 1px 4px rgba(20, 24, 40, 0.10);
 }
 
 .name-col {
@@ -1424,21 +1428,28 @@ img {
 	gap: 1.5rem;
 }
 
+
 .detail-image-section {
 	grid-column: 1;
 	display: flex;
 	justify-content: center;
+	align-items: flex-start;
+	padding: 1rem 0 0.5rem 0;
+	min-height: 120px;
 }
 
 .detail-image {
-	width: 100%;
-	max-width: 200px;
-	height: auto;
-	border-radius: 8px;
-	border: 1px solid rgba(173, 184, 209, 0.2);
-	background: rgba(10, 13, 21, 0.6);
-	object-fit: cover;
+	width: 260px;
+	height: 260px;
+	max-width: 100%;
+	border-radius: 16px;
+	border: 2.5px solid rgba(173, 184, 209, 0.22);
+	background: rgba(10, 13, 21, 0.7);
+	object-fit: contain;
 	aspect-ratio: 1 / 1;
+	box-shadow: 0 4px 18px rgba(20, 24, 40, 0.14);
+	display: block;
+	margin: 0 auto;
 }
 
 .detail-info-section {
@@ -1720,15 +1731,23 @@ img {
 		max-height: calc(100vh - 280px);
 	}
 
-	.spirit-icon {
-		width: 32px;
-		height: 32px;
-	}
+	   .spirit-icon {
+		   width: 32px;
+		   height: 32px;
+		   border-radius: 6px;
+		   border: 1px solid rgba(173, 184, 209, 0.18);
+		   background: rgba(10, 13, 21, 0.6);
+		   object-fit: contain;
+		   display: block;
+		   margin: 0 auto;
+		   box-shadow: 0 1px 4px rgba(20, 24, 40, 0.10);
+	   }
 
-	.detail-image {
-		width: 80px;
-		height: 80px;
-	}
+	   .detail-image {
+		   width: 200px;
+		   height: 200px;
+		   max-width: 100%;
+	   }
 
 	.page-header h1 {
 		font-size: clamp(1.5rem, 4vw, 2rem);
