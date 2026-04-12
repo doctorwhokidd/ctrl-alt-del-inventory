@@ -110,6 +110,7 @@
 		}
 
 		function getTrackingStore() {
+			// Use localStorage for logged in users, sessionStorage for guests
 			return isTrackingEnabled() ? localStorage : sessionStorage;
 		}
 
@@ -268,38 +269,39 @@
 			}
 		});
 
-		spiritsTbody.addEventListener("change", event => {
-			if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
-				const checkbox = event.target;
-				const index = Number(checkbox.dataset.index);
-				const spirit = !Number.isNaN(index) ? spiritsData[index] : null;
-				if (spirit && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
-					window.Auth.recordRecentActivity({
-						id: `spirits-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
-						type: "Spirit",
-						action: checkbox.classList.contains("found-checkbox")
-							? (checkbox.checked ? "Found" : "Unfound")
-							: (checkbox.checked ? "Tracked" : "Untracked"),
-						name: spirit.Name || "Unknown Spirit",
-						location: spirit.Location || "",
-						timestamp: Date.now(),
-					});
-				}
-				saveCheckboxState();
-				if (checkbox.matches(".track-checkbox")) {
-					reorderByTracked(spiritsTbody);
-				}
-			}
-		});
+		   spiritsTbody.addEventListener("change", event => {
+			   if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+				   const checkbox = event.target;
+				   const index = Number(checkbox.dataset.index);
+				   const spirit = !Number.isNaN(index) ? spiritsData[index] : null;
+				   if (spirit && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					   window.Auth.recordRecentActivity({
+						   id: `spirits-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						   type: "Spirit",
+						   action: checkbox.classList.contains("found-checkbox")
+							   ? (checkbox.checked ? "Found" : "Unfound")
+							   : (checkbox.checked ? "Tracked" : "Untracked"),
+						   name: spirit.Name || "Unknown Spirit",
+						   location: spirit.Location || "",
+						   timestamp: Date.now(),
+					   });
+				   }
+				   saveCheckboxState();
+				   reorderByTracked(spiritsTbody);
+			   }
+		   });
 
-		function reorderByTracked(tbody) {
-			const rows = [...tbody.querySelectorAll("tr[data-index]")];
-			const tracked = rows.filter(r => r.querySelector(".track-checkbox")?.checked);
-			const untracked = rows.filter(r => !r.querySelector(".track-checkbox")?.checked);
-			tracked.forEach(r => r.classList.add("row-tracked"));
-			untracked.forEach(r => r.classList.remove("row-tracked"));
-			[...tracked, ...untracked].forEach(r => tbody.appendChild(r));
-		}
+		   function reorderByTracked(tbody) {
+			   const rows = [...tbody.querySelectorAll("tr[data-index]")];
+			   rows.forEach(r => {
+				   const found = r.querySelector('.found-checkbox')?.checked;
+				   if (found) {
+					   r.classList.add('found-row');
+				   } else {
+					   r.classList.remove('found-row');
+				   }
+			   });
+		   }
 
 		function saveCheckboxState() {
 			const found = [];
