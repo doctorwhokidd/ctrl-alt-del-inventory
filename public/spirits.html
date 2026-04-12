@@ -1,48 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Spirits | Ender Lilies Grimoire</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="style.css">
+	<meta name="description" content="Browse all Spirits in Ender Lilies with details, locations, and skills.">
 </head>
-<body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="spirits.html">Spirits</a>
-        <a href="relics.html">Relics</a>
-        <a href="items.html">Items</a>
-        <a href="findings.html">Findings</a>
-    </nav>
+<body class="spirits-page">
+	<header class="site-header">
+		<div class="container nav-container">
+			<a class="site-brand" href="index.html">Ender Lilies Grimoire</a>
+			<nav class="site-nav" aria-label="Primary navigation">
+				<a href="index.html">Home</a>
+				<a href="spirits.html" aria-current="page">Spirits</a>
+				<a href="relics.html">Relics</a>
+				<a href="items.html">Items</a>
+				<a href="findings.html">Findings</a>
+				<a href="map.html">Map</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+				<a href="login.html" class="nav-login">Log In</a>
+			</nav>
+		</div>
+	</header>
 
-    <h1>Spirits</h1>
-    <div id="spirits-container"></div>
+	<main class="page-content">
+		<div class="container">
+			<div class="page-header">
+				<h1>Spirits</h1>
+				<p class="page-subtitle">Track all spirits with their skills, locations, and completion status.</p>
+			</div>
 
-    <script>
-        fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/spirits")
-          .then(res => res.json())
-          .then(data => {
-            const container = document.getElementById("spirits-container");
-            data.forEach(spirit => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                <h2>${spirit.Name}</h2>
-                <p><strong>Skill:</strong> ${spirit.Skill}</p>
-                <p><strong>Aquatic:</strong> ${spirit.Aquatic}</p>
-                <p><strong>Number of Uses:</strong> ${spirit.Uses}</p>
-                <p><strong>Cooldown:</strong> ${spirit.Cooldown}</p>
-                <p><strong>Ability:</strong> ${spirit.Ability || "None"}</p>
-                <p><strong>Location:</strong> ${spirit.Location}</p>
-                <p><strong>Lore:</strong> ${spirit.Lore}</p>
-                <img src="${spirit.Icon}" alt="${spirit.Name}" />
-                <img src="${spirit.Image}" alt="${spirit.Name}" />
-                `;
-                container.appendChild(div);
-            });
-          })
-    </script>
+			<div class="collection-toolbar">
+				<input id="spirits-search" class="collection-search" type="search" placeholder="Search spirits, skills, locations..." aria-label="Search spirits">
+				<span id="spirits-meta" class="collection-meta">Loading spirits...</span>
+			</div>
 
+			<div class="collection-layout">
+				<div class="collection-table-section">
+					<div class="table-wrapper">
+						<table class="collection-table" id="spirits-table">
+							<colgroup>
+								<col class="col-track">
+								<col class="col-icon">
+								<col class="col-name">
+								<col class="col-skill">
+								<col class="col-location">
+								<col class="col-found">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>Track</th>
+									<th>Icon</th>
+									<th>Name</th>
+									<th>Skill</th>
+									<th>Location</th>
+									<th>Found</th>
+								</tr>
+							</thead>
+							<tbody id="spirits-tbody">
+								<tr>
+									<td colspan="6" class="table-loading">Loading spirits...</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
 
-    <script src="script.js"></script>
+				<div class="collection-detail-section" id="detail-section">
+					<div class="detail-placeholder">
+						<p>Select a spirit to view details</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<script src="auth-nav.js"></script>
+	<script>
+		const SPIRITS_DATA_URL = "data/spirits.json";
+		const spiritsTbody = document.getElementById("spirits-tbody");
+		const detailSection = document.getElementById("detail-section");
+		const spiritsSearchInput = document.getElementById("spirits-search");
+		const spiritsMeta = document.getElementById("spirits-meta");
+		let spiritsData = [];
+		let spiritsFilter = "";
+
+		function getProgressKey(baseKey) {
+			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
+				return window.Auth.getProgressKey(baseKey);
+			}
+			return null;
+		}
+
+		function isTrackingEnabled() {
+			return Boolean(window.Auth && typeof window.Auth.isLoggedIn === "function" && window.Auth.isLoggedIn());
+		}
+
+		function applyTrackingAccessState() {
+			const enabled = isTrackingEnabled();
+			const checkboxes = spiritsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
+			checkboxes.forEach(cb => {
+				cb.disabled = !enabled;
+				cb.title = enabled ? "" : "Log in to track progress";
+			});
+			if (!enabled && spiritsMeta) {
+				spiritsMeta.textContent = "Log in to access tracked progress.";
+			}
+		}
+
+		initSpiritsPage();
+
+		async function initSpiritsPage() {
+			try {
+				const response = await fetch(SPIRITS_DATA_URL, { cache: "force-cache" });
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
+				}
+
+				const data = await response.json();
+				if (!Array.isArray(data)) {
+					throw new Error("Spirits JSON is not an array");
+				}
+
+				spiritsData = data;
+				applySpiritsFilterAndRender();
+			} catch (error) {
+				spiritsTbody.innerHTML = '<tr><td colspan="6" class="table-error">Failed to load spirits data</td></tr>';
+				spiritsMeta.textContent = "Failed to load spirits.";
+				console.error("Failed to load spirits.json:", error);
+			}
+		}
+
+		spiritsSearchInput.addEventListener("input", event => {
+			spiritsFilter = String(event.target.value || "").trim().toLowerCase();
+			applySpiritsFilterAndRender();
+		});
+
+		function applySpiritsFilterAndRender() {
+			const matchingIndices = [];
+			for (let i = 0; i < spiritsData.length; i += 1) {
+				const spirit = spiritsData[i];
+				const haystack = `${spirit.Name || ""} ${spirit.Skill || ""} ${spirit.Location || ""} ${spirit.Lore || ""}`.toLowerCase();
+				if (!spiritsFilter || haystack.includes(spiritsFilter)) {
+					matchingIndices.push(i);
+				}
+			}
+			renderSpiritsTable(matchingIndices);
+			spiritsMeta.textContent = `${matchingIndices.length} / ${spiritsData.length} spirits shown`;
+		}
+
+		function renderSpiritsTable(indices) {
+			if (indices.length === 0) {
+				spiritsTbody.innerHTML = '<tr><td colspan="6" class="table-error">No spirits match your search.</td></tr>';
+				return;
+			}
+
+			const fragment = document.createDocumentFragment();
+
+			for (const index of indices) {
+				const spirit = spiritsData[index];
+				const row = document.createElement("tr");
+				row.dataset.index = String(index);
+
+				row.innerHTML = `
+					<td class="track-col"><input type="checkbox" class="track-checkbox" data-index="${index}" data-location="${spirit.Location || ""}" aria-label="Track ${spirit.Name || "spirit"}"></td>
+					<td class="icon-col"><img src="${resolveImageUrl(spirit.Icon, spirit.Name || "Spirit")}" alt="${spirit.Name || "Spirit"} icon" class="spirit-icon" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${getPlaceholderImage(spirit.Name || "Spirit", 40)}'"></td>
+					<td class="name-col">${spirit.Name || "Unknown"}</td>
+					<td class="skill-col">${spirit.Skill || "N/A"}</td>
+					<td class="location-col">${spirit.Location || "N/A"}</td>
+					<td class="found-col"><input type="checkbox" class="found-checkbox" data-index="${index}" data-location="${spirit.Location || ""}" aria-label="Mark ${spirit.Name || "spirit"} as found"></td>
+				`;
+
+				fragment.appendChild(row);
+			}
+
+			spiritsTbody.innerHTML = "";
+			spiritsTbody.appendChild(fragment);
+			restoreCheckboxState();
+			applyTrackingAccessState();
+		}
+
+		spiritsTbody.addEventListener("click", event => {
+			const row = event.target.closest("tr");
+			if (!row || !spiritsTbody.contains(row)) {
+				return;
+			}
+
+			if (event.target.matches("input[type='checkbox']")) {
+				event.stopPropagation();
+				return;
+			}
+
+			const index = Number(row.dataset.index);
+			if (!Number.isNaN(index) && spiritsData[index]) {
+				showSpiritDetail(spiritsData[index]);
+			}
+		});
+
+		spiritsTbody.addEventListener("change", event => {
+			if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+				const checkbox = event.target;
+				const index = Number(checkbox.dataset.index);
+				const spirit = !Number.isNaN(index) ? spiritsData[index] : null;
+				if (spirit && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					window.Auth.recordRecentActivity({
+						id: `spirits-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						type: "Spirit",
+						action: checkbox.classList.contains("found-checkbox")
+							? (checkbox.checked ? "Found" : "Unfound")
+							: (checkbox.checked ? "Tracked" : "Untracked"),
+						name: spirit.Name || "Unknown Spirit",
+						location: spirit.Location || "",
+						timestamp: Date.now(),
+					});
+				}
+				saveCheckboxState();
+			}
+		});
+
+		function saveCheckboxState() {
+			if (!isTrackingEnabled()) return;
+
+			const found = [];
+			const tracked = [];
+			const foundLocations = [];
+			const trackedLocations = [];
+			document.querySelectorAll(".found-checkbox:checked").forEach(cb => {
+				found.push(Number(cb.dataset.index));
+				if (cb.dataset.location) foundLocations.push(cb.dataset.location);
+			});
+			document.querySelectorAll(".track-checkbox:checked").forEach(cb => {
+				tracked.push(Number(cb.dataset.index));
+				if (cb.dataset.location) trackedLocations.push(cb.dataset.location);
+			});
+			const foundKey = getProgressKey("spirits_found");
+			const trackedKey = getProgressKey("spirits_tracked");
+			const foundLocationsKey = getProgressKey("spirits_found_locations");
+			const trackedLocationsKey = getProgressKey("spirits_tracked_locations");
+			if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
+
+			localStorage.setItem(foundKey, JSON.stringify(found));
+			localStorage.setItem(trackedKey, JSON.stringify(tracked));
+			localStorage.setItem(foundLocationsKey, JSON.stringify(Array.from(new Set(foundLocations))));
+			localStorage.setItem(trackedLocationsKey, JSON.stringify(Array.from(new Set(trackedLocations))));
+		}
+
+		function restoreCheckboxState() {
+			if (!isTrackingEnabled()) return;
+
+			try {
+				const foundKey = getProgressKey("spirits_found");
+				const trackedKey = getProgressKey("spirits_tracked");
+				const foundLocationsKey = getProgressKey("spirits_found_locations");
+				const trackedLocationsKey = getProgressKey("spirits_tracked_locations");
+				if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
+
+				const found = JSON.parse(localStorage.getItem(foundKey) || "[]");
+				const tracked = JSON.parse(localStorage.getItem(trackedKey) || "[]");
+				const foundLocations = JSON.parse(localStorage.getItem(foundLocationsKey) || "[]");
+				const trackedLocations = JSON.parse(localStorage.getItem(trackedLocationsKey) || "[]");
+
+				foundLocations.forEach(code => {
+					const cb = spiritsTbody.querySelector(`.found-checkbox[data-location="${code}"]`);
+					if (cb) cb.checked = true;
+				});
+				trackedLocations.forEach(code => {
+					const cb = spiritsTbody.querySelector(`.track-checkbox[data-location="${code}"]`);
+					if (cb) cb.checked = true;
+				});
+
+				found.forEach(i => {
+					const cb = spiritsTbody.querySelector(`.found-checkbox[data-index="${i}"]`);
+					if (cb) cb.checked = true;
+				});
+				tracked.forEach(i => {
+					const cb = spiritsTbody.querySelector(`.track-checkbox[data-index="${i}"]`);
+					if (cb) cb.checked = true;
+				});
+			} catch (_) {}
+		}
+
+		function showSpiritDetail(spirit) {
+			const detailImageUrl = resolveImageUrl(spirit.Image || spirit.Icon, spirit.Name || "Spirit");
+			const detailImageFallback = getPlaceholderImage(spirit.Name || "Spirit", 240);
+
+			detailSection.innerHTML = `
+				<div class="detail-card">
+					<div class="detail-image-section">
+						<img src="${detailImageUrl}" alt="${spirit.Name || "Spirit"}" class="detail-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${detailImageFallback}'">
+					</div>
+
+					<div class="detail-info-section">
+						<div class="detail-header">
+							<h2>${spirit.Name || "Unknown Spirit"}</h2>
+							<p class="detail-skill"><strong>Skill:</strong> ${spirit.Skill || "N/A"}</p>
+						</div>
+						<div class="detail-content">
+							<p><strong>Location:</strong> ${spirit.Location || "N/A"}</p>
+							<p><strong>Aquatic:</strong> ${String(spirit.Aquatic)}</p>
+							<p><strong>Uses:</strong> ${spirit.Uses ?? "N/A"}</p>
+							<p><strong>Cooldown:</strong> ${spirit.Cooldown ?? "N/A"}</p>
+							<p><strong>Ability:</strong> ${spirit.Ability || "None"}</p>
+						</div>
+					</div>
+
+					<div class="detail-lore">
+						<p><strong>Lore:</strong></p>
+						<p>${spirit.Lore || "No lore available."}</p>
+					</div>
+				</div>
+			`;
+		}
+
+		function resolveImageUrl(rawUrl, label) {
+			if (!rawUrl || typeof rawUrl !== "string") {
+				return getPlaceholderImage(label || "Spirit", 120);
+			}
+
+			const trimmed = rawUrl.trim();
+			if (!trimmed) {
+				return getPlaceholderImage(label || "Spirit", 120);
+			}
+
+			if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
+				return trimmed;
+			}
+
+			try {
+				const parsedUrl = new URL(trimmed, window.location.origin);
+				const filePathPrefix = "/wiki/File:";
+
+				if (parsedUrl.pathname.startsWith(filePathPrefix)) {
+					const fileName = decodeURIComponent(parsedUrl.pathname.slice(filePathPrefix.length));
+					const encodedFileName = encodeURIComponent(fileName);
+					return `${parsedUrl.origin}/wiki/Special:FilePath/${encodedFileName}`;
+				}
+
+				return parsedUrl.href;
+			} catch (_error) {
+				return getPlaceholderImage(label || "Spirit", 120);
+			}
+		}
+
+		function getPlaceholderImage(name, size) {
+			const safeName = String(name || "Spirit").trim();
+			const initials = safeName
+				.split(/\s+/)
+				.filter(Boolean)
+				.slice(0, 2)
+				.map(part => part[0].toUpperCase())
+				.join("") || "SP";
+
+			const svg = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${safeName}">
+					<defs>
+						<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+							<stop offset="0%" stop-color="#1a2238"/>
+							<stop offset="100%" stop-color="#33415f"/>
+						</linearGradient>
+					</defs>
+					<rect width="100%" height="100%" fill="url(#g)" rx="10" ry="10"/>
+					<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#dbe2f3" font-family="Arial, sans-serif" font-size="${Math.max(12, Math.floor(size * 0.32))}" font-weight="700">${initials}</text>
+				</svg>
+			`;
+
+			return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+		}
+	</script>
 </body>
 </html>

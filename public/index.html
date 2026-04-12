@@ -31,11 +31,43 @@
         <section class="hero-section">
             <div class="container hero-grid">
                 <div class="hero-copy">
-                    <h1>Welcome to the Ender Lilies Grimoire</h1>
-                    <p>Your ultimate companion for tracking your Ender Lilies progress.</p>
-                    <div class="hero-actions">
+                    <h1 id="home-hero-title">Welcome to the Ender Lilies Grimoire</h1>
+                    <p id="home-hero-intro">Your ultimate companion for tracking your Ender Lilies progress.</p>
+                    <div class="hero-actions" id="home-hero-actions">
                         <a href="signup.html" class="btn">Sign Up</a>
+                        <span class="hero-sword" aria-hidden="true">
+                            <svg viewBox="0 0 240 34" focusable="false">
+                                <defs>
+                                    <linearGradient id="heroSwordFill" x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stop-color="#fff7fb"/>
+                                        <stop offset="48%" stop-color="#f4b6d2"/>
+                                        <stop offset="100%" stop-color="#7b1e3f"/>
+                                    </linearGradient>
+                                    <linearGradient id="heroSwordLine" x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stop-color="#ffffff"/>
+                                        <stop offset="45%" stop-color="#f5b5d4"/>
+                                        <stop offset="100%" stop-color="#65132f"/>
+                                    </linearGradient>
+                                </defs>
+                                <path d="M8 17h182l12-12h13l-8 8h11l14-8v24l-14-8h-11l8 8h-13l-12-12H8z" fill="url(#heroSwordFill)" opacity="0.98"/>
+                                <path d="M16 17h162" stroke="#fff9fc" stroke-width="5.2" stroke-linecap="round" opacity="0.65"/>
+                                <path d="M16 17h162" stroke="url(#heroSwordLine)" stroke-width="2.8" stroke-linecap="round"/>
+                            </svg>
+                        </span>
                     </div>
+                    <div class="home-facts" id="home-facts">
+                        <p class="home-facts-title">Interesting Facts About Ender Lilies</p>
+                        <ul class="home-facts-list">
+                            <li>Ender Lilies is a dark fantasy action RPG set in the ruined kingdom of Land's End.</li>
+                            <li>You play as Lily, a priestess who purifies the Blighted and fights alongside fallen spirits.</li>
+                            <li>The game blends melee combat with collectible spirit abilities that expand movement and combat options.</li>
+                            <li>Its atmosphere and soundtrack are a major part of the experience, giving every area a distinct emotional tone.</li>
+                        </ul>
+                    </div>
+					<div class="home-stats" id="home-stats" aria-live="polite">
+						<p class="home-stats-loading">Loading statistics...</p>
+					</div>
+                    <div class="home-recent home-recent-section" id="home-recent" aria-live="polite" style="display:none;"></div>
                 </div>
 
                 <figure class="hero-visual">
@@ -65,6 +97,11 @@
                         <path d="M7 2C4.243 2 2 4.243 2 7v10c0 2.757 2.243 5 5 5h10c2.757 0 5-2.243 5-5V7c0-2.757-2.243-5-5-5H7zm10 2c1.654 0 3 1.346 3 3v10c0 1.654-1.346 3-3 3H7c-1.654 0-3-1.346-3-3V7c0-1.654 1.346-3 3-3h10zm1.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z" />
                     </svg>
                 </a>
+                <a href="#" aria-label="Twitch" title="Twitch" class="social-link">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3 2h18v12l-4 4h-4l-2 2H8v-2H3V2zm16 11V4H5v11h4v2l2-2h5l3-3zM9 7h2v5H9V7zm5 0h2v5h-2V7z" />
+                    </svg>
+                </a>
                 <a href="#" aria-label="Facebook" title="Facebook" class="social-link">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="M13 3h4V0h-4c-3.309 0-6 2.691-6 6v3H4v4h3v11h4V13h4l1-4h-5V6c0-1.103.897-2 2-2z" />
@@ -75,6 +112,145 @@
     </footer>
 
     <script src="auth-nav.js" defer></script>
+    <script>
+        window.addEventListener("DOMContentLoaded", () => {
+            const statsRoot = document.getElementById("home-stats");
+            const recentRoot = document.getElementById("home-recent");
+            const heroTitle = document.getElementById("home-hero-title");
+            const heroIntro = document.getElementById("home-hero-intro");
+            const factsRoot = document.getElementById("home-facts");
+            const heroActions = document.getElementById("home-hero-actions");
+            if (!statsRoot) return;
+
+            const DATASETS = {
+                spirits: "data/spirits.json",
+                relics: "data/relics.json",
+                items: "data/items.json",
+                findings: "data/findings.json",
+            };
+
+            function escapeHtml(value) {
+                return String(value ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+            }
+
+            function readArrayForKey(rawKey) {
+                if (!rawKey) return [];
+                try {
+                    const value = JSON.parse(localStorage.getItem(rawKey) || "[]");
+                    return Array.isArray(value) ? value : [];
+                } catch (_) {
+                    return [];
+                }
+            }
+
+            async function fetchCount(url) {
+                try {
+                    const response = await fetch(url, { cache: "force-cache" });
+                    if (!response.ok) return 0;
+                    const data = await response.json();
+                    return Array.isArray(data) ? data.length : 0;
+                } catch (_) {
+                    return 0;
+                }
+            }
+
+            function renderStats(totalCounts) {
+                const auth = window.Auth;
+                const loggedIn = Boolean(auth && typeof auth.isLoggedIn === "function" && auth.isLoggedIn());
+
+                if (!loggedIn) {
+                    if (heroTitle) heroTitle.textContent = "Welcome to the Ender Lilies Grimoire";
+                    if (heroIntro) {
+                        heroIntro.textContent = "Track your Ender Lilies journey with personalized progress, collection insights, and a live dashboard. Sign up or log in to save what you have found, manage your tracked goals, and keep your adventure organized in one place.";
+                        heroIntro.style.display = "";
+                    }
+                    if (factsRoot) factsRoot.style.display = "block";
+                    if (heroActions) heroActions.style.display = "";
+                    statsRoot.style.display = "none";
+                    if (recentRoot) recentRoot.style.display = "none";
+                    return;
+                }
+
+                if (heroTitle) heroTitle.textContent = "Dashboard";
+                if (heroIntro) {
+                    heroIntro.textContent = "View your collected progress and completion statistics.";
+                    heroIntro.style.display = "";
+                }
+                if (factsRoot) factsRoot.style.display = "none";
+                if (heroActions) heroActions.style.display = "none";
+                statsRoot.style.display = "block";
+                if (recentRoot) recentRoot.style.display = "block";
+
+                const getKey = typeof auth.getProgressKey === "function" ? auth.getProgressKey.bind(auth) : (() => null);
+                const session = typeof auth.getSession === "function" ? auth.getSession() : null;
+                const username = escapeHtml(session && session.username ? session.username : "user");
+
+                const spiritFound = readArrayForKey(getKey("spirits_found")).length;
+                const spiritTracked = readArrayForKey(getKey("spirits_tracked")).length;
+                const relicFound = readArrayForKey(getKey("relics_found")).length;
+                const relicTracked = readArrayForKey(getKey("relics_tracked")).length;
+                const itemFound = readArrayForKey(getKey("items_found")).length;
+                const itemTracked = readArrayForKey(getKey("items_tracked")).length;
+                const findingFound = readArrayForKey(getKey("findings_found")).length;
+                const findingTracked = readArrayForKey(getKey("findings_tracked")).length;
+
+                const totalFound = spiritFound + relicFound + itemFound + findingFound;
+                const totalAll = totalCounts.spirits + totalCounts.relics + totalCounts.items + totalCounts.findings;
+                const progressPct = totalAll > 0 ? Math.round((totalFound / totalAll) * 100) : 0;
+                const recentActivity = typeof auth.getRecentActivity === "function" ? auth.getRecentActivity() : [];
+                const recentMarkup = recentActivity.length > 0
+                    ? recentActivity.slice(0, 6).map(entry => {
+                        const locationText = entry.location ? ` <span class="home-recent-location">${escapeHtml(entry.location)}</span>` : "";
+                        return `<li class="home-recent-item"><span class="home-recent-main"><strong>${escapeHtml(entry.action)}</strong> ${escapeHtml(entry.type)}: ${escapeHtml(entry.name)}${locationText}</span></li>`;
+                    }).join("")
+                    : '<li class="home-recent-empty">No recent tracked or found activity yet.</li>';
+
+                statsRoot.innerHTML = `
+                    <p class="home-stats-note">Signed in as <strong>${username}</strong></p>
+                    <div class="home-stats-grid">
+                        <div class="home-stat-card"><span class="home-stat-label">Spirits</span><span class="home-stat-value">${spiritFound} / ${totalCounts.spirits}</span><span class="home-stat-sub">Tracked: ${spiritTracked}</span></div>
+                        <div class="home-stat-card"><span class="home-stat-label">Relics</span><span class="home-stat-value">${relicFound} / ${totalCounts.relics}</span><span class="home-stat-sub">Tracked: ${relicTracked}</span></div>
+                        <div class="home-stat-card"><span class="home-stat-label">Items</span><span class="home-stat-value">${itemFound} / ${totalCounts.items}</span><span class="home-stat-sub">Tracked: ${itemTracked}</span></div>
+                        <div class="home-stat-card"><span class="home-stat-label">Findings</span><span class="home-stat-value">${findingFound} / ${totalCounts.findings}</span><span class="home-stat-sub">Tracked: ${findingTracked}</span></div>
+                    </div>
+                    <p class="home-stats-total">Overall Completion: ${totalFound} / ${totalAll} (${progressPct}%)</p>
+                `;
+
+                if (recentRoot) {
+                    recentRoot.innerHTML = `
+                        <p class="home-recent-title">Most Recent Tracked and Found</p>
+                        <ul class="home-recent-list">${recentMarkup}</ul>
+                    `;
+                }
+            }
+
+            (async () => {
+                const [spiritsCount, relicsCount, itemsCount, findingsCount] = await Promise.all([
+                    fetchCount(DATASETS.spirits),
+                    fetchCount(DATASETS.relics),
+                    fetchCount(DATASETS.items),
+                    fetchCount(DATASETS.findings),
+                ]);
+
+                const totals = {
+                    spirits: spiritsCount,
+                    relics: relicsCount,
+                    items: itemsCount,
+                    findings: findingsCount,
+                };
+                renderStats(totals);
+
+                window.addEventListener("storage", event => {
+                    if (!event.key || event.key.includes("_found") || event.key.includes("_tracked") || event.key.includes("recent_activity") || event.key === "elg_session_v1") {
+                        renderStats(totals);
+                    }
+                });
+            })();
+        });
+    </script>
 
 </body>
 

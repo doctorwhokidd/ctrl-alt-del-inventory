@@ -1,0 +1,354 @@
+[
+    {
+    "Name": "Statue Inscription",
+    "Location": "A1",
+    "Contents": "Stone statues in the likeness of the White Priestesses. The inscription below the intact statue reads 'Priestess of the Dawn', while the ruined statue seems to have been one of the Priestess of the Wind."
+  },
+  {
+    "Name": "Eleine's Letter",
+    "Location": "A3",
+    "Contents": "Dear Siegrid, I want you to deliver the amulet unto that White Priestess. It's a necklace I bestow upon all priestesses, but I've imbued it with a blessing. I'm certain the ward will protect her from the threat of the Blighted. Wards can be broken and restored, but that is something only a priestess can manage. I count on you to see this through. Yours, Eleine"
+  },
+  {
+    "Name": "On the Blighted 1",
+    "Location": "A4",
+    "Contents": "As the mind, body, and soul of those afflicted with the Blight is consumed, the rot spreads throughout. The rot possesses superb regenerative properties, granting undying flesh. The link between mind and body is cut in time, and the host is driven purely by the wrath of the Blight."
+  },
+  {
+    "Name": "On the Blighted 2",
+    "Location": "A4",
+    "Contents": "There are Blighted whose minds do not fade. This is no saving grace, however, as it is said that they must endure an eternity of pain and suffering. The miracle of the White Priestess is the only true salvation for those who come to be cursed with the Blight."
+  },
+  {
+    "Name": "Groa's Letter",
+    "Location": "A8",
+    "Contents": "Dear Bale, Thank you for your continued service in ferrying the White Priestess and her Guardians. My son hopes to one day be as fine a coachman as you, to ride as gallantly in as fine a horse. Please do call on us when you visit the parish. Blessed be the tranquil white light, Groa, Chief Guardian"
+  },
+  {
+    "Name": "Hamlet Scrawl",
+    "Location": "B13",
+    "Contents": "An image scrawled using pagodite. It appears to be a doodle of the White Priestess of the Fount playing with the children of the hamlet under a radiant sun."
+  },
+  {
+
+    "Name": "Hamlet Request 1",
+    "Location": "B11",
+    "Contents": "Request: Fearless warrior needed to slay large monsters in the forest. Monsters have settled in the forest near the hamlet, wounding many of the King's soldiers. Rewardswill be given for any of the fiends killed. Stand with us to protect our great nation! Knight of the Fortress, Heiml"
+  },
+  {
+    "Name": "Hamlet Request 2",
+    "Location": "B13",
+    "Contents": "Warning: The catacombs are off-limits! Blighted captured in Land's End are being held in the catacombs. To reduce the risk of further spread of the Blight, the catacombs are off-limits. Also, note that harboring individuals carrying the Blight is a crime. Report any and all sightings of the Blighted to the royal guard immediately"
+  },
+  {
+    "Name": "True Believer's Note",
+    "Location": "B5",
+    "Contents": "After the Blighted started to appear in Land's End, many religions quickly began to die out, including the True Way. Seeking hope, many flocked to the White Priestess. It is likely that the way of the White Parish arose from there and spread amongst the people."
+  },
+  {
+    "Name": "Coven Handbook",
+    "Location": "C5",
+    "Contents": "The Coven is a place for sorcerers who seek deeper knowledge of magic and the abyss. We help the jointly-established White Parish and aid in Blighted eradication when needed. You must meet the approval of multiple sorcerers to join. Researching forbidden arts such as the magic of the Ancients, wielding a weapon in the tower, and leaking intel to other nations are prohibited."
+  },
+  {
+    "Name": "Lover's Letter",
+    "Location": "C7",
+    "Contents": "To my darling, Upon reading your letter, I have decided to return. I have seen and learned much on this half-year journey outside the Coven. I ache to tell you of the scorching sand dunes, strange creatures, and so much more. I will be back soon with your souvenir. All my love, Melville"
+  },
+  {
+    "Name": "Tarnished Picture",
+    "Location": "C10",
+    "Contents": "A picture of the White Priestess of the Fount. It appears that the White Priestess was allowed entrance to the Coven, a space usually exclusive to sorcerers, and a magical tool was made there for her."
+  },
+  {
+    "Name": "Sorcerer's Notes",
+    "Location": "C9",
+    "Contents": "I have been studying the texts of the Ancients, and it appears that there is the possibility of a connection between the Blight and one particular branch of their magicks. If we could decipher more of the old texts found in the Blighted Lands, we could pursue this thread further."
+  },
+  {
+    "Name": "Forbidden Text Scrap",
+    "Location": "H6",
+    "Contents": "Many attempts have been made to create new life through magic. The Creation of Artificial Life: It is thought that by guiding a spirit into the body of a babe, the child would retain control of their body while inheriting the power contained within the spirit. The Creation of Sentient Rock Fo—"
+  },
+  {
+    "Name": "The Parish Way 1",
+    "Location": "A5",
+    "Contents": "Carriers of the rot appeared from the land of snow, bringing calamity to Land's End. Said to be the Ancient's revenge, the curse drove people to madness and transformed them into monstrosities. Carriers of the rot came to be known as the Blighted."
+  },
+  {
+    "Name": "The Parish Way 2",
+    "Location": "A11",
+    "Contents": "Soldiers of the nation rose to face the Blighted, but struggled in vain. In the end, the prayers of the woman in white saved the kingdom; her words were the only thing capable of purifying and stopping the Blighted. Revered by the people, this woman came to be known as the White Priestess."
+  },
+  {
+    "Name": "The Parish Way 3",
+    "Location": "C14",
+    "Contents": "Witnesses of the Priestess' miracles knew they had found their savior. They spread the good word of her blessing, and slowly, the White Parish took form. The White Parish worship no god. Rather, they follow the guidance of the White Priestess, living so as not to fall prey to the Blighted. Theirs is a peaceful existence, with days spent praying for tranquility over those who have been purified."
+  },
+  {
+    "Name": "Adherent's Letter",
+    "Location": "B11",
+    "Contents": "It is at the White Parish grounds in the catacombs where the Guardian candidates endure many years of training. They toil to fortify their bodies and minds to be deemed worthy of protecting the White Priestess. Selected from devotees of the church, it is said that only the ten finest candidates will earn that honor."
+  },
+  {
+    "Name": "Proof of Founding",
+    "Location": "F6",
+    "Contents": "The King's Mage Brigade is a division lead by Faden, the foremost expert on the Blighted, to develop new means of fighting back the scourge. Only former members of the Coven are granted enrollment. As long as their work falls within the realm of Blighted research, no conduct is considered forbidden among their ranks."
+  },
+  {
+    "Name": "The Next White Priestess",
+    "Location": "D17",
+    "Contents": "Lady Fretia, the third White Priestess, will take up the mantle in the name of the eastern spring. Silva will make a wonderful Guardian, but the pressure of taking on the role of Priestess at such a tender age will be immeasurable. It might be better for her to stay in the catacombs or her hometown by the cliffs than spend her days in the castle. The White Priestess of the Wind wishes for us to assist the young lady any way we can."
+  },
+  {
+    "Name": "Defense of the Twin Spires 1",
+    "Location": "D18",
+    "Contents": "A plague wind blew in from the far east, and with it, a swarm of Blighted abominations. The vile creatures followed their lord, the Crimson Blight. They were the hatred of the Ancients made manifest; warped into wicked, nightmarish form. Awaiting their arrival at the Twin Spires were the White Priestess of the Fount, and the brave knights who would face this new threat to Land's End. Even after being cut down time and time again, the knights returned to the fray"
+  },
+  {
+    "Name": "Defense of the Twin Spires 2",
+    "Location": "D11",
+    "Contents": "After a long, grueling battle, the White Priestess of the Fount was finally able to purify the Blighted invaders. From that time on, few interlopers from the Blighted Lands were ever sighted. Peace had returned to Land's End. The power of the White Priestess of the Wind allowed the Twin Spires to be built, standing as symbols of the realm's defense. The Priestess of the Fount fought to defend them."
+  },
+  {
+    "Name": "The Heirloom of Land's End",
+    "Location": "D7",
+    "Contents": "The guardian heirloom of the White Priestess is said to house a warding power that protects one from enemies and the suffering caused by purifying the Blight. It is unknown who created it or by what means, only that it somehow came into possession of the first White Priestess long ago."
+  },
+  {
+    "Name": "Fretia's Memoirs 1",
+    "Location": "D13",
+    "Contents": "I can't believe she vanished the day I was born. No one even told me why. They said that she cut a frail frame, but I knew what was truly to blame. Absorbing the Blight at that rate... I wonder if I'll end up the same way. How did my mother live as a White Priestess? How can I live as one?"
+  },
+  {
+    "Name": "Fretia's Memoirs 2",
+    "Location": "D13",
+    "Contents": "Performing the purification brings joy back to the people. I must continue, if only to be of that small service. I thought I was useless. But they need me... as long as I'm the White Priestess."
+  },
+  {
+    "Name": "Fretia's Memoirs 3",
+    "Location": "D20",
+    "Contents": "The nightmare at the Twin Spires is finally over. I've never seen so much death, never had to purify so many. Unspeakable sights... I can't... Can anyone fathom the pain I bear? Lately, numbness infiltrates my body. A kind of unfeeling unrelated to the pains of the Blight. Were it to reach my right hand... How could I draw him a picture as promised?"
+  },
+  {
+    "Name": "Fretia's Memoirs 4",
+    "Location": "D11",
+    "Contents": "Always talking about a successor. Within earshot no less. Have I outlived my usefulness? I don't understand. I have no desire of birthing a child."
+  },
+  {
+    "Name": "Fretia's Memoirs 5",
+    "Location": "J2",
+    "Contents": "I want to see the sky. The magnificent blue sky. I had lost hope in ever drawing again. And yet, my left hand brings hope. If I can tame it to write, maybe... Oh, to be spirited away. By some kind soul... Even for just a brief respite."
+  },
+  {
+    "Name": "Silva's Note 1",
+    "Location": "D6",
+    "Contents": "The knights and soldiers of the Twin Spires haunt me. Rising to their feet after being cut down; undaunted in the face of the Blight. Acting much like those afflicted with the same... Should I have asked the White Priestess more questions? Now, there are so many left unanswered. I long feared the Priestess and I were the lone souls at the Spire spared by the Blight. I'm sorry, Siegrid. I became a Guardian to protect you. But it turns out I'm unworthy of the role."
+  },
+  {
+    "Name": "Silva's Note 2",
+    "Location": "D9",
+    "Contents": "I've never laid eyes on anything more terrifying than the Blighted Lord. A fearful tremble in my legs was all I managed. I failed the Priestess as Guardian. I only realized after the ritual had ended that I should have prevented the creature's purification at all costs. Despite her resistance, so acute was the Blight that it took hold over the White Priestess' faculties."
+  },
+  {
+    "Name": "Unfinished Note",
+    "Location": "D5",
+    "Contents": "I'm going to the Verboten Domain with the Priestess. I know not if any means of shedding the Blight exist other than purification. Alas, we won't see each other for a while, Siegrid. My heart aches more than you know. I long to hear your voice, to hold you in embrace. How I wish to be with you. Were our situations reversed, you would be the one taking her to this dangerous place. I couldn't bear it. I'm fine with being the one to go. As long as you are safe Siegrid, that's enough..."
+  },
+  {
+    "Name": "Executioner's Vow",
+    "Location": "H1",
+    "Contents": "In the darkness of the night, our shadow protects Land's End. We are the judge and executioners of the Sinners, who lay buried in the depths of the earth. We hold no glory, land, or family to our name, and offer our lives whole to serve our kingdom until our dying breath."
+  },
+  {
+    "Name": "Slip of Paper",
+    "Location": "H16",
+    "Contents": "As one of the Dark Executioners, I imagine you are well aware of the Verboten Domain well below the stockades, where the Blight festers. I have heard that the King's Mage Brigade has been going in and out regularly to survey the area, but something doesn't quite add up. I don't suppose you know what they are up to, do you?"
+  },
+  {
+    "Name": "Executioner's Missive",
+    "Location": "H9",
+    "Contents": "Prisoners set to be executed will be taken to the Subterranean Lab and handed over to the King's Mage Brigade. 15 have been named as test subjects. Dark executioners entering the Verboten Domain must do so in groups of three."
+  },
+  {
+    "Name": "Report From a Verboten Mage",
+    "Location": "F3",
+    "Contents": "We have learned that under certain conditions, the regenerative rot in the bodies of the Blighted is capable of fusing multiple lifeforms into one entity. I'm curious as to what becomes of the multiple souls within the fused body. Do the souls merge as well? With this, it may well be possible to create a soldier that can fly like a bird. The possibilities are endless."
+  },
+  {
+    "Name": "White Priestess' Bastion Letter",
+    "Location": "E21",
+    "Contents": "The cold makes living here kind of hard. But it's much better than that gloomy laboratory. I even made a friend! His name is Ulv. I'm not allowed to wander around, and I have to follow Julius' orders. I wonder if everyone else who escaped is well. I wish I could write them letters, so I guess I'll call this one practice."
+  },
+  {
+    "Name": "Bloodied Note 1",
+    "Location": "E2",
+    "Contents": "Day 1: Knights, soldiers, Sinners. Even the sorcerers are here for the Bastion defense. Why'd they volunteer? That Coven lot gives me the jitters. Day 5: It's been five days since this battle began. Never in my life have I seen so many Blighted."
+  },
+  {
+    "Name": "Bloodied Note 2",
+    "Location": "E7",
+    "Contents": "Day 10: This battle is taking its toll on the White Priestess of the Fount too. We'll truly be done for if she falls. Day 15: Say we best the Blighted? What happens then? What will my family make of me? This undying body of mine surely isn't so different from the Blighted."
+  },
+  {
+    "Name": "Bloodied Note 3",
+    "Location": "E14",
+    "Contents": "The King and the Knight Captain said that as Immortals we would keep our minds, but I wonder if that holds any truth. My grasp on this body is fading, and yet... my mind is still clear."
+  },
+  {
+    "Name": "Monument Engraving",
+    "Location": "E13",
+    "Contents": "Sir Gerrod erects this monument in memory of those who fought alongside the White Priestess of the Wind. They fought bravely to eradicate the Blighted, allowing for the construction of the Twin Spires. Their noble sacrifice is the bedrock of our great sanctuary, granting us refuge from the Blighted menace's encroach from the Verboten Domain."
+  },
+  {
+    "Name": "Note on the Castle Wall",
+    "Location": "E8",
+    "Contents": "The room ahead belongs to Sir Ulv. He is quick to anger, and difficult to reason with. Should you have business with him, approach only once you have inquired first with the Knight Commander."
+  },
+  {
+    "Name": "King of the First Age's Diary 1",
+    "Location": "F7",
+    "Contents": ": I do not foresee our arrival on this new continent being welcomed warmly with open arms. There is sure to be much bloodshed, and though I am prepared to do what I must for my people, I cannot stop trembling. I will keep a record of what follows. I must never forget the battle that is to come."
+  },
+  {
+    "Name": "King of the First Age's Diary 2",
+    "Location": "F7",
+    "Contents": "The Ancients have put up a fierce fight. Although our army outnumbers their own, they command a force of immortal warriors born of some Ancient art. These deathless ones, who have already forfeit their mortal coils, cannot be killed. It seems they can only be contained through magical means. Ten days have passed since this battle began, and there is no end in sight."
+  },
+  {
+    "Name": "King of the First Age's Diary 3",
+    "Location": "F21",
+    "Contents": "The battle was long, but we have emerged victorious. Our attempts to find a way for our people to coexist bore no fruit in the end. The land will be divided into six nations. I will rule the land of the end. The land foisted on me is said to be cold all year, and some remnants of the Ancients still remain. There will be much hardship ahead, but as king, I must remain strong."
+  },
+  {
+    "Name": "King of the First Age's Torn Note 1",
+    "Location": "E22",
+    "Contents": "I found a small girl in the deadlands. She didn't speak, but fixed her gaze upon me as she clung desperately to me. I don't quite know what came over me then. Had I gone mad, wanting to bring back a child of the Ancients? Was it because she resembled us? Because she was a child? Or perhaps a sense of obligation? Perhaps I wanted my sins to be forgiven."
+  },
+  {
+    "Name": "King of the First Age's Torn Note 2",
+    "Location": "E22",
+    "Contents": "Though we once thought them completely wiped out, the Ancients have returned. From the farthest reaches of the land they come, reanimated by the Blight. The children of the Ancients were revered and worshipped in Land's End as the White Priestesses. They were the only ones who could stave off the Blight. And though I knew full well the toll that purification places on their bodies I could find no way to forestall their ultimate sacrifice. Another sin to add to the pile. Atonement now seems but a bitter joke."
+  },
+  {
+    "Name": "Miriel's Blighted Letter",
+    "Location": "I17",
+    "Contents": "Please don't blame yourself. I prepared for this eventuality when I set out to study the Blight. I wanted to tell you face to face, but I couldn't find the words. Please forgive me. There's so much more to do... I hope you'll continue researching in my stead. I'm sorry things ended up this way."
+  },
+  {
+    "Name": "Verboten Domain Notice",
+    "Location": "I5",
+    "Contents": "To my esteemed colleagues: Carrying out research in the Verboten Domain is an exciting prospect, but it is also a dangerous one. All mages permitted to work in the Verboten Domain must wear the mandated masks. These masks are stored in the laboratory. They are limited in supply, so treat them with care."
+  },
+  {
+    "Name": "Faden's Archives 1",
+    "Location": "I15",
+    "Contents": "The White Priestess cleanses the souls of the afflicted through purification by taking on the Blight in their stead. White Priestesses are born with a natural resistance to the Blight; their souls are unaffected by it. Thusly, the Blight cannot cause them to lose their minds or be driven mad. However, like the afflicted, the effects of the Blight on the body still linger, causing the Priestess agonizing pain. If this suffering could be alleviated, the burden on the White Priestesses would surely be lessened."
+  },
+  {
+    "Name": "Faden's Archives 2",
+    "Location": "I13",
+    "Contents": "The Verboten Domain: a dangerous place, no doubt corrupted by the Blight, that once served as home to the Ancient sorcerers. If we can all learn more about the ancient magic responsible for the Blight's origins, I'm sure it will help the White Priestesses. It may even lead to a world devoid of the Blight affliction."
+  },
+  {
+    "Name": "Faden's Archives 3",
+    "Location": "I3",
+    "Contents": "It took some negotiating, but we've finally been cleared to investigate the Verboten Domain. We've settled on calling ourselves the King's Mage Brigade, though I must admit, I find the name a bit silly. My assistant Miriel is with me, though she doesn't seem to like the shape of the mask I made for her. I may be gifted in manners of the arcane, but I must admit, I lack a proper aesthetic sense."
+  },
+  {
+    "Name": "Faden's Archives 4",
+    "Location": "I8",
+    "Contents": "Coming into contact with a Blighted White Priestess does not seem to spread the affliction. Thus, I have collected a sample of Blighted flesh from the specimen for study. Outward appearance is not all that differs when compared to standard Blighted flesh. More shockingly, rather than an uncontrolled spread, their bodies all but suppress the metastasis of the Blight and it's effects on the mind. It's unlike any case of Blight I've witnessed prior. If this discovery can return conscious thought to the afflicted, perhaps I can bring Miriel back to herself?"
+  },
+  {
+    "Name": "Faden's Archives 5",
+    "Location": "I17",
+    "Contents": "My repeated experiments have produced unexpected results. I have yet to return a Blighted to its former consciousness. However, I have successfully created a new Blighted from a test subject that retains conscious thought and the ability to communicate. I'll have to continue to monitor their progress, but by creating a Blighted that retain its humanity, have I unlocked the secret to immortality? At least the king will be pleased. I suppose I could call this substance wrung from the White Priestess the Deathless Elixir. Though there's nothing it can do for Miriel. Any trace of humanity left in her has long since dissipated."
+  },
+  {
+    "Name": "Faden's Letter",
+    "Location": "B17",
+    "Contents": "I've found an interesting fragment from a stone tablet. It seems to be engraved with an ancient spell. If I can repair and decipher the tablet, I may be able to call upon its magic. I must note that casting an unknown spell may lead to irreversible consequences... I don't think I should inform the king of this. At least not until all the fragments are recovered. Thus, I think it best to leave it in your care. It's not safe here, and the other mages may catch wind of it. I'll be in touch should I learn anything new."
+  },
+  {
+    "Name": "Eleine's Diary 1",
+    "Location": "C18",
+    "Contents": "Something made me happy, so I want to take this chance to write it down. I was able to see Fretia today for the first time in a long while. The effects of purification were so severe, she's been bedridden for some time. I can't believe they quarantined her in such a place. They're treating her more like an experiment than someone on the mend. I can't even enter without a mask. I'm not sure how long I can stay, but I want to be by her side as long as I'm allowed. It must get lonely here all by herself."
+  },
+  {
+    "Name": "Eleine's Diary 2",
+    "Location": "C18",
+    "Contents": "Today, Fretia gave me the necklace she was wearing. It was a gift from her mother, and I can tell she's cherished it for a long time. It's a protective heirloom, embedded with a magic stone. The stone seems to have broken when Fretia purified the Blighted Lord. I'm sorry to say that my magic alone may not be enough to repair it. I'll have to ask that fool Faden for help."
+  },
+  {
+    "Name": "Eleine's Diary 3",
+    "Location": "C19",
+    "Contents": "Our conversations were meandering today, but I got to see Fretia smile. It's been hard watching her deteriorate more with each passing day. She asked me if I could help make an amulet out of her broken magic stone. That alone made today a joyous occasion. Maybe I'll bring some comfort to her after all."
+  },
+  {
+    "Name": "Hoenir's Diary 1",
+    "Location": "H14",
+    "Contents": "On this day's dawn, my sister's child was born. A boy. Julius is his name. The King's illegitimate son, born into the family of a Dark Executioner—his life is sure to be one of much hardship. He will undoubtedly want to know where he came from one day. Thusly, I have resolved to begin this diary, so that he may find answers when the time comes."
+  },
+  {
+    "Name": "Hoenir's Diary 2",
+    "Location": "H19",
+    "Contents": "My dear sister was unaware of the Dark Executioner within our family. I wanted her to have nothing to do with it—to live a normal life. But when love blossomed between her and the King, she discovered the truth after moving into the castle. She must have hated me. But there is no way for me to know now. She passed away upon giving birth to Julius."
+  },
+  {
+    "Name": "Hoenir's Diary 3",
+    "Location": "E10",
+    "Contents": "Even up to the moment of her passing, my sister was smiling. Cradling her son lovingly, she entrusted him to me, praying that he would live a normal life. Even though it goes against the code of the Dark Executioners, I have already made up my mind. I will raise Julius. His future will be his to decide for himself, and I will do all in my power to make it so."
+  },
+  {
+    "Name": "Writing on the Wall",
+    "Location": "E15",
+    "Contents": "I was never allowed a shred of human dignity. I thought he might acknowledge my presence, my strength. No, it wasn't enough that I pulled myself up from the depths of hell to get here. He only ever had eyes for himself, and now he's trying to take everything from me once again. I won't let that happen. I'm going to take it all back."
+  },
+  {
+    "Name": "King's Note 1",
+    "Location": "F18",
+    "Contents": "At long last, the abominable lord of the Blighted Lands has been purified. I am beside myself with rapt relief. The Blighted have tormented us for many long years. But, now I control them. Tied as my hands were, I had no choice but to afflict my subjects to deal with those damnable wretches. Now their power is in my hands."
+  },
+  {
+    "Name": "King's Note 2",
+    "Location": "F17",
+    "Contents": "The fiend who stole away my beloved son is somewhere in the castle. I will not suffer this trespass. My righteous rage shall not be satiated until I hunt them down. For I cannot allow a dynasty of royal blood to meet an end in mine own halls. If only my plans had come to fruition... But no, hope yet remains."
+  },
+  {
+    "Name": "Julius' Book",
+    "Location": "F11",
+    "Contents": "In order to defend the Twin Spires, we knights of the Bastion took the odd elixir and became immortal today. I would much prefer if we didn't have to rely on forbidden magicks... but even if it means making ourselves undead, we must protect our great nation. Even when stained with the Blight, a knight must never lose pride in their duty"
+  },
+  {
+    "Name": "The Deathless Pact",
+    "Location": "J5",
+    "Contents": "Only high-ranking priestesses are permitted to perform the necromantic rites that entreat the souls of the dead. A warrior of the Ancients must forfeit flesh and offer their soul to the priestess, in turn becoming a deathless entity. The pact is then sealed and continues down the family line through the generations until the bloodline comes to an end. The Ancient warrior shall remain immortal so long as the pact continues."
+  },
+  {
+    "Name": "Silva's Blight-Stained Note 1",
+    "Location": "J1",
+    "Contents": "The Verboten Domain is filled with unfathomable experiments. The air is so choked with Blight, I can't even breathe without a mask. I'm the only one who can protect the White Priestess of the Fount, I'm all she has left. If I drink the elixir, will it give me the strength needed to protect her? I'm useless as I am now, as I've been. I want to transform myself. I must. For Siegrid's sake, too."
+  },
+  {
+    "Name": "Silva's Blight-Stained Note 2",
+    "Location": "J2",
+    "Contents": "Their research in the Verboten Domain was meant to find a cure for the White Priestess of the Fount. But instead, they chose to carry out grotesque experiments on live human subjects. The White Priestess has no heir, so they dare to try to create their own. The mages who carry out these experiments, the King and Chief Guardian who approved them... They've all gone mad. Just what do they intend to do with these ersatz priestesses? Will they replace the White Priestess with one of these abominations?"
+  },
+  {
+    "Name": "Restoring the Aegis Curio",
+    "Location": "A14",
+    "Contents": "The Aegis Curio, crafted long ago by the Ancients, holds the power to ease the suffering of priestesses who absorb Blight while performing purifications. Its power has been weakened by repeated purifications by priestesses over many years. The power of an ancient spell can be used to restore this power and help the White Priestess over many years. The power of an ancient spell can be used to restore this power and help the White Priestess. If you can decipher the stone tablet, I am prepared to restore the Aegis Curio. I wish I could decipher the spell myself, but alas, I have little time left."
+  },
+  {
+    "Name": "Priestess' Castle Memo",
+    "Location": "F15",
+    "Contents": "Why was I chosen by the king? Is it because I was the first White Priestess born among my sisters? I wonder if my other siblings are still down below. All I can do is tidy up the room Mother used to occupy. It will be ready for her when she returns."
+  },
+  {
+    "Name": "Lily's Note",
+    "Location": "A13",
+    "Contents": "Siegrid told me that good things come to those who do good themselves. I want to be her friend. Poor thing, she won't be able to talk when she wakes up. But all I want to do is talk to her. Right now! If only for a little while anyway. I wonder what her name is? I'll have to ask Mother when I see her next. She's going to be our new sister."
+  }
+
+]

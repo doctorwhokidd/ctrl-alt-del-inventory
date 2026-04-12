@@ -1,42 +1,381 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Items | Ender Lilies Grimoire</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="style.css">
+	<meta name="description" content="Browse all Items in Ender Lilies with uses, quantities, and locations.">
 </head>
-<body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="spirits.html">Spirits</a>
-        <a href="relics.html">Relics</a>
-        <a href="items.html">Items</a>
-        <a href="findings.html">Findings</a>
-    </nav>
+<body class="items-page">
+	<header class="site-header">
+		<div class="container nav-container">
+			<a class="site-brand" href="index.html">Ender Lilies Grimoire</a>
+			<nav class="site-nav" aria-label="Primary navigation">
+				<a href="index.html">Home</a>
+				<a href="spirits.html">Spirits</a>
+				<a href="relics.html">Relics</a>
+				<a href="items.html" aria-current="page">Items</a>
+				<a href="findings.html">Findings</a>
+				<a href="map.html">Map</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+				<a href="login.html" class="nav-login">Log In</a>
+			</nav>
+		</div>
+	</header>
 
-    <h1>Items</h1>
-    <div id="items-container"></div>
+	<main class="page-content">
+		<div class="container">
+			<div class="page-header">
+				<h1>Items</h1>
+				<p class="page-subtitle">Track key upgrade items and references for where they can be found.</p>
+			</div>
 
-    <script>
-        fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/items")
-          .then(res => res.json())
-          .then(data => {
-            const container = document.getElementById("items-container");
-            data.forEach(item => {
-              const div = document.createElement("div");
-              div.innerHTML = `
-              <h2>${item.Name}</h2>
-              <p><strong>Amount:</strong> ${item.Amount}</p>
-              <p><strong>Locations:</strong> ${item.Locations}</p>
-              <p><strong>Use:</strong> ${item.Use}</p>
-              <p><strong>Description:</strong> ${item.Description}</p>
-              <img src="${item.Icon}" alt="${item.Name}" />
-              `;
-              container.appendChild(div);
-            });
-          });        
-    </script>
-    <script src="script.js"></script>
+			<div class="collection-toolbar">
+				<input id="items-search" class="collection-search" type="search" placeholder="Search items, locations, use..." aria-label="Search items">
+				<span id="items-meta" class="collection-meta">Loading items...</span>
+			</div>
+
+			<div class="collection-layout">
+				<div class="collection-table-section">
+					<div class="table-wrapper">
+						<table class="collection-table" id="items-table">
+							<colgroup>
+								<col class="col-track">
+								<col class="col-name">
+								<col class="col-location">
+								<col class="col-found">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>Track</th>
+									<th>Name</th>
+									<th>Locations</th>
+									<th>Found</th>
+								</tr>
+							</thead>
+							<tbody id="items-tbody">
+								<tr>
+									<td colspan="4" class="table-loading">Loading items...</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="collection-detail-section" id="item-detail-section">
+					<div class="detail-placeholder">
+						<p>Select an item to view details</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<script src="auth-nav.js"></script>
+	<script>
+		const ITEMS_DATA_URL = "data/items.json";
+		const itemsTbody = document.getElementById("items-tbody");
+		const itemDetailSection = document.getElementById("item-detail-section");
+		const itemSearchInput = document.getElementById("items-search");
+		const itemMeta = document.getElementById("items-meta");
+		let itemsData = [];
+		let itemFilter = "";
+
+		function getProgressKey(baseKey) {
+			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
+				return window.Auth.getProgressKey(baseKey);
+			}
+			return null;
+		}
+
+		function isTrackingEnabled() {
+			return Boolean(window.Auth && typeof window.Auth.isLoggedIn === "function" && window.Auth.isLoggedIn());
+		}
+
+		function applyTrackingAccessState() {
+			const enabled = isTrackingEnabled();
+			const checkboxes = itemsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
+			checkboxes.forEach(cb => {
+				cb.disabled = !enabled;
+				cb.title = enabled ? "" : "Log in to track progress";
+			});
+			if (!enabled && itemMeta) {
+				itemMeta.textContent = "Log in to access tracked progress.";
+			}
+		}
+
+		initItemsPage();
+
+		async function initItemsPage() {
+			try {
+				const response = await fetch(ITEMS_DATA_URL, { cache: "force-cache" });
+				if (!response.ok) throw new Error(`HTTP ${response.status}`);
+				const data = await response.json();
+				if (!Array.isArray(data)) throw new Error("Items JSON is not an array");
+				itemsData = data;
+				applyItemFilterAndRender();
+			} catch (error) {
+				itemsTbody.innerHTML = '<tr><td colspan="4" class="table-error">Failed to load items data</td></tr>';
+				itemMeta.textContent = "Failed to load items.";
+				console.error("Failed to load items:", error);
+			}
+		}
+
+		itemSearchInput.addEventListener("input", event => {
+			itemFilter = String(event.target.value || "").trim().toLowerCase();
+			applyItemFilterAndRender();
+		});
+
+		itemsTbody.addEventListener("change", event => {
+			if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+				const checkbox = event.target;
+				const row = checkbox.closest("tr[data-index]");
+				const index = row ? Number(row.dataset.index) : NaN;
+				const item = !Number.isNaN(index) ? itemsData[index] : null;
+				if (item && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					window.Auth.recordRecentActivity({
+						id: `items-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						type: "Item",
+						action: checkbox.classList.contains("found-checkbox")
+							? (checkbox.checked ? "Found" : "Unfound")
+							: (checkbox.checked ? "Tracked" : "Untracked"),
+						name: item.Name || "Unknown Item",
+						location: item.Locations || "",
+						timestamp: Date.now(),
+					});
+				}
+				saveItemState();
+			}
+		});
+
+		itemsTbody.addEventListener("click", event => {
+			const row = event.target.closest("tr[data-index]");
+			if (!row || !itemsTbody.contains(row)) return;
+			if (event.target.matches("input[type='checkbox']")) {
+				event.stopPropagation();
+				return;
+			}
+			const index = Number(row.dataset.index);
+			if (!Number.isNaN(index) && itemsData[index]) {
+				showItemDetail(itemsData[index]);
+			}
+		});
+
+		function applyItemFilterAndRender() {
+			const matchingIndices = [];
+			for (let i = 0; i < itemsData.length; i += 1) {
+				const item = itemsData[i];
+				const haystack = `${item.Name || ""} ${item.Use || ""} ${item.Locations || ""} ${item.Description || ""}`.toLowerCase();
+				if (!itemFilter || haystack.includes(itemFilter)) matchingIndices.push(i);
+			}
+			renderItemsTable(matchingIndices);
+			itemMeta.textContent = `${matchingIndices.length} / ${itemsData.length} items shown`;
+		}
+
+		function renderItemsTable(indices) {
+			if (indices.length === 0) {
+				itemsTbody.innerHTML = '<tr><td colspan="4" class="table-error">No items match your search.</td></tr>';
+				return;
+			}
+
+			const fragment = document.createDocumentFragment();
+			for (const index of indices) {
+				const item = itemsData[index];
+				const row = document.createElement("tr");
+				const name = item.Name || "Item";
+				row.dataset.index = String(index);
+				row.innerHTML = `
+					<td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+					<td class="name-col">${escapeHtml(name)}</td>
+					<td class="location-col">${escapeHtml(item.Locations || "N/A")}</td>
+					<td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+				`;
+				fragment.appendChild(row);
+			}
+
+			itemsTbody.innerHTML = "";
+			itemsTbody.appendChild(fragment);
+			restoreItemState();
+			applyTrackingAccessState();
+		}
+
+		function showItemDetail(item) {
+			const name = item.Name || "Unknown Item";
+			const fallback = getPlaceholderImage(name, 240);
+			itemDetailSection.innerHTML = `
+				<div class="detail-card">
+					<div class="detail-image-section">
+						<img src="${fallback}" data-src-raw="${escapeAttr(item.Icon || "")}" alt="${escapeAttr(name)}" class="detail-image" loading="lazy" decoding="async">
+					</div>
+					<div class="detail-info-section">
+						<div class="detail-header">
+							<h2>${escapeHtml(name)}</h2>
+							<p class="detail-skill"><strong>Use:</strong> ${escapeHtml(item.Use || "N/A")}</p>
+						</div>
+						<div class="detail-content">
+							<p><strong>Amount:</strong> ${escapeHtml(String(item.Amount ?? "N/A"))}</p>
+							<p><strong>Locations:</strong> ${escapeHtml(item.Locations || "N/A")}</p>
+						</div>
+					</div>
+					<div class="detail-lore">
+						<p><strong>Description:</strong></p>
+						<p>${escapeHtml(item.Description || "No description available.")}</p>
+					</div>
+				</div>
+			`;
+
+			const detailImage = itemDetailSection.querySelector("img.detail-image[data-src-raw]");
+			if (detailImage) loadImageWithFallback(detailImage, detailImage.dataset.srcRaw || "", name, 240);
+		}
+
+		function loadImageWithFallback(imgElement, rawUrl, label, size) {
+			const fallback = getPlaceholderImage(label || "Item", size || 120);
+			const candidates = getImageCandidates(rawUrl, label || "Item");
+			if (candidates.length === 0) {
+				imgElement.src = fallback;
+				return;
+			}
+
+			let i = 0;
+			const tryNext = () => {
+				if (i >= candidates.length) {
+					imgElement.src = fallback;
+					return;
+				}
+				const candidate = candidates[i++];
+				const probe = new Image();
+				probe.onload = () => { imgElement.src = candidate; };
+				probe.onerror = () => { tryNext(); };
+				probe.src = candidate;
+			};
+
+			imgElement.src = fallback;
+			tryNext();
+		}
+
+		function getImageCandidates(rawUrl, label) {
+			const trimmed = String(rawUrl || "").trim();
+			if (!trimmed) return [];
+			const candidates = [];
+			const primary = resolveImageUrl(trimmed, label || "Item");
+			if (primary) candidates.push(primary);
+			const redirect = resolveFandomRedirectFileUrl(trimmed);
+			if (redirect && !candidates.includes(redirect)) candidates.push(redirect);
+			if (!candidates.includes(trimmed)) candidates.push(trimmed);
+			return candidates;
+		}
+
+		function resolveImageUrl(rawUrl, label) {
+			if (!rawUrl || typeof rawUrl !== "string") {
+				return getPlaceholderImage(label || "Item", 120);
+			}
+			const trimmed = rawUrl.trim();
+			if (!trimmed) return getPlaceholderImage(label || "Item", 120);
+			if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) return trimmed;
+			try {
+				const parsedUrl = new URL(trimmed, window.location.origin);
+				const filePathPrefix = "/wiki/File:";
+				if (parsedUrl.pathname.startsWith(filePathPrefix)) {
+					const fileName = decodeURIComponent(parsedUrl.pathname.slice(filePathPrefix.length));
+					return `${parsedUrl.origin}/wiki/Special:FilePath/${encodeURIComponent(fileName)}`;
+				}
+				return parsedUrl.href;
+			} catch (_error) {
+				return getPlaceholderImage(label || "Item", 120);
+			}
+		}
+
+		function resolveFandomRedirectFileUrl(rawUrl) {
+			if (!rawUrl || typeof rawUrl !== "string") return "";
+			try {
+				const parsedUrl = new URL(rawUrl.trim(), window.location.origin);
+				const filePathPrefix = "/wiki/File:";
+				if (!parsedUrl.pathname.startsWith(filePathPrefix)) return "";
+				const fileName = decodeURIComponent(parsedUrl.pathname.slice(filePathPrefix.length));
+				return `${parsedUrl.origin}/wiki/Special:Redirect/file/${encodeURIComponent(fileName)}`;
+			} catch (_error) {
+				return "";
+			}
+		}
+
+		function saveItemState() {
+			if (!isTrackingEnabled()) return;
+			const tracked = [];
+			const found = [];
+			document.querySelectorAll("#items-tbody .track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
+			document.querySelectorAll("#items-tbody .found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
+			const trackedKey = getProgressKey("items_tracked");
+			const foundKey = getProgressKey("items_found");
+			if (!trackedKey || !foundKey) return;
+			localStorage.setItem(trackedKey, JSON.stringify(tracked));
+			localStorage.setItem(foundKey, JSON.stringify(found));
+		}
+
+		function restoreItemState() {
+			if (!isTrackingEnabled()) return;
+			try {
+				const trackedKey = getProgressKey("items_tracked");
+				const foundKey = getProgressKey("items_found");
+				if (!trackedKey || !foundKey) return;
+				const tracked = JSON.parse(localStorage.getItem(trackedKey) || "[]");
+				const found = JSON.parse(localStorage.getItem(foundKey) || "[]");
+				tracked.forEach(key => {
+					const cb = itemsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
+					if (cb) cb.checked = true;
+				});
+				found.forEach(key => {
+					const cb = itemsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
+					if (cb) cb.checked = true;
+				});
+			} catch (_) {}
+		}
+
+		function cssEscape(value) {
+			if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
+			return String(value).replace(/(["\\#.:\[\]\(\)])/g, "\\$1");
+		}
+
+		function getPlaceholderImage(name, size) {
+			const safeName = String(name || "Item").trim();
+			const initials = safeName
+				.split(/\s+/)
+				.filter(Boolean)
+				.slice(0, 2)
+				.map(part => part[0].toUpperCase())
+				.join("") || "IT";
+			const svg = `
+				<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" role="img" aria-label="${safeName}">
+					<defs>
+						<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+							<stop offset="0%" stop-color="#1a2238"/>
+							<stop offset="100%" stop-color="#33415f"/>
+						</linearGradient>
+					</defs>
+					<rect width="100%" height="100%" fill="url(#g)" rx="10" ry="10"/>
+					<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#dbe2f3" font-family="Arial, sans-serif" font-size="${Math.max(12, Math.floor(size * 0.32))}" font-weight="700">${initials}</text>
+				</svg>
+			`;
+			return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+		}
+
+		function escapeHtml(value) {
+			return String(value ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+		}
+
+		function escapeAttr(value) {
+			return String(value ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/"/g, "&quot;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+		}
+	</script>
 </body>
 </html>

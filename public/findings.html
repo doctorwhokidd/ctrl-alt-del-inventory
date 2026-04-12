@@ -1,39 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Findings | Ender Lilies Grimoire</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link rel="stylesheet" href="style.css">
+	<meta name="description" content="Browse all findings in Ender Lilies, track what you discovered, and review full entry details.">
 </head>
-<body>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="spirits.html">Spirits</a>
-        <a href="relics.html">Relics</a>
-        <a href="items.html">Items</a>
-        <a href="findings.html">Findings</a>
-    </nav>
+<body class="findings-page">
+	<header class="site-header">
+		<div class="container nav-container">
+			<a class="site-brand" href="index.html">Ender Lilies Grimoire</a>
+			<nav class="site-nav" aria-label="Primary navigation">
+				<a href="index.html">Home</a>
+				<a href="spirits.html">Spirits</a>
+				<a href="relics.html">Relics</a>
+				<a href="items.html">Items</a>
+				<a href="findings.html" aria-current="page">Findings</a>
+				<a href="map.html">Map</a>
+				<a href="about.html">About</a>
+				<a href="contact.html">Contact</a>
+				<a href="login.html" class="nav-login">Log In</a>
+			</nav>
+		</div>
+	</header>
 
-    <h1>Findings</h1>
-    <div id="findings-container"></div>
-    
-    <script>
-        fetch("http://127.0.0.1:5001/ender-lilies-api/us-central1/api/findings")
-          .then(res => res.json())
-          .then(data => {
-            const container = document.getElementById("findings-container");
-            data.forEach(finding => {
-                const div = document.createElement("div");
-                div.innerHTML = `
-                <h2>${finding.Name}</h2>
-                <p><strong>Location:</strong> ${finding.Location}</p>
-                <p><strong>Contents:</strong> ${finding.Contents}</p>
-                `;
-                container.appendChild(div);
-            });
-          });
-    </script>
-    <script src="script.js"></script>
+	<main class="page-content">
+		<div class="container">
+			<div class="page-header">
+				<h1>Findings</h1>
+				<p class="page-subtitle">Track notes, letters, and records, then inspect full contents in the detail panel.</p>
+			</div>
+
+			<div class="collection-toolbar">
+				<input id="findings-search" class="collection-search" type="search" placeholder="Search findings by name, location, content..." aria-label="Search findings">
+				<span id="findings-meta" class="collection-meta">Loading findings...</span>
+			</div>
+
+			<div class="collection-layout">
+				<div class="collection-table-section">
+					<div class="table-wrapper">
+						<table class="collection-table" id="findings-table">
+							<colgroup>
+								<col class="col-track">
+								<col class="col-name">
+								<col class="col-location">
+								<col class="col-found">
+							</colgroup>
+							<thead>
+								<tr>
+									<th>Track</th>
+									<th>Name</th>
+									<th>Location</th>
+									<th>Found</th>
+								</tr>
+							</thead>
+							<tbody id="findings-tbody">
+								<tr>
+									<td colspan="4" class="table-loading">Loading findings...</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="collection-detail-section" id="finding-detail-section">
+					<div class="detail-placeholder">
+						<p>Select a finding to view full contents</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+
+	<script src="auth-nav.js"></script>
+	<script>
+		const FINDINGS_DATA_URL = "data/findings.json";
+		const findingsTbody = document.getElementById("findings-tbody");
+		const findingDetailSection = document.getElementById("finding-detail-section");
+		const findingsSearchInput = document.getElementById("findings-search");
+		const findingsMeta = document.getElementById("findings-meta");
+		let findingsData = [];
+		let findingsFilter = "";
+
+		function getProgressKey(baseKey) {
+			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
+				return window.Auth.getProgressKey(baseKey);
+			}
+			return null;
+		}
+
+		function isTrackingEnabled() {
+			return Boolean(window.Auth && typeof window.Auth.isLoggedIn === "function" && window.Auth.isLoggedIn());
+		}
+
+		function applyTrackingAccessState() {
+			const enabled = isTrackingEnabled();
+			const checkboxes = findingsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
+			checkboxes.forEach(cb => {
+				cb.disabled = !enabled;
+				cb.title = enabled ? "" : "Log in to track progress";
+			});
+			if (!enabled && findingsMeta) {
+				findingsMeta.textContent = "Log in to access tracked progress.";
+			}
+		}
+
+		initFindingsPage();
+
+		async function initFindingsPage() {
+			try {
+				const response = await fetch(FINDINGS_DATA_URL, { cache: "force-cache" });
+				if (!response.ok) throw new Error(`HTTP ${response.status}`);
+				const data = await response.json();
+				if (!Array.isArray(data)) throw new Error("Findings JSON is not an array");
+				findingsData = data;
+				applyFindingsFilterAndRender();
+			} catch (error) {
+				findingsTbody.innerHTML = '<tr><td colspan="4" class="table-error">Failed to load findings data</td></tr>';
+				findingsMeta.textContent = "Failed to load findings.";
+				console.error("Failed to load findings:", error);
+			}
+		}
+
+		findingsSearchInput.addEventListener("input", event => {
+			findingsFilter = String(event.target.value || "").trim().toLowerCase();
+			applyFindingsFilterAndRender();
+		});
+
+		findingsTbody.addEventListener("change", event => {
+			if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+				const checkbox = event.target;
+				const row = checkbox.closest("tr[data-index]");
+				const index = row ? Number(row.dataset.index) : NaN;
+				const finding = !Number.isNaN(index) ? findingsData[index] : null;
+				if (finding && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					window.Auth.recordRecentActivity({
+						id: `findings-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						type: "Finding",
+						action: checkbox.classList.contains("found-checkbox")
+							? (checkbox.checked ? "Found" : "Unfound")
+							: (checkbox.checked ? "Tracked" : "Untracked"),
+						name: finding.Name || "Unknown Finding",
+						location: finding.Location || "",
+						timestamp: Date.now(),
+					});
+				}
+				saveFindingState();
+			}
+		});
+
+		findingsTbody.addEventListener("click", event => {
+			const row = event.target.closest("tr[data-index]");
+			if (!row || !findingsTbody.contains(row)) return;
+			if (event.target.matches("input[type='checkbox']")) {
+				event.stopPropagation();
+				return;
+			}
+			const index = Number(row.dataset.index);
+			if (!Number.isNaN(index) && findingsData[index]) {
+				showFindingDetail(findingsData[index]);
+			}
+		});
+
+		function applyFindingsFilterAndRender() {
+			const matchingIndices = [];
+			for (let i = 0; i < findingsData.length; i += 1) {
+				const finding = findingsData[i];
+				const haystack = `${finding.Name || ""} ${finding.Location || ""} ${finding.Contents || ""}`.toLowerCase();
+				if (!findingsFilter || haystack.includes(findingsFilter)) {
+					matchingIndices.push(i);
+				}
+			}
+			renderFindingsTable(matchingIndices);
+			findingsMeta.textContent = `${matchingIndices.length} / ${findingsData.length} findings shown`;
+		}
+
+		function renderFindingsTable(indices) {
+			if (indices.length === 0) {
+				findingsTbody.innerHTML = '<tr><td colspan="4" class="table-error">No findings match your search.</td></tr>';
+				return;
+			}
+
+			const fragment = document.createDocumentFragment();
+			for (const index of indices) {
+				const finding = findingsData[index];
+				const name = finding.Name || "Finding";
+				const row = document.createElement("tr");
+				row.dataset.index = String(index);
+				row.innerHTML = `
+					<td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+					<td class="name-col">${escapeHtml(name)}</td>
+					<td class="location-col">${escapeHtml(finding.Location || "N/A")}</td>
+					<td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+				`;
+				fragment.appendChild(row);
+			}
+
+			findingsTbody.innerHTML = "";
+			findingsTbody.appendChild(fragment);
+			restoreFindingState();
+			applyTrackingAccessState();
+		}
+
+		function showFindingDetail(finding) {
+			const name = finding.Name || "Unknown Finding";
+			findingDetailSection.innerHTML = `
+				<div class="detail-card" style="grid-template-columns: 1fr;">
+					<div class="detail-info-section" style="grid-column:1;">
+						<div class="detail-header">
+							<h2>${escapeHtml(name)}</h2>
+						</div>
+						<div class="detail-content">
+							<p><strong>Location:</strong> ${escapeHtml(finding.Location || "N/A")}</p>
+						</div>
+					</div>
+					<div class="detail-lore" style="grid-column:1;">
+						<p><strong>Contents:</strong></p>
+						<p>${escapeHtml(finding.Contents || "No contents available.")}</p>
+					</div>
+				</div>
+			`;
+		}
+
+		function saveFindingState() {
+			if (!isTrackingEnabled()) return;
+			const tracked = [];
+			const found = [];
+			document.querySelectorAll("#findings-tbody .track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
+			document.querySelectorAll("#findings-tbody .found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
+			const trackedKey = getProgressKey("findings_tracked");
+			const foundKey = getProgressKey("findings_found");
+			if (!trackedKey || !foundKey) return;
+			localStorage.setItem(trackedKey, JSON.stringify(tracked));
+			localStorage.setItem(foundKey, JSON.stringify(found));
+		}
+
+		function restoreFindingState() {
+			if (!isTrackingEnabled()) return;
+			try {
+				const trackedKey = getProgressKey("findings_tracked");
+				const foundKey = getProgressKey("findings_found");
+				if (!trackedKey || !foundKey) return;
+				const tracked = JSON.parse(localStorage.getItem(trackedKey) || "[]");
+				const found = JSON.parse(localStorage.getItem(foundKey) || "[]");
+				tracked.forEach(key => {
+					const cb = findingsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
+					if (cb) cb.checked = true;
+				});
+				found.forEach(key => {
+					const cb = findingsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
+					if (cb) cb.checked = true;
+				});
+			} catch (_) {}
+		}
+
+		function cssEscape(value) {
+			if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
+			return String(value).replace(/(["\\#.:\[\]\(\)])/g, "\\$1");
+		}
+
+		function escapeHtml(value) {
+			return String(value ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+		}
+
+		function escapeAttr(value) {
+			return String(value ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/"/g, "&quot;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+		}
+	</script>
 </body>
 </html>
