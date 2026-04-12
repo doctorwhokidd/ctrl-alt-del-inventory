@@ -1,3 +1,9 @@
+<style>
+.row-found {
+	opacity: 0.5;
+	transition: opacity 0.2s;
+}
+</style>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -227,7 +233,7 @@
 					<td class="name-col">${spirit.Name || "Unknown"}</td>
 					<td class="skill-col">${spirit.Skill || "N/A"}</td>
 					<td class="location-col">${spirit.Location || "N/A"}</td>
-					<td class="found-col"><input type="checkbox" class="found-checkbox" data-index="${index}" data-location="${spirit.Location || ""}" aria-label="Mark ${spirit.Name || "spirit"} as found"></td>
+					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-index="${index}" data-location="${spirit.Location || ""}" aria-label="Mark ${spirit.Name || "spirit"} as found"></td>
 				`;
 
 				const iconTd = row.querySelector(".icon-col");
@@ -270,37 +276,66 @@
 		});
 
 		   spiritsTbody.addEventListener("change", event => {
-			   if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+			   if (event.target.matches(".found-checkbox")) {
 				   const checkbox = event.target;
 				   const index = Number(checkbox.dataset.index);
 				   const spirit = !Number.isNaN(index) ? spiritsData[index] : null;
+				   // Row opacity toggle
+				   const row = checkbox.closest("tr[data-index]");
+				   if (row) {
+					   if (checkbox.checked) {
+						   row.classList.add("row-found");
+					   } else {
+						   row.classList.remove("row-found");
+					   }
+				   }
 				   if (spirit && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
 					   window.Auth.recordRecentActivity({
-						   id: `spirits-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						   id: `spirits-found-${index}`,
 						   type: "Spirit",
-						   action: checkbox.classList.contains("found-checkbox")
-							   ? (checkbox.checked ? "Found" : "Unfound")
-							   : (checkbox.checked ? "Tracked" : "Untracked"),
+						   action: checkbox.checked ? "Found" : "Unfound",
 						   name: spirit.Name || "Unknown Spirit",
 						   location: spirit.Location || "",
 						   timestamp: Date.now(),
 					   });
 				   }
+				   // Update found_locations for map pins
+				   const foundLocationsKey = getTrackingKey("spirits_found_locations");
+				   if (foundLocationsKey && spirit && spirit.Location) {
+					   const store = getTrackingStore();
+					   let foundLocations = [];
+					   try {
+						   foundLocations = JSON.parse(store.getItem(foundLocationsKey) || "[]");
+					   } catch (_) {}
+					   const code = String(spirit.Location).trim().toUpperCase();
+					   if (checkbox.checked) {
+						   if (!foundLocations.includes(code)) foundLocations.push(code);
+					   } else {
+						   foundLocations = foundLocations.filter(c => c !== code);
+					   }
+					   store.setItem(foundLocationsKey, JSON.stringify(foundLocations));
+				   }
 				   saveCheckboxState();
+			   } else if (event.target.matches(".track-checkbox")) {
 				   reorderByTracked(spiritsTbody);
 			   }
 		   });
 
 		   function reorderByTracked(tbody) {
 			   const rows = [...tbody.querySelectorAll("tr[data-index]")];
+			   const trackedRows = [];
+			   const untrackedRows = [];
 			   rows.forEach(r => {
-				   const found = r.querySelector('.found-checkbox')?.checked;
-				   if (found) {
-					   r.classList.add('found-row');
+				   const tracked = r.querySelector('.track-checkbox')?.checked;
+				   if (tracked) {
+					   trackedRows.push(r);
 				   } else {
-					   r.classList.remove('found-row');
+					   untrackedRows.push(r);
 				   }
 			   });
+			   tbody.innerHTML = "";
+			   trackedRows.forEach(r => tbody.appendChild(r));
+			   untrackedRows.forEach(r => tbody.appendChild(r));
 		   }
 
 		function saveCheckboxState() {
@@ -353,10 +388,19 @@
 					if (cb) cb.checked = true;
 				});
 
-				found.forEach(i => {
-					const cb = spiritsTbody.querySelector(`.found-checkbox[data-index="${i}"]`);
-					if (cb) cb.checked = true;
-				});
+				   found.forEach(i => {
+					   const cb = spiritsTbody.querySelector(`.found-checkbox[data-index="${i}"]`);
+					   if (cb) {
+						   cb.checked = true;
+						   const row = cb.closest("tr[data-index]");
+						   if (row) row.classList.add("row-found");
+					   }
+				   });
+				   // Remove row-found from all others
+				   spiritsTbody.querySelectorAll("tr[data-index]").forEach(row => {
+					   const cb = row.querySelector('.found-checkbox');
+					   if (cb && !cb.checked) row.classList.remove("row-found");
+				   });
 				tracked.forEach(i => {
 					const cb = spiritsTbody.querySelector(`.track-checkbox[data-index="${i}"]`);
 					if (cb) cb.checked = true;
@@ -441,8 +485,8 @@
 		});
 
 		window.addEventListener("elg-progress-changed", () => {
-			applySpiritsFilterAndRender();
-			renderMiniDashboard();
+			restoreCheckboxState();
+			applyTrackingAccessState();
 		});
 	</script>
 	<footer class="site-footer">

@@ -85,6 +85,13 @@
 		</div>
 	</main>
 
+	<style>
+	.row-found {
+		opacity: 0.5;
+		transition: opacity 0.2s;
+	}
+	</style>
+
 	<script src="auth-nav.js"></script>
 	<script>
 		const RELICS_DATA_URL = "data/relics.json";
@@ -188,41 +195,66 @@
 			applyRelicFilterAndRender();
 		});
 
-		relicsTbody.addEventListener("change", event => {
-			if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
-				const checkbox = event.target;
-				const row = checkbox.closest("tr[data-index]");
-				const index = row ? Number(row.dataset.index) : NaN;
-				const relic = !Number.isNaN(index) ? relicsData[index] : null;
-				if (relic && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
-					window.Auth.recordRecentActivity({
-						id: `relics-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
-						type: "Relic",
-						action: checkbox.classList.contains("found-checkbox")
-							? (checkbox.checked ? "Found" : "Unfound")
-							: (checkbox.checked ? "Tracked" : "Untracked"),
-						name: relic.Name || "Unknown Relic",
-						location: relic.Location || "",
-						timestamp: Date.now(),
-					});
-				}
-				saveRelicState();
-				if (checkbox.matches(".track-checkbox")) {
-					reorderByTracked(relicsTbody);
-				}
-				const actionLabel = checkbox.classList.contains("found-checkbox")
-					? (checkbox.checked ? "found" : "unfound")
-					: (checkbox.checked ? "tracked" : "untracked");
-			}
-		});
+		   relicsTbody.addEventListener("change", event => {
+			   if (event.target.matches(".found-checkbox")) {
+				   const checkbox = event.target;
+				   const row = checkbox.closest("tr[data-index]");
+				   const index = row ? Number(row.dataset.index) : NaN;
+				   const relic = !Number.isNaN(index) ? relicsData[index] : null;
+				   if (row) {
+					   if (checkbox.checked) {
+						   row.classList.add("row-found");
+					   } else {
+						   row.classList.remove("row-found");
+					   }
+				   }
+				   // Record found/unfound activity
+				   if (relic && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					   window.Auth.recordRecentActivity({
+						   id: `relics-found-${index}`,
+						   type: "Relic",
+						   action: checkbox.checked ? "Found" : "Unfound",
+						   name: relic.Name || "Unknown Relic",
+						   location: relic.Location || "",
+						   timestamp: Date.now(),
+					   });
+				   }
+				   saveRelicState();
+			   } else if (event.target.matches(".track-checkbox")) {
+				   const checkbox = event.target;
+				   const row = checkbox.closest("tr[data-index]");
+				   const index = row ? Number(row.dataset.index) : NaN;
+				   const relic = !Number.isNaN(index) ? relicsData[index] : null;
+				   // Record tracked/untracked activity
+				   if (relic && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					   window.Auth.recordRecentActivity({
+						   id: `relics-tracked-${index}`,
+						   type: "Relic",
+						   action: checkbox.checked ? "Tracked" : "Untracked",
+						   name: relic.Name || "Unknown Relic",
+						   location: relic.Location || "",
+						   timestamp: Date.now(),
+					   });
+				   }
+				   reorderByTracked(relicsTbody);
+			   }
+		   });
 
 		function reorderByTracked(tbody) {
 			const rows = [...tbody.querySelectorAll("tr[data-index]")];
-			const tracked = rows.filter(r => r.querySelector(".track-checkbox")?.checked);
-			const untracked = rows.filter(r => !r.querySelector(".track-checkbox")?.checked);
-			tracked.forEach(r => r.classList.add("row-tracked"));
-			untracked.forEach(r => r.classList.remove("row-tracked"));
-			[...tracked, ...untracked].forEach(r => tbody.appendChild(r));
+			const trackedRows = [];
+			const untrackedRows = [];
+			rows.forEach(r => {
+				const tracked = r.querySelector('.track-checkbox')?.checked;
+				if (tracked) {
+					trackedRows.push(r);
+				} else {
+					untrackedRows.push(r);
+				}
+			});
+			tbody.innerHTML = "";
+			trackedRows.forEach(r => tbody.appendChild(r));
+			untrackedRows.forEach(r => tbody.appendChild(r));
 		}
 
 		relicsTbody.addEventListener("click", event => {
@@ -235,6 +267,12 @@
 			const index = Number(row.dataset.index);
 			if (!Number.isNaN(index) && relicsData[index]) {
 				showRelicDetail(relicsData[index]);
+			}
+		});
+
+		relicsTbody.addEventListener("change", event => {
+			if (event.target.matches(".track-checkbox")) {
+				reorderByTracked(relicsTbody);
 			}
 		});
 
@@ -353,7 +391,16 @@
 				});
 				found.forEach(key => {
 					const cb = relicsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
-					if (cb) cb.checked = true;
+					if (cb) {
+						cb.checked = true;
+						const row = cb.closest("tr[data-index]");
+						if (row) row.classList.add("row-found");
+					}
+				});
+				// Remove row-found from all others
+				relicsTbody.querySelectorAll("tr[data-index]").forEach(row => {
+					const cb = row.querySelector('.found-checkbox');
+					if (cb && !cb.checked) row.classList.remove("row-found");
 				});
 				reorderByTracked(relicsTbody);
 			} catch (_) {}
@@ -413,8 +460,8 @@
 		});
 
 		window.addEventListener("elg-progress-changed", () => {
+			restoreRelicState();
 			applyRelicFilterAndRender();
-			renderMiniDashboard();
 		});
 	</script>
 	<footer class="site-footer">

@@ -81,6 +81,13 @@
 		</div>
 	</main>
 
+	<style>
+	.row-found {
+		opacity: 0.5;
+		transition: opacity 0.2s;
+	}
+	</style>
+
 	<script src="auth-nav.js"></script>
 	<script>
 		const FINDINGS_DATA_URL = "data/findings.json";
@@ -186,49 +193,65 @@
 		});
 
 		   findingsTbody.addEventListener("change", event => {
-			   if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+			   if (event.target.matches(".found-checkbox")) {
 				   const checkbox = event.target;
 				   const row = checkbox.closest("tr[data-index]");
 				   const index = row ? Number(row.dataset.index) : NaN;
 				   const finding = !Number.isNaN(index) ? findingsData[index] : null;
+				   if (row) {
+					   if (checkbox.checked) {
+						   row.classList.add("row-found");
+					   } else {
+						   row.classList.remove("row-found");
+					   }
+				   }
+				   // Record found/unfound activity
 				   if (finding && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
 					   window.Auth.recordRecentActivity({
-						   id: `findings-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						   id: `findings-found-${index}`,
 						   type: "Finding",
-						   action: checkbox.classList.contains("found-checkbox")
-							   ? (checkbox.checked ? "Found" : "Unfound")
-							   : (checkbox.checked ? "Tracked" : "Untracked"),
+						   action: checkbox.checked ? "Found" : "Unfound",
 						   name: finding.Name || "Unknown Finding",
 						   location: finding.Location || "",
 						   timestamp: Date.now(),
 					   });
 				   }
 				   saveFindingState();
+			   } else if (event.target.matches(".track-checkbox")) {
+				   const checkbox = event.target;
+				   const row = checkbox.closest("tr[data-index]");
+				   const index = row ? Number(row.dataset.index) : NaN;
+				   const finding = !Number.isNaN(index) ? findingsData[index] : null;
+				   // Record tracked/untracked activity
+				   if (finding && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					   window.Auth.recordRecentActivity({
+						   id: `findings-tracked-${index}`,
+						   type: "Finding",
+						   action: checkbox.checked ? "Tracked" : "Untracked",
+						   name: finding.Name || "Unknown Finding",
+						   location: finding.Location || "",
+						   timestamp: Date.now(),
+					   });
+				   }
 				   reorderByTracked(findingsTbody);
 			   }
 		   });
 
 		   function reorderByTracked(tbody) {
 			   const rows = [...tbody.querySelectorAll("tr[data-index]")];
-			   // Add or remove found-row and tracked-row classes
+			   // Separate tracked and untracked
+			   const trackedRows = [];
+			   const untrackedRows = [];
 			   rows.forEach(r => {
-				   const found = r.querySelector('.found-checkbox')?.checked;
 				   const tracked = r.querySelector('.track-checkbox')?.checked;
-				   if (found) {
-					   r.classList.add('found-row');
-				   } else {
-					   r.classList.remove('found-row');
-				   }
 				   if (tracked) {
-					   r.classList.add('tracked-row');
+					   trackedRows.push(r);
 				   } else {
-					   r.classList.remove('tracked-row');
+					   untrackedRows.push(r);
 				   }
 			   });
-			   // Move tracked rows to the top
-			   const trackedRows = rows.filter(r => r.classList.contains('tracked-row'));
-			   const untrackedRows = rows.filter(r => !r.classList.contains('tracked-row'));
-			   tbody.innerHTML = '';
+			   // Clear tbody and append tracked first, then untracked
+			   tbody.innerHTML = "";
 			   trackedRows.forEach(r => tbody.appendChild(r));
 			   untrackedRows.forEach(r => tbody.appendChild(r));
 		   }
@@ -310,39 +333,48 @@
 			`;
 		}
 
-		function saveFindingState() {
-			const tracked = [];
-			const found = [];
-			document.querySelectorAll("#findings-tbody .track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
-			document.querySelectorAll("#findings-tbody .found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
-			const trackedKey = getTrackingKey("findings_tracked");
-			const foundKey = getTrackingKey("findings_found");
-			if (!trackedKey || !foundKey) return;
-			const store = getTrackingStore();
-			store.setItem(trackedKey, JSON.stringify(tracked));
-			store.setItem(foundKey, JSON.stringify(found));
-			renderMiniDashboard();
-		}
+		   function saveFindingState() {
+			   const tracked = [];
+			   const found = [];
+			   document.querySelectorAll("#findings-tbody .track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
+			   document.querySelectorAll("#findings-tbody .found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
+			   const trackedKey = getTrackingKey("findings_tracked");
+			   const foundKey = getTrackingKey("findings_found");
+			   if (!trackedKey || !foundKey) return;
+			   const store = getTrackingStore();
+			   store.setItem(trackedKey, JSON.stringify(tracked));
+			   store.setItem(foundKey, JSON.stringify(found));
+			   renderMiniDashboard();
+		   }
 
-		function restoreFindingState() {
-			try {
-				const trackedKey = getTrackingKey("findings_tracked");
-				const foundKey = getTrackingKey("findings_found");
-				if (!trackedKey || !foundKey) return;
-				const store = getTrackingStore();
-				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-				const found = JSON.parse(store.getItem(foundKey) || "[]");
-				tracked.forEach(key => {
-					const cb = findingsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
-					if (cb) cb.checked = true;
-				});
-				found.forEach(key => {
-					const cb = findingsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
-					if (cb) cb.checked = true;
-				});
-				reorderByTracked(findingsTbody);
-			} catch (_) {}
-		}
+		   function restoreFindingState() {
+			   try {
+				   const trackedKey = getTrackingKey("findings_tracked");
+				   const foundKey = getTrackingKey("findings_found");
+				   if (!trackedKey || !foundKey) return;
+				   const store = getTrackingStore();
+				   const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+				   const found = JSON.parse(store.getItem(foundKey) || "[]");
+				   tracked.forEach(key => {
+					   const cb = findingsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
+					   if (cb) cb.checked = true;
+				   });
+				   found.forEach(key => {
+					   const cb = findingsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
+					   if (cb) {
+						   cb.checked = true;
+						   const row = cb.closest("tr[data-index]");
+						   if (row) row.classList.add("row-found");
+					   }
+				   });
+				   // Remove row-found from all others
+				   findingsTbody.querySelectorAll("tr[data-index]").forEach(row => {
+					   const cb = row.querySelector('.found-checkbox');
+					   if (cb && !cb.checked) row.classList.remove("row-found");
+				   });
+				   reorderByTracked(findingsTbody);
+			   } catch (_) {}
+		   }
 
 		function cssEscape(value) {
 			if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
@@ -375,8 +407,8 @@
 		});
 
 		window.addEventListener("elg-progress-changed", () => {
-			applyFindingsFilterAndRender();
-			renderMiniDashboard();
+			restoreFindingState();
+			applyTrackingAccessState();
 		});
 	</script>
 	<footer class="site-footer">
