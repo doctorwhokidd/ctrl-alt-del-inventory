@@ -758,8 +758,113 @@ img {
 	accent-color: #bcc8e3;
 }
 
+/* About page styles */
+body.about-page {
+	background: #0d0d0d;
+	color: #e0e0e0;
+}
+
+body.about-page::before,
+body.about-page::after {
+	display: none;
+}
+
+body.about-page .nav-container,
+body.about-page .footer {
+	background-color: #121212;
+}
+
+body.about-page h2,
+body.about-page .card-header h2 {
+	font-family: 'Cinzel', serif;
+	color: #dcd2ff;
+}
+
+body.about-page .card {
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid #2e2e4f;
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+	padding: 20px;
+	border-radius: 8px;
+	margin-top: 30px;
+}
+
+body.about-page .btn {
+	border-radius: 8px;
+	transition: all 0.25s ease;
+}
+
+body.about-page .btn.secondary {
+	background: transparent;
+	border: 1px solid #6c63ff;
+	color: #dcdcff;
+}
+
+body.about-page .btn.secondary:hover {
+	background: #6c63ff;
+	color: #fff;
+	box-shadow: 0 0 10px #6c63ff;
+}
+
+body.about-page .footer {
+	margin-top: 40px;
+	padding: 20px;
+	background: #0f0f1a;
+	border-top: 1px solid rgba(108, 99, 255, 0.2);
+	text-align: center;
+}
+
+body.about-page .footer-note {
+	font-size: 0.9rem;
+	color: #aaa;
+}
+
+body.about-page .footer-social-icons {
+	display: flex;
+	justify-content: center;
+	gap: 14px;
+	margin: 10px 0;
+}
+
+body.about-page .social-icon svg {
+	width: 18px;
+	height: 18px;
+	fill: #dcdcff;
+	transition: transform 0.25s ease, fill 0.25s ease, filter 0.25s ease;
+	animation: pulseGlow 3s infinite ease-in-out;
+}
+
+body.about-page .social-icon:hover svg {
+	transform: scale(1.2);
+	fill: #6c63ff;
+	filter: drop-shadow(0 0 6px #6c63ff);
+}
+
+body.about-page .social-icon {
+	transition: transform 0.2s ease;
+}
+
+body.about-page .social-icon:hover {
+	transform: translateY(-2px);
+}
+
+body.about-page .lore-insert {
+	font-style: italic;
+	background: rgba(108, 99, 255, 0.1);
+	border-left: 4px solid #6c63ff;
+	padding: 12px 16px;
+	margin: 20px 0;
+	color: #f5f5f5;
+	text-shadow: 0 0 6px rgba(108, 99, 255, 0.4);
+}
+
+@keyframes pulseGlow {
+	0% { filter: drop-shadow(0 0 2px #6c63ff); }
+	50% { filter: drop-shadow(0 0 6px #6c63ff); }
+	100% { filter: drop-shadow(0 0 2px #6c63ff); }
+}
+
 .auth-link {
-	color: #dfe7f8;
 	font-weight: 700;
 	text-decoration: underline;
 	text-decoration-color: rgba(223, 231, 248, 0.45);
