@@ -209,9 +209,6 @@
 				const actionLabel = checkbox.classList.contains("found-checkbox")
 					? (checkbox.checked ? "found" : "unfound")
 					: (checkbox.checked ? "tracked" : "untracked");
-				if (finding && window.Auth && typeof window.Auth.showNotification === "function") {
-					window.Auth.showNotification(`${finding.Name || "Finding"} ${actionLabel}.`);
-				}
 			}
 		});
 

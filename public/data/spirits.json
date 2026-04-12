@@ -1,115 +1,116 @@
 [
   {
     "Name": "Umbral Knight",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-umbralknight-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/1/1c/Spirit-umbralknight-sprite.png",
     "Skill": "Unleashes a flurry of sword attacks. Attack direction can be changed during the advance by moving right or left.",
     "Aquatic": true,
     "Uses": "Infinite",
     "Cooldown": 0,
     "Ability": "None",
     "Location": "A1",
-    "Image": "https://ender.fandom.com/wiki/File:Umbral_Knight.png",
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/9/9f/Umbral_Knight.png",
     "Lore": "The Umbral Knight is an Ancient who made a Deathless Pact with the first White Priestess of Land’s End, the Priestess of the Dawn, in the final moments of their civilization. They were unable to properly protect her as their spirit had begun to deteriorate; it took until the fall of the kingdom for them to regain their strength and awaken. They showed themselves to Lily, one of the only two surviving descendants of the Priestess of the Dawn."
   },
   {
     "Name": "Gerrod, The Elder Warrior",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-gerrod-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/4/44/Spirit-gerrod-sprite.png",
     "Skill": "Swings a heavy, powerful hammer slowly, but with force and range enough to blow enemies away.",
     "Aquatic": false,
     "Uses": "Infinite",
     "Cooldown": 0,
     "Ability": "Giant's Hammer",
     "Location": "B12",
-    "Image": "https://ender.fandom.com/wiki/File:Gerrod,_the_Elder_Warrior.png",
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/9/9c/Gerrod%2C_the_Elder_Warrior.png",
     "Lore": "One of the knights devoted to protecting the people of Land’s End, Gerrod became famed for his massive stature, indomitable strength, and unfailing altruism. He was dubbed the finest knight in all the kingdom, and was considered both a hero and a symbol of glory to his home village. Eventually, Gerrod drank the Deathless Elixir and became an Immortal Knight to better defend the kingdom from the Blighted. Returning from a fierce battle, Gerrod was dismayed to see that the people of the village were afraid of what he had become as a result of his decision. At one point, Fretia and a young White Priestess visited Gerrod to comfort him. Even as he became Blighted, Gerrod refused to be purified by the White Priestess, knowing well the immense pain it would put them through. Devoting his final moments to protecting his people, Gerrod eventually lost his sanity to the Blight and descended into madness."
   },
   {
     "Name": "Dark Witch Eleine",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-darkwitcheleine-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/9/9b/Spirit-darkwitcheleine-icon.png",
     "Skill": "Fires ranged arcane projectiles. Projectiles will home slightly on enemies in front of you.",
     "Aquatic": true,
     "Uses": 70,
     "Cooldown": 0,
     "Ability": "Witch's Bubble",
     "Location": "C15",
-    "Image": "https://ender.fandom.com/wiki/File:Dark_Witch_Eleine.png",
-    "Lore": ": Eleine was a gifted sorceress from a young age, whose perpetual loneliness was eased by her becoming Fretia’s friend. At some point, Fretia is implied to have purified Eleine's mother after she was afflicted with the Blight. Due to her immense talent, Eleine was raised within the Coven and later on became its leader. After the defense of the Twin Spires, Eleine frequently visited Fretia in her quarantine. During one of these visits, Fretia entrusted her with a cherished heirloom necklace from her mother; its magic stone had shattered when Fretia purified the Blighted Lord. At Fretia's request, Eleine fashioned shards of this stone into protective pendants to help sustain the White Priestess.[1] Despite her tireless research into the Abyss to free Fretia from her burden, she eventually succumbed to the Blight and died in the depths of Witch’s Thicket."
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/9/97/Dark_Witch_Eleine.png",
+    "Lore": "Eleine was a gifted sorceress from a young age, whose perpetual loneliness was eased by her becoming Fretia’s friend. At some point, Fretia is implied to have purified Eleine's mother after she was afflicted with the Blight. Due to her immense talent, Eleine was raised within the Coven and later on became its leader. After the defense of the Twin Spires, Eleine frequently visited Fretia in her quarantine. During one of these visits, Fretia entrusted her with a cherished heirloom necklace from her mother; its magic stone had shattered when Fretia purified the Blighted Lord. At Fretia's request, Eleine fashioned shards of this stone into protective pendants to help sustain the White Priestess.[1] Despite her tireless research into the Abyss to free Fretia from her burden, she eventually succumbed to the Blight and died in the depths of Witch’s Thicket."
   },
   {
     "Name": "Guardian Silva",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-guardiansilva-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/f/fb/Spirit-guardiansilva-icon.png",
     "Skill": "Chains attack with a hammer. Charged attacks cause more damage and cover a wider area.",
     "Aquatic": true,
     "Uses": "Infinite",
     "Cooldown": 0,
     "Ability": "Guardian's Wings, Lost Rites",
     "Location": "D5",
-    "Image": "https://ender.fandom.com/wiki/File:Guardian_Silva.png",
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/2/20/Guardian_Silva.png",
     "Lore": "Silva is Siegrid's sister and the two of them became Guardians before Fretia, the Priestess of the Fount, was born. When Fretia was of a young age, Silva was assigned as her Guardian. After the defense of the Twin Spires, Silva accompanied Fretia to the Verboten Domain. As the experiments on Fretia harshened and Fretia became Blighted, Silva also became Blighted and began to move back to her sister in the Cathedral. Silva presumably did not make it all the way back and was instead left in the Catacombs."
   },
   {
     "Name": "Ulv, The Mad Knight",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-ulv-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/7/7b/Spirit-ulv-icon.png",
     "Skill": "Slashes twice with giant claws. Charging unleashes gouging attacks and a devastating finisher, but leaves you wide open.",
     "Aquatic": true,
     "Uses": "Infinite",
     "Cooldown": 0,
     "Ability": "Bloody Knight's Claws",
     "Location": "E21",
-    "Image": "https://ender.fandom.com/wiki/File:Ulv.png",
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/c/c2/Ulv.png",
     "Lore": "One of the knights of Land’s End who eventually became one of the Immortal Knights, Ulv quickly gained an intimidating reputation for himself due to his berserk fighting style, short temper, and difficulty expressing himself with words. Because of this, he was dubbed the Mad Knight by his own men and feared by the rest of the knights, to the point where meeting with him required written approval by Knight Captain Julius Ulv did not seem to mind being shunned by his peers, but secretly lamented that as an Immortal Knight, he would never fulfill his dream of dying in battle. During the defense of the Bastion, Fretia met and befriended Ulv despite his reputation and difficulty communicating, going so far as to try and make a painting for him. This in turn caused Ulv to become fiercely devoted to her, as she taught him that there was more to life than just battle. Although Fretia later had to leave, when the small White Priestesses were created and scattered around Land's End, Ulv ended up befriending the one who took up residence in the Twin Spires. By the time Lily gets to him, Ulv had succumbed to the Blight, having spent much of his time tending to the Snowflower Garden atop the Twin Spires in hopes that Fretia would eventually return to watch them bloom again. Even in his maddened, Blighted state, Ulv remembered Fretia's love for the flowers and continued protecting them with his life."
   },
   {
     "Name": "Knight Captain Julius",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-knightcaptainjulius-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/f/fe/Spirit-knightcaptainjulius-icon.png",
     "Skill": "Unleashes a series of jabbing attacks with a lance that allows for maximum reach. Advancing thrust can be made by using this skill while moving sideways.",
     "Aquatic": false,
     "Uses": "Infinite",
     "Cooldown": 0,
     "Ability": "Dash, Piercing Spectral Lance",
     "Location": "F19",
-    "Image": "https://ender.fandom.com/wiki/File:Knight_Captain_Julius.png",
-    "Lore": "Julius was the illegitimate son of the King of Land’s End. Julius' mother passed away at his birth and when he was still a baby, he was taken then raised by his uncle the Dark Executioner Hoenir. During his youth, Julius trained in fierce competition with a nameless peer. After enduring a hard life, Julius left the Execution Grounds and became a knight to get back at the father who abandoned him. With his unparalleled tenacity, Julius rose up the ranks and became the youngest Knight Captain, and one of the strongest warriors in the Kingdom of End. As a Knight of the Bastion defending the Kingdom against the Blighted, Julius led his knights to take the Deathless Elixir, making their bodies immortal. With his Immortal Knight, Julius fought off the Crimson Blight’s horde at the Twin Spires, paving the way for the White Priestess of the Fount, Fretia to face and purify the Ancient Blighted Lord. After the victory, Julius wished to be recognized by the King, as his beloved son and heir who was lost. When the Rain of Death fell, mutated the people into deathless abominations, and triggered the terrible transformations of those who drank the Deathless Elixir, the Knight Captain went to the castle and sought the King's aid only to be disappointed, for he had witnessed the truth: that the King was obsessed with the pursuit of immortality and sacrificed many of Julius' comrades and the subjects they were supposed to save for that pursuit. As his mind began to fade, the Knight Captain found himself in the throne room standing over the King. The Blight had allowed Julius' hate to take over, leading to him killing the king with his own hands. There in the throne room, Julius remained in his Blighted state, waiting to be put out of his misery."
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/a/a7/Knight_Captain_Julius.png",
+    "Lore": "Julius was the illegitimate son of the King of Land’s End. Julius' mother passed away at his birth and when he was still a baby, he was taken then raised by his uncle the Dark Executioner Hoenir. During his youth, Julius trained in fierce competition with a nameless peer. After enduring a hard life, Julius left the Execution Grounds and became a knight to get back at the father who abandoned him. With his unparalleled tenacity, Julius rose up the ranks and became the youngest Knight Captain, and one of the strongest warriors in the Kingdom of End. As a Knight of the Bastion defending the Kingdom against the Blighted, Julius led his knights to take the Deathless Elixir, making their bodies immortal. With his Immortal Knight, Julius fought off the Crimson Blight’s horde at the Twin Spires, paving the way for the White Priestess of the Fount, Fretia to face and purify the Ancient Blighted Lord. After the victory, Julius wished to be recognized by the King, as his beloved son and heir who was lost. When the Rain of Death fell, mutated the people into deathless abominations, and triggered the terrible transformations of those who drank the Deathless Elixir, the Knight Captain went to the castle and sought the King's aid only to be disappointed, for he had witnessed the truth: that the King was obsessed with the pursuit of immortality and sacrificed many of Julius' comrades and the subjects they were supposed to save for that pursuit. As his mind began to fade, the Knight Captain found himself in the throne room standing over the King. The Blight had allowed Julius' hate to take over, leading to him killing the king with his own hands. There inthe throne room, Julius remained in his Blighted state, waiting to be put out of his misery."
   },
   {
     "Name": "Hoenir",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-hoenir-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/5/5c/Spirit-hoenir-icon.png",
     "Skill": "Launches a blitz of dark blades to shred the enemy to pieces from a distance. Their short range is made up for with speed.",
     "Aquatic": true,
     "Uses": 110,
     "Cooldown": 0,
     "Ability": "Executioner's Hook",
     "Location": "H20",
-    "Image": "https://ender.fandom.com/wiki/File:Hoenir,_Keeper_of_the_Abyss.png",
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/5/57/Hoenir%2C_Keeper_of_the_Abyss.png",
     "Lore": "As the leader of the Dark Executioners who served the Kingdom of End from the shadows, Hoenir was wholeheartedly devoted to his kingdom despite the unsavory nature of his work. He purposely kept his profession a secret from his sister, fearing what she would think of him. After his sister died giving birth to Julius, Hoenir took his nephew in after the King of Land’s End abandoned him, raising him as one of his own until he was ready to face the truth. When the Blight started spreading, Hoenir was tasked with escorting one of the White Priestesses to escape the Blight. However, as they found themselves surrounded by Blighted in the execution grounds, Fretia somehow managed to contact him from the Verboten Domain, pleading him to never let anyone violate the grounds. It is unknown exactly what happened after, but Hoenir eventually succumbed to the Blight, while the priestess he was protecting was eventually killed, with their body being found in a room behind him. Even in his Blighted state, Hoenir still followed Fretia's final request for him."
   },
   {
     "Name": "Faden, The Heretic",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-faden-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/2/22/Spirit-faden-icon.png",
     "Skill": "Manipulates Blighted to blast enemies. While slow, this deals heavy damage and can blow enemies away at a distance.",
     "Aquatic": false,
     "Uses": 40,
     "Cooldown": 0,
     "Ability": "Unlock",
     "Location": "I17",
-    "Image": "https://ender.fandom.com/wiki/File:Faden.png",
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/0/05/Faden.png",
     "Lore": "A researcher under the King’s Mage Brigade, Faden was originally tasked to find a way to alleviate the effects of the Blight on the White Priestess, Fretia. This task sent him and his brigade to the Verboten Domain, where he and his assistant Miriel, continued their research. Eventually, due to the severity of the Blight in the area, Miriel succumbed to its effects, pushing Faden to experiment with prisoners and the Blighted itself in hopes of understanding and reversing the affliction. These experiments resulted in the creation of the Deathless Elixir, and in turn, the Immortal Knights. However, the elixir requires for the subject to have a trace of humanity left in them. Miriel, who had completely transformed at this point in time, was unable to be saved. Unable to find a cure for the Priestess' affliction, and with her having no successor, Faden turns to creating Clones of Fretia, which horrifies Silva, who wonders what will be done with those she calls inferior imitations."
   },
   {
     "Name": "Guardian Siegrid",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-guardiansiegrid-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/0/08/Spirit-guardiansiegrid-sprite.png",
     "Skill": "Swings an iron ball to attack surrounding enemies.",
     "Aquatic": true,
     "Uses": 13,
     "Cooldown": 4.5,
     "Ability": "Guardian's Leap",
     "Location": "A7",
-    "Image": "https://ender.fandom.com/wiki/File:Guardian_Siegrid.png",
-    "Lore": "Siegrid tasked herself with watching over Lily and presumably, the other youths in the church. Although she regretted being unable to serve Fretia as her Guardian, she still resolved to help her in whatever way she could"
+    "Image": "https://static.wikia.nocookie.net/enderlilies/images/8/85/Guardian_Siegrid.png",
+    "Image2": "https://static.wikia.nocookie.net/enderlilies/images/5/53/Siegrid_II.png",
+    "Lore": "Siegrid tasked herself with watching over Lily and presumably, the other youths in the church. Although she regretted being unable to serve Fretia as her Guardian, she still resolved to help her in whatever way she could."
   },
   {
     "Name": "Cliffside Hamlet Youth",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-cliffsidehamletyouth-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/f/f2/Spirit-cliffsidehamletyouth-sprite.png",
     "Skill": "Performs an arced leap and lands with enough force to scatter and damage surrounding enemies.",
     "Aquatic": false,
     "Uses": 18,
@@ -121,7 +122,7 @@
   },
   {
     "Name": "Headless Defender",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-headlessdefender-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/e/e3/Spirit-headlessdefender-sprite.png",
     "Skill": "A knight with shield at the ready. Well-timed blocks will counter enemies, leaving them stunned and variable.",
     "Aquatic": true,
     "Uses": 12,
@@ -133,7 +134,7 @@
   },
   {
     "Name": "Western Merchant",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-westernmerchant-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/3/39/Spirit-westernmerchant-sprite.png",
     "Skill": "Summons the spirit of the Western Merchant, who launches ranged attacks at enemies on sight.",
     "Aquatic": true,
     "Uses": 15,
@@ -145,7 +146,7 @@
   },
   {
     "Name": "Castle Town Maiden",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-castletownmaiden-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/6/62/Spirit-castletownmaiden-icon.png",
     "Skill": "Summons the spirit of the Castle Town Maiden, who strikes enemies she finds on the ground with melee attacks.",
     "Aquatic": false,
     "Uses": 50,
@@ -157,7 +158,7 @@
   },
   {
     "Name": "Fallen Archer",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-fallenarcher-icon.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/5/5a/Spirit-fallenarcher-icon.png",
     "Skill": "Releases a fan-shaped volley of arrows skyward to attack airborne enemies.",
     "Aquatic": false,
     "Uses": 16,
@@ -169,7 +170,7 @@
   },
   {
     "Name": "Elder Crypt Keeper",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-eldercryptkeeper-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/6/64/Spirit-eldercryptkeeper-sprite.png",
     "Skill": "Fires arcane projectiles that damage and trap enemies for a short time.",
     "Aquatic": false,
     "Uses": 13,
@@ -181,7 +182,7 @@
   },
   {
     "Name": "Fungal Sorcerer",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-fungalsorcerer-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/4/40/Spirit-fungalsorcerer-sprite.png",
     "Skill": "Generates a toxic mist that reduces enemy health over time. Damage from the mist cannot be blocked.",
     "Aquatic": true,
     "Uses": 12,
@@ -193,7 +194,7 @@
   },
   {
     "Name": "Fungal Sorceress",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-floralsorceress-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/a/a0/Spirit-floralsorceress-sprite.png",
     "Skill": "Harnesses the wind to blow away enemies before you.",
     "Aquatic": true,
     "Uses": 12,
@@ -205,7 +206,7 @@
   },
   {
     "Name": "Fallen Sentinel",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-fallensentinel-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/2/2b/Spirit-fallensentinel-sprite.png",
     "Skill": "Flies forward, piercing enemies in their path with their blade.",
     "Aquatic": false,
     "Uses": 12,
@@ -217,7 +218,7 @@
   },
   {
     "Name": "Hidden Test Subject",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-hiddentestsubject-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/b/b7/Spirit-hiddentestsubject-sprite.png",
     "Skill": "Uses the urn holding the test subject's body as a shield. Well-timed blocks unleash a counterattack on surrounding foes.",
     "Aquatic": true,
     "Uses": 10,
@@ -229,7 +230,7 @@
   },
   {
     "Name": "Dark Executioner",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-darkexecutioner-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/e/e6/Spirit-darkexecutioner-sprite.png",
     "Skill": "Phases behind an enemy in visible range and brings down their blade on the unsuspecting victim.",
     "Aquatic": true,
     "Uses": 40,
@@ -241,7 +242,7 @@
   },
   {
     "Name": "Incompetent Sinner",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-incompetentsinner-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/f/f5/Spirit-incompetentsinner-sprite.png",
     "Skill": "The Incompetent Sinner will grab hold of you and dart forward, propelling you both some distance.",
     "Aquatic": true,
     "Uses": 16,
@@ -253,7 +254,7 @@
   },
   {
     "Name": "Verboten Champion",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-verbotenchampion-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/6/6e/Spirit-verbotenchampion-sprite.png",
     "Skill": "Leap upward with the Verboten Champion shredding airborne enemies with his razor-sharp claws.",
     "Aquatic": true,
     "Uses": 14,
@@ -265,7 +266,7 @@
   },
   {
     "Name": "Cliffside Hamlet Elder",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-cliffsidehamletelder-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/f/fa/Spirit-cliffsidehamletelder-sprite.png",
     "Skill": "Bloated body arcs up and lands with force to level surrounding area.",
     "Aquatic": false,
     "Uses": 12,
@@ -277,7 +278,7 @@
   },
   {
     "Name": "Chief Guardian",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-chiefguardian-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/0/0d/Spirit-chiefguardian-sprite.png",
     "Skill": "Hurls a chain fitted with a circular blade.",
     "Aquatic": true,
     "Uses": 15,
@@ -289,7 +290,7 @@
   },
   {
     "Name": "One Eyed Royal Aegis",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-oneeyedroyalaegis-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/8/8a/Spirit-oneeyedroyalaegis-sprite.png",
     "Skill": "The giant knight thrust his greatsword into the ground, creating a shockwave that launches surrounding enemies into the air",
     "Aquatic": true,
     "Uses": 11,
@@ -301,7 +302,7 @@
   },
   {
     "Name": "Forsaken Fellwyrm",
-    "Icon": "https://ender.fandom.com/wiki/File:Spirit-forsakenfellwyrm-sprite.png",
+    "Icon": "https://static.wikia.nocookie.net/enderlilies/images/1/1e/Spirit-forsakenfellwyrm-sprite.png",
     "Skill": "Exhales a breath of toxic mist that spreads over a wide area. Enemies that make contact will lose health over time. Breath damage cannot be guarded",
     "Aquatic": false,
     "Uses": 10,

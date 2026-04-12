@@ -222,12 +222,25 @@
 
 				row.innerHTML = `
 					<td class="track-col"><input type="checkbox" class="track-checkbox" data-index="${index}" data-location="${spirit.Location || ""}" aria-label="Track ${spirit.Name || "spirit"}"></td>
-					<td class="icon-col"><img src="${resolveImageUrl(spirit.Icon, spirit.Name || "Spirit")}" alt="${spirit.Name || "Spirit"} icon" class="spirit-icon" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${getPlaceholderImage(spirit.Name || "Spirit", 40)}'"></td>
+					<td class="icon-col"></td>
 					<td class="name-col">${spirit.Name || "Unknown"}</td>
 					<td class="skill-col">${spirit.Skill || "N/A"}</td>
 					<td class="location-col">${spirit.Location || "N/A"}</td>
 					<td class="found-col"><input type="checkbox" class="found-checkbox" data-index="${index}" data-location="${spirit.Location || ""}" aria-label="Mark ${spirit.Name || "spirit"} as found"></td>
 				`;
+
+				const iconTd = row.querySelector(".icon-col");
+				const iconImg = document.createElement("img");
+				iconImg.className = "spirit-icon";
+				iconImg.alt = `${spirit.Name || "Spirit"} icon`;
+				iconImg.loading = "lazy";
+				iconImg.decoding = "async";
+				(function(name) {
+					const ph = getPlaceholderImage(name, 40);
+					iconImg.onerror = function() { this.onerror = null; this.src = ph; };
+					iconImg.src = spirit.Icon || ph;
+				})(spirit.Name || "Spirit");
+				iconTd.appendChild(iconImg);
 
 				fragment.appendChild(row);
 			}
@@ -275,12 +288,6 @@
 				saveCheckboxState();
 				if (checkbox.matches(".track-checkbox")) {
 					reorderByTracked(spiritsTbody);
-				}
-				const actionLabel = checkbox.classList.contains("found-checkbox")
-					? (checkbox.checked ? "found" : "unfound")
-					: (checkbox.checked ? "tracked" : "untracked");
-				if (spirit && window.Auth && typeof window.Auth.showNotification === "function") {
-					window.Auth.showNotification(`${spirit.Name || "Spirit"} ${actionLabel}.`);
 				}
 			}
 		});
@@ -357,13 +364,12 @@
 		}
 
 		function showSpiritDetail(spirit) {
-			const detailImageUrl = resolveImageUrl(spirit.Image || spirit.Icon, spirit.Name || "Spirit");
 			const detailImageFallback = getPlaceholderImage(spirit.Name || "Spirit", 240);
 
 			detailSection.innerHTML = `
 				<div class="detail-card">
 					<div class="detail-image-section">
-						<img src="${detailImageUrl}" alt="${spirit.Name || "Spirit"}" class="detail-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='${detailImageFallback}'">
+						<img src="${detailImageFallback}" alt="${spirit.Name || "Spirit"}" class="detail-image" loading="lazy" decoding="async">
 					</div>
 
 					<div class="detail-info-section">
@@ -386,35 +392,14 @@
 					</div>
 				</div>
 			`;
-		}
 
-		function resolveImageUrl(rawUrl, label) {
-			if (!rawUrl || typeof rawUrl !== "string") {
-				return getPlaceholderImage(label || "Spirit", 120);
-			}
-
-			const trimmed = rawUrl.trim();
-			if (!trimmed) {
-				return getPlaceholderImage(label || "Spirit", 120);
-			}
-
-			if (trimmed.startsWith("data:") || trimmed.startsWith("blob:")) {
-				return trimmed;
-			}
-
-			try {
-				const parsedUrl = new URL(trimmed, window.location.origin);
-				const filePathPrefix = "/wiki/File:";
-
-				if (parsedUrl.pathname.startsWith(filePathPrefix)) {
-					const fileName = decodeURIComponent(parsedUrl.pathname.slice(filePathPrefix.length));
-					const encodedFileName = encodeURIComponent(fileName);
-					return `${parsedUrl.origin}/wiki/Special:FilePath/${encodedFileName}`;
+			const detailImg = detailSection.querySelector("img.detail-image");
+			if (detailImg) {
+				const rawUrl = spirit.Image || spirit.Icon || "";
+				if (rawUrl) {
+					detailImg.onerror = function() { this.onerror = null; this.src = detailImageFallback; };
+					detailImg.src = rawUrl;
 				}
-
-				return parsedUrl.href;
-			} catch (_error) {
-				return getPlaceholderImage(label || "Spirit", 120);
 			}
 		}
 

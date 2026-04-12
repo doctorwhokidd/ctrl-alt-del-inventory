@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cardo:wght@700&family=Manrope:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cardo:wght@700&family=Cinzel+Decorative:wght@700&family=Manrope:wght@400;500;700;800&display=swap');
 
 :root {
 	--bg: #07090f;
@@ -11,7 +11,8 @@
 	--brand-deep: #adb8d1;
 	--accent: #c8d0e2;
 	--click-burgundy: #7b1e3f;
-	--click-purple: #5b2a86;
+	--click-purple: #8b2f86;
+	--click-dark-blue: #12a8ff;
 	--shadow: 0 16px 42px rgba(0, 0, 0, 0.45);
 	--radius: 16px;
 	--container-width: 1140px;
@@ -31,10 +32,37 @@ body {
 	min-height: 100vh;
 	font-family: 'Manrope', 'Segoe UI', Tahoma, sans-serif;
 	color: var(--ink);
+	position: relative;
+	isolation: isolate;
+	overflow-x: hidden;
 	background:
 		radial-gradient(900px 500px at 92% -15%, rgba(170, 180, 210, 0.14), transparent 58%),
 		radial-gradient(760px 430px at -12% 0%, rgba(124, 132, 166, 0.16), transparent 55%),
 		linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+}
+
+body::before {
+	content: "";
+	position: fixed;
+	inset: -8%;
+	background-image: url("https://w0.peakpx.com/wallpaper/729/118/HD-wallpaper-video-game-ender-lilies-quietus-of-the-knights.jpg");
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	filter: blur(15px);
+	transform: scale(1.08);
+	opacity: 0.78;
+	z-index: -2;
+	pointer-events: none;
+}
+
+body::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(7, 9, 15, 0.78) 0%, rgba(16, 21, 34, 0.86) 100%);
+	z-index: -1;
+	pointer-events: none;
 }
 
 a {
@@ -70,11 +98,14 @@ img {
 }
 
 .site-brand {
-	font-family: 'Cardo', Georgia, serif;
-	font-size: clamp(1.03rem, 1.75vw, 1.38rem);
+	font-family: 'Cinzel Decorative', 'Cardo', Georgia, serif;
+	font-size: clamp(1.06rem, 1.9vw, 1.5rem);
 	font-weight: 700;
 	color: #f5f7ff;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.065em;
+	line-height: 1.05;
+	text-transform: uppercase;
+	text-shadow: 0 0 5px rgba(255, 162, 162, 0.52), 0 0 14px rgba(186, 32, 52, 0.66), 0 0 28px rgba(125, 18, 37, 0.58), 0 0 10px rgba(32, 52, 104, 0.42);
 	white-space: nowrap;
 }
 
@@ -403,9 +434,14 @@ img {
 }
 
 .btn:active,
-.site-nav .nav-login:active {
+
+.site-nav .nav-login:active,
+.site-nav a:active,
+.home-recent-untrack:active,
+.collection-mini-untrack:active {
 	animation: clickBurst 420ms ease;
-	background: linear-gradient(135deg, var(--click-burgundy) 0%, var(--click-purple) 100%);
+	background: linear-gradient(135deg, var(--click-burgundy) 0%, var(--click-purple) 52%, var(--click-dark-blue) 100%);
+	border-color: rgba(183, 146, 224, 0.52);
 	color: #f8f1ff;
 	transform: scale(0.98);
 }
@@ -1032,9 +1068,9 @@ img {
 	top: 0;
 	left: 0;
 	right: 0;
-	transform: translateY(calc(-100% - 0.45rem));
+	transform: translateY(calc(-100% - 0.75rem));
 	z-index: 3;
-	padding: 0.72rem 0.78rem;
+	padding: 0.5rem 0.78rem 0.72rem;
 	border-radius: 12px;
 	border: 1px solid rgba(214, 224, 245, 0.18);
 	background: linear-gradient(180deg, rgba(12, 18, 31, 0.94) 0%, rgba(16, 23, 37, 0.88) 100%);
@@ -1135,6 +1171,16 @@ img {
 .collection-mini-recent-text {
 	flex: 1 1 auto;
 	min-width: 0;
+}
+
+.collection-mini-action-positive {
+	color: #41ff79;
+	text-shadow: 0 0 8px rgba(65, 255, 121, 0.4);
+}
+
+.collection-mini-action-negative {
+	color: #ff4040;
+	text-shadow: 0 0 8px rgba(255, 64, 64, 0.35);
 }
 
 .collection-mini-untrack {
@@ -1563,12 +1609,48 @@ img {
 		gap: 1.5rem;
 	}
 
+	.collection-detail-shell {
+		order: -1;
+	}
+
 	.collection-detail-section {
 		position: static;
+		min-height: 300px;
+	}
+
+	.detail-card {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+	}
+
+	.detail-image-section,
+	.detail-info-section,
+	.detail-lore {
+		grid-column: 1;
 	}
 
 	.table-wrapper {
 		max-height: 50vh;
+	}
+}
+
+@media (max-width: 900px) {
+	.collection-toolbar {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.collection-search {
+		width: 100%;
+		min-width: 0;
+	}
+
+	.collection-meta {
+		flex: 0 0 auto;
+	}
+
+	.collection-mini-panel {
+		padding: 0.44rem 0.68rem 0.64rem;
 	}
 }
 
@@ -1598,5 +1680,56 @@ img {
 
 	.page-header h1 {
 		font-size: clamp(1.5rem, 4vw, 2rem);
+	}
+
+	.collection-detail-section {
+		padding: 1rem;
+	}
+
+	.detail-header h2 {
+		font-size: 1.25rem;
+	}
+
+	.table-wrapper {
+		max-height: 56vh;
+	}
+}
+
+@media (max-width: 640px) {
+	.collection-table-section {
+		min-height: 330px;
+	}
+
+	.collection-table {
+		min-width: 520px;
+	}
+
+	.relics-page #relics-table,
+	.spirits-page #spirits-table {
+		min-width: 700px;
+	}
+
+	.collection-mini-recent-item {
+		align-items: flex-start;
+		flex-direction: column;
+	}
+
+	.collection-mini-untrack {
+		align-self: flex-end;
+	}
+
+	.detail-placeholder {
+		min-height: 260px;
+	}
+}
+
+@media (max-width: 480px) {
+	.collection-table {
+		font-size: 0.81rem;
+	}
+
+	.collection-table th,
+	.collection-table td {
+		padding: 0.55rem 0.42rem;
 	}
 }

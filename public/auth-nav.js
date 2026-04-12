@@ -311,19 +311,27 @@
 			const recentActivity = this.getRecentActivity();
 			const recentMarkup = recentActivity.length > 0
 				? recentActivity.slice(0, 2).map(entry => {
-					const locationText = entry.location ? ` <span class="collection-mini-location">${escapeHtml(entry.location)}</span>` : "";
-					const untrackButton = loggedIn
-						? `<button class="collection-mini-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button>`
-						: "";
-					return `<li class="collection-mini-recent-item"><span class="collection-mini-recent-text"><strong>${escapeHtml(entry.action)}</strong> ${escapeHtml(entry.type)}: ${escapeHtml(entry.name)}${locationText}</span>${untrackButton}</li>`;
+					   let actionLower = String(entry.action || "").toLowerCase();
+					   let actionDisplay = entry.action === "Unfound" ? "Not Found" : entry.action;
+					   const actionClass = (actionLower === "tracked" || actionLower === "found")
+						   ? "collection-mini-action-positive"
+						   : ((actionLower === "untracked" || actionLower === "unfound")
+							   ? "collection-mini-action-negative"
+							   : "");
+					   // Capitalize type for display
+					   let typeDisplay = entry.type ? (entry.type.charAt(0).toUpperCase() + entry.type.slice(1).toLowerCase()) : "";
+					   const locationText = entry.location ? ` <span class="collection-mini-location">${escapeHtml(entry.location)}</span>` : "";
+					   const untrackButton = loggedIn && actionLower === "tracked"
+						   ? `<button class="collection-mini-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button>`
+						   : "";
+					   return `<li class="collection-mini-recent-item"><span class="collection-mini-recent-text"><strong class="${actionClass}">${escapeHtml(actionDisplay)}</strong> ${escapeHtml(typeDisplay)}: ${escapeHtml(entry.name)}${locationText}</span>${untrackButton}</li>`;
 				}).join("")
 				: '<li class="collection-mini-recent-empty">No recent tracked or found activity yet.</li>';
 
 			root.__dashTotalCounts = totalCounts;
 
 			root.innerHTML = `
-				<p class="collection-mini-title">${loggedIn ? "Quick Dashboard" : "Guest Quick Dashboard"}</p>
-				<p class="collection-mini-note">${loggedIn ? "Use Untrack to quickly undo recent tracked/found actions." : "Guest progress is temporary until you log in."}</p>
+				${loggedIn ? "" : '<p class="collection-mini-note">Guest progress is temporary until you log in.</p>'}
 				<div class="collection-mini-stats-grid">
 					<div class="collection-mini-stat"><span>Spirits</span><strong>${spiritFound} / ${totalCounts.spirits || 0}</strong></div>
 					<div class="collection-mini-stat"><span>Relics</span><strong>${relicFound} / ${totalCounts.relics || 0}</strong></div>
@@ -344,6 +352,7 @@
 					if (!button) return;
 					event.preventDefault();
 					const action = String(button.dataset.action || "").toLowerCase();
+					if (action !== "tracked") return;
 					const type = String(button.dataset.type || "").toLowerCase();
 					const name = String(button.dataset.name || "");
 					const entryId = String(button.dataset.id || "");
@@ -351,7 +360,15 @@
 					if (this.isLoggedIn()) {
 						this.undoProgressEntry({ action, type, name, entryId });
 						this.removeRecentActivity(entryId);
-						this.showNotification(`${name} ${action === "found" ? "unfound" : "untracked"}.`);
+						// Add an 'Untracked' entry to recent activity
+						this.recordRecentActivity({
+							id: `${type}-${name}-${Date.now()}`,
+							type: type.charAt(0).toUpperCase() + type.slice(1),
+							action: "Untracked",
+							name: name,
+							location: "",
+							timestamp: Date.now()
+						});
 						if (root.__dashTotalCounts) {
 							this.renderCollectionMiniDashboard(root, root.__dashTotalCounts);
 						}
@@ -394,7 +411,6 @@
 		},
 		undoProgressEntry(entry) {
 			if (!entry || !this.isLoggedIn()) return;
-			const action = String(entry.action || "").toLowerCase();
 			const type = String(entry.type || "").toLowerCase();
 			const entryName = String(entry.name || "");
 			const entryId = String(entry.entryId || "");
@@ -409,10 +425,7 @@
 			const collectionKey = collectionKeyMap[type];
 			if (!collectionKey) return;
 
-			let targetKey = "";
-			if (action === "tracked") targetKey = `${collectionKey}_tracked`;
-			if (action === "found") targetKey = `${collectionKey}_found`;
-			if (!targetKey) return;
+			const targetKey = `${collectionKey}_tracked`;
 
 			const scopedKey = this.getProgressKey(targetKey);
 			if (!scopedKey) return;

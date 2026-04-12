@@ -71,7 +71,7 @@
                 </div>
 
                 <figure class="hero-visual">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO43G9VseWrVGa3PHShjhn0xz2CHpHxw9jnQ&s=10" alt="Ender Lilies Gaming Poster" loading="eager" decoding="async" fetchpriority="high" width="640" height="360">
+                    <img src="https://clan.akamai.steamstatic.com/images//38795227/a802ac0cf88c6443240541942aab71a6ae35654a.png" alt="Ender Lilies Gaming Poster" loading="eager" decoding="async" fetchpriority="high" width="640" height="360">
                 </figure>
             </div>
         </section>
@@ -209,12 +209,24 @@
                 const totalAll = totalCounts.spirits + totalCounts.relics + totalCounts.items + totalCounts.findings;
                 const progressPct = totalAll > 0 ? Math.round((totalFound / totalAll) * 100) : 0;
                 const recentActivity = typeof auth.getRecentActivity === "function" ? auth.getRecentActivity() : [];
-                const recentMarkup = recentActivity.length > 0
-                    ? recentActivity.slice(0, 6).map(entry => {
-                        const locationText = entry.location ? ` <span class="home-recent-location">${escapeHtml(entry.location)}</span>` : "";
-                        return `<li class="home-recent-item"><span class="home-recent-main"><strong>${escapeHtml(entry.action)}</strong> ${escapeHtml(entry.type)}: ${escapeHtml(entry.name)}${locationText}</span><button class="home-recent-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button></li>`;
-                    }).join("")
-                    : '<li class="home-recent-empty">No recent tracked or found activity yet.</li>';
+                    const recentMarkup = recentActivity.length > 0
+                        ? recentActivity.slice(0, 6).map(entry => {
+                            const actionLower = String(entry.action || "").toLowerCase();
+                            let actionDisplay = entry.action === "Unfound" ? "Not Found" : entry.action;
+                            const actionClass = (actionLower === "tracked" || actionLower === "found")
+                                ? "collection-mini-action-positive"
+                                : ((actionLower === "untracked" || actionLower === "unfound")
+                                    ? "collection-mini-action-negative"
+                                    : "");
+                            // Capitalize type for display
+                            let typeDisplay = entry.type ? (entry.type.charAt(0).toUpperCase() + entry.type.slice(1).toLowerCase()) : "";
+                            const locationText = entry.location ? ` <span class="home-recent-location">${escapeHtml(entry.location)}</span>` : "";
+                            const untrackButton = actionLower === "tracked"
+                                ? `<button class="home-recent-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack this entry">Untrack</button>`
+                                : "";
+                            return `<li class="home-recent-item"><span class="home-recent-main"><strong class="${actionClass}">${escapeHtml(actionDisplay)}</strong> ${escapeHtml(typeDisplay)}: ${escapeHtml(entry.name)}${locationText}</span>${untrackButton}</li>`;
+                        }).join("")
+                        : '<li class="home-recent-empty">No recent tracked or found activity yet.</li>';
 
                 statsRoot.innerHTML = `
                     <p class="home-stats-note">Signed in as <strong>${username}</strong></p>
@@ -262,6 +274,7 @@
                         const button = event.target.closest(".home-recent-untrack");
                         if (!button) return;
                         event.preventDefault();
+                        if (String(button.dataset.action || "").toLowerCase() !== "tracked") return;
                         const auth = window.Auth;
                         if (!auth || !auth.isLoggedIn || !auth.isLoggedIn()) return;
                         if (typeof auth.undoProgressEntry === "function") {
@@ -275,8 +288,16 @@
                         if (typeof auth.removeRecentActivity === "function") {
                             auth.removeRecentActivity(button.dataset.id);
                         }
-                        if (typeof auth.showNotification === "function") {
-                            auth.showNotification(`${button.dataset.name || "Entry"} ${String(button.dataset.action || "").toLowerCase() === "found" ? "unfound" : "untracked"}.`);
+                        // Add an 'Untracked' entry to recent activity
+                        if (typeof auth.recordRecentActivity === "function") {
+                            auth.recordRecentActivity({
+                                id: `${button.dataset.type}-${button.dataset.name}-${Date.now()}`,
+                                type: button.dataset.type.charAt(0).toUpperCase() + button.dataset.type.slice(1),
+                                action: "Untracked",
+                                name: button.dataset.name,
+                                location: "",
+                                timestamp: Date.now()
+                            });
                         }
                         renderStats(totals);
                         window.dispatchEvent(new CustomEvent("elg-progress-changed"));
