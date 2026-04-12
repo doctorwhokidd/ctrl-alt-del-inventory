@@ -31,7 +31,7 @@
 		<div class="container">
 			<div class="page-header">
 				<h1>Relics</h1>
-				<p class="page-subtitle">Track relics, review effects, and inspect where each one is obtained.</p>
+				<p class="page-subtitle">Track relics, review their effects, and discover their locations.</p>
 				<p id="relics-access-note" class="tracking-mode-note" aria-live="polite"></p>
 			</div>
 
@@ -55,9 +55,9 @@
 							<thead>
 								<tr>
 									<th>Track</th>
-									<th>Icon</th>
+									<th>Image</th>
 									<th>Name</th>
-									<th>Effects</th>
+									<th>Effect</th>
 									<th>Location</th>
 									<th>Found</th>
 								</tr>
@@ -110,7 +110,6 @@
 		}
 
 		function getTrackingStore() {
-			// Use localStorage for logged in users, sessionStorage for guests
 			return isTrackingEnabled() ? localStorage : sessionStorage;
 		}
 
@@ -189,53 +188,42 @@
 			applyRelicFilterAndRender();
 		});
 
-		   relicsTbody.addEventListener("change", event => {
-			   if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
-				   const checkbox = event.target;
-				   const row = checkbox.closest("tr[data-index]");
-				   const index = row ? Number(row.dataset.index) : NaN;
-				   const relic = !Number.isNaN(index) ? relicsData[index] : null;
-				   if (relic && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
-					   window.Auth.recordRecentActivity({
-						   id: `relics-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
-						   type: "Relic",
-						   action: checkbox.classList.contains("found-checkbox")
-							   ? (checkbox.checked ? "Found" : "Unfound")
-							   : (checkbox.checked ? "Tracked" : "Untracked"),
-						   name: relic.Name || "Unknown Relic",
-						   location: relic.Location || "",
-						   timestamp: Date.now(),
-					   });
-				   }
-				   saveRelicState();
-				   reorderByTracked(relicsTbody);
-			   }
-		   });
+		relicsTbody.addEventListener("change", event => {
+			if (event.target.matches(".found-checkbox") || event.target.matches(".track-checkbox")) {
+				const checkbox = event.target;
+				const row = checkbox.closest("tr[data-index]");
+				const index = row ? Number(row.dataset.index) : NaN;
+				const relic = !Number.isNaN(index) ? relicsData[index] : null;
+				if (relic && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
+					window.Auth.recordRecentActivity({
+						id: `relics-${checkbox.classList.contains("found-checkbox") ? "found" : "tracked"}-${index}`,
+						type: "Relic",
+						action: checkbox.classList.contains("found-checkbox")
+							? (checkbox.checked ? "Found" : "Unfound")
+							: (checkbox.checked ? "Tracked" : "Untracked"),
+						name: relic.Name || "Unknown Relic",
+						location: relic.Location || "",
+						timestamp: Date.now(),
+					});
+				}
+				saveRelicState();
+				if (checkbox.matches(".track-checkbox")) {
+					reorderByTracked(relicsTbody);
+				}
+				const actionLabel = checkbox.classList.contains("found-checkbox")
+					? (checkbox.checked ? "found" : "unfound")
+					: (checkbox.checked ? "tracked" : "untracked");
+			}
+		});
 
-		   function reorderByTracked(tbody) {
-			   const rows = [...tbody.querySelectorAll("tr[data-index]")];
-			   // Add or remove found-row and tracked-row classes
-			   rows.forEach(r => {
-				   const found = r.querySelector('.found-checkbox')?.checked;
-				   const tracked = r.querySelector('.track-checkbox')?.checked;
-				   if (found) {
-					   r.classList.add('found-row');
-				   } else {
-					   r.classList.remove('found-row');
-				   }
-				   if (tracked) {
-					   r.classList.add('tracked-row');
-				   } else {
-					   r.classList.remove('tracked-row');
-				   }
-			   });
-			   // Move tracked rows to the top
-			   const trackedRows = rows.filter(r => r.classList.contains('tracked-row'));
-			   const untrackedRows = rows.filter(r => !r.classList.contains('tracked-row'));
-			   tbody.innerHTML = '';
-			   trackedRows.forEach(r => tbody.appendChild(r));
-			   untrackedRows.forEach(r => tbody.appendChild(r));
-		   }
+		function reorderByTracked(tbody) {
+			const rows = [...tbody.querySelectorAll("tr[data-index]")];
+			const tracked = rows.filter(r => r.querySelector(".track-checkbox")?.checked);
+			const untracked = rows.filter(r => !r.querySelector(".track-checkbox")?.checked);
+			tracked.forEach(r => r.classList.add("row-tracked"));
+			untracked.forEach(r => r.classList.remove("row-tracked"));
+			[...tracked, ...untracked].forEach(r => tbody.appendChild(r));
+		}
 
 		relicsTbody.addEventListener("click", event => {
 			const row = event.target.closest("tr[data-index]");
@@ -261,50 +249,46 @@
 			relicMeta.textContent = `${matchingIndices.length} / ${relicsData.length} relics shown`;
 		}
 
-		   function renderRelicsTable(indices) {
-			   if (indices.length === 0) {
-				   relicsTbody.innerHTML = '<tr><td colspan="6" class="table-error">No relics match your search.</td></tr>';
-				   return;
-			   }
+		function renderRelicsTable(indices) {
+			if (indices.length === 0) {
+				relicsTbody.innerHTML = '<tr><td colspan="6" class="table-error">No relics match your search.</td></tr>';
+				return;
+			}
 
-			   // Build rows and sort tracked to top
-			   const rows = [];
-			   for (const index of indices) {
-				   const relic = relicsData[index];
-				   const row = document.createElement("tr");
-				   const name = relic.Name || "Relic";
-				   row.dataset.index = String(index);
-				   row.innerHTML = `
-					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
-					   <td class="icon-col"></td>
-					   <td class="name-col">${escapeHtml(name)}</td>
-					   <td class="skill-col">${escapeHtml(relic.Effects || "N/A")}</td>
-					   <td class="location-col">${escapeHtml(relic.Location || "N/A")}</td>
-					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
-				   `;
-				   const iconTd = row.querySelector(".icon-col");
-				   const iconImg = document.createElement("img");
-				   iconImg.className = "spirit-icon";
-				   iconImg.alt = `${name} icon`;
-				   iconImg.loading = "lazy";
-				   iconImg.decoding = "async";
-				   (function(n) {
-					   const ph = getPlaceholderImage(n, 40);
-					   iconImg.onerror = function() { this.onerror = null; this.src = ph; };
-					   iconImg.src = relic.Image || ph;
-				   })(name);
-				   iconTd.appendChild(iconImg);
-				   rows.push(row);
-			   }
+			const fragment = document.createDocumentFragment();
+			for (const index of indices) {
+				const relic = relicsData[index];
+				const row = document.createElement("tr");
+				const name = relic.Name || "Relic";
+				row.dataset.index = String(index);
+				row.innerHTML = `
+					<td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+					<td class="icon-col"></td>
+					<td class="name-col">${escapeHtml(name)}</td>
+					<td class="skill-col">${escapeHtml(relic.Effects || "N/A")}</td>
+					<td class="location-col">${escapeHtml(relic.Location || "N/A")}</td>
+					<td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+				`;
+				const iconTd = row.querySelector(".icon-col");
+				const iconImg = document.createElement("img");
+				iconImg.className = "spirit-icon";
+				iconImg.alt = `${name} icon`;
+				iconImg.loading = "lazy";
+				iconImg.decoding = "async";
+				(function(n) {
+					const ph = getPlaceholderImage(n, 40);
+					iconImg.onerror = function() { this.onerror = null; this.src = ph; };
+					iconImg.src = relic.Image || ph;
+				})(name);
+				iconTd.appendChild(iconImg);
+				fragment.appendChild(row);
+			}
 
-			   // Restore state before sorting
-			   relicsTbody.innerHTML = "";
-			   rows.forEach(r => relicsTbody.appendChild(r));
-			   restoreRelicState();
-			   // Now sort tracked to top
-			   reorderByTracked(relicsTbody);
-			   applyTrackingAccessState();
-		   }
+			relicsTbody.innerHTML = "";
+			relicsTbody.appendChild(fragment);
+			restoreRelicState();
+			applyTrackingAccessState();
+		}
 
 		function showRelicDetail(relic) {
 			const name = relic.Name || "Unknown Relic";
