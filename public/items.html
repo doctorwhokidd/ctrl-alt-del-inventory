@@ -235,6 +235,7 @@
 						   timestamp: Date.now(),
 					   });
 				   }
+				   saveItemState();
 				   reorderByTracked(itemsTbody);
 			   }
 		   });
@@ -252,7 +253,6 @@
 					   untrackedRows.push(r);
 				   }
 			   });
-			   // Clear tbody and append tracked first, then untracked
 			   tbody.innerHTML = "";
 			   trackedRows.forEach(r => tbody.appendChild(r));
 			   untrackedRows.forEach(r => tbody.appendChild(r));
@@ -287,8 +287,6 @@
 				   itemsTbody.innerHTML = '<tr><td colspan="5" class="table-error">No items match your search.</td></tr>';
 				   return;
 			   }
-
-			   // Build rows and sort tracked to top
 			   const rows = [];
 			   for (const index of indices) {
 				   const item = itemsData[index];
@@ -316,12 +314,9 @@
 				   iconTd.appendChild(iconImg);
 				   rows.push(row);
 			   }
-
-			   // Restore state before sorting
 			   itemsTbody.innerHTML = "";
 			   rows.forEach(r => itemsTbody.appendChild(r));
 			   restoreItemState();
-			   // Now sort tracked to top
 			   reorderByTracked(itemsTbody);
 			   applyTrackingAccessState();
 		   }
@@ -395,7 +390,6 @@
 						if (row) row.classList.add("row-found");
 					}
 				});
-				// Remove row-found from all others
 				itemsTbody.querySelectorAll("tr[data-index]").forEach(row => {
 					const cb = row.querySelector('.found-checkbox');
 					if (cb && !cb.checked) row.classList.remove("row-found");
@@ -460,6 +454,20 @@
 		window.addEventListener("elg-progress-changed", () => {
 			restoreItemState();
 			applyTrackingAccessState();
+			// Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
+			const trackedKey = getTrackingKey("items_tracked");
+			const store = getTrackingStore();
+			let tracked = [];
+			try {
+				tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+			} catch (_) {}
+			const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
+			itemsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
+				const cbKey = String(cb.dataset.key).toLowerCase();
+				if (!trackedSet.has(cbKey)) {
+					cb.checked = false;
+				}
+			});
 		});
 	</script>
 	<footer class="site-footer">

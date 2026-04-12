@@ -233,6 +233,7 @@
 						   timestamp: Date.now(),
 					   });
 				   }
+				   saveFindingState();
 				   reorderByTracked(findingsTbody);
 			   }
 		   });
@@ -410,6 +411,22 @@
 		window.addEventListener("elg-progress-changed", () => {
 			restoreFindingState();
 			applyTrackingAccessState();
+			// Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
+			const trackedKey = getTrackingKey("findings_tracked");
+			const store = getTrackingStore();
+			let tracked = [];
+			try {
+				tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+			} catch (_) {}
+			// Normalize tracked keys for robust comparison
+			const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
+			findingsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
+				// Use the same normalization as tracked
+				const cbKey = String(cb.dataset.key).toLowerCase();
+				if (!trackedSet.has(cbKey)) {
+					cb.checked = false;
+				}
+			});
 		});
 	</script>
 	<footer class="site-footer">
