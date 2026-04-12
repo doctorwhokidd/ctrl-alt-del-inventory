@@ -319,7 +319,12 @@
 							   ? "collection-mini-action-negative"
 							   : "");
 					   // Capitalize type for display
-					   let typeDisplay = entry.type ? (entry.type.charAt(0).toUpperCase() + entry.type.slice(1).toLowerCase()) : "";
+					   let typeDisplay = "";
+					   if (entry.type) {
+						   const typeMap = { spirit: "Spirits", relic: "Relics", item: "Items", finding: "Findings" };
+						   const typeKey = entry.type.toLowerCase();
+						   typeDisplay = typeMap[typeKey] || (entry.type.charAt(0).toUpperCase() + entry.type.slice(1).toLowerCase());
+					   }
 					   const locationText = entry.location ? ` <span class="collection-mini-location">${escapeHtml(entry.location)}</span>` : "";
 					   const untrackButton = loggedIn && actionLower === "tracked"
 						   ? `<button class="collection-mini-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button>`
