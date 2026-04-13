@@ -114,6 +114,14 @@
 	function writeArrayKey(rawKey, value) {
 		if (!rawKey) return;
 		localStorage.setItem(rawKey, JSON.stringify(Array.isArray(value) ? value : []));
+		// Also save to Firestore if logged in and it's a progress key
+		const session = readSession();
+		if (session && session.id && window.firebaseDb && rawKey.includes('__' + session.id)) {
+			const docRef = window.firebaseDb.collection('users').doc(session.id);
+			docRef.set({
+				[rawKey]: Array.isArray(value) ? value : []
+			}, { merge: true }).catch(err => console.error('Error saving to Firestore:', err));
+		}
 	}
 
 	function deriveUserId(username, email) {
@@ -175,6 +183,7 @@
 			}
 
 			writeSession(buildSessionFromUser(user));
+			Auth.loadProgressFromFirestore();
 			setStatus(form, "Login successful. Redirecting...", false);
 			const params = new URLSearchParams(window.location.search);
 			const redirect = params.get("redirect");
@@ -269,7 +278,7 @@
 
 		navLogin.addEventListener("click", event => {
 			event.preventDefault();
-			writeSession(null);
+			Auth.logout();
 			window.location.href = "login.html";
 		}, { once: true });
 	}
@@ -454,6 +463,38 @@
 		showNotification(message) {
 			showToast(message);
 		},
+		loadProgressFromFirestore() {
+			const session = readSession();
+			if (!session || !session.id || !window.firebaseDb) return;
+			const userId = session.id;
+			const docRef = window.firebaseDb.collection('users').doc(userId);
+			docRef.get().then(doc => {
+				if (doc.exists) {
+					const data = doc.data();
+					for (const key in data) {
+						if (key.includes('__' + userId)) {
+							localStorage.setItem(key, JSON.stringify(data[key]));
+						}
+					}
+					// Dispatch event to update UI
+					window.dispatchEvent(new CustomEvent('elg-progress-loaded'));
+				}
+			}).catch(err => console.error('Error loading from Firestore:', err));
+		},
+		saveAllProgressToFirestore() {
+			const session = readSession();
+			if (!session || !session.id || !window.firebaseDb) return;
+			const userId = session.id;
+			const progressKeys = ['spirits_found', 'relics_found', 'items_found', 'findings_found', RECENT_ACTIVITY_KEY];
+			const data = {};
+			progressKeys.forEach(key => {
+				const scopedKey = this.getProgressKey(key);
+				const value = readArrayKey(scopedKey);
+				data[scopedKey] = value;
+			});
+			const docRef = window.firebaseDb.collection('users').doc(userId);
+			docRef.set(data, { merge: true }).catch(err => console.error('Error saving all progress to Firestore:', err));
+		},
 		requireLogin(redirectPath) {
 			if (readSession()) return true;
 			const target = normalizeText(redirectPath || window.location.pathname.split("/").pop() || "index.html");
@@ -461,6 +502,7 @@
 			return false;
 		},
 		logout() {
+			this.saveAllProgressToFirestore();
 			writeSession(null);
 		},
 	};
@@ -471,4 +513,8 @@
 	updateNavAuthState();
 	setupLoginForm();
 	setupSignupForm();
+
+	window.addEventListener('beforeunload', () => {
+		Auth.saveAllProgressToFirestore();
+	});
 })();

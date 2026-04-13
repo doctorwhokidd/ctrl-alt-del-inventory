@@ -91,7 +91,32 @@
 		</div>
 	</main>
 
-	<script src="auth-nav.js"></script>
+	<!-- Firebase SDK -->
+	<script type="module">
+		try {
+			import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+			import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+			import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+			// Firebase configuration
+			const firebaseConfig = {
+				apiKey: "your-api-key",
+				authDomain: "ender-lilies-api.firebaseapp.com",
+				projectId: "ender-lilies-api",
+				storageBucket: "ender-lilies-api.appspot.com",
+				messagingSenderId: "your-sender-id",
+				appId: "your-app-id"
+			};
+
+			// Initialize Firebase
+			const app = initializeApp(firebaseConfig);
+			window.firebaseAuth = getAuth(app);
+			window.firebaseDb = getFirestore(app);
+		} catch (error) {
+			console.error('Firebase initialization failed:', error);
+		}
+	</script>
+	<script src="auth-nav.js" defer></script>
 	<script>
 		const SPIRITS_DATA_URL = "data/spirits.json";
 		const spiritsTbody = document.getElementById("spirits-tbody");
@@ -379,10 +404,10 @@
 			if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
 			const store = getTrackingStore();
 
-			store.setItem(foundKey, JSON.stringify(found));
-			store.setItem(trackedKey, JSON.stringify(tracked));
-			store.setItem(foundLocationsKey, JSON.stringify(Array.from(new Set(foundLocations))));
-			store.setItem(trackedLocationsKey, JSON.stringify(Array.from(new Set(trackedLocations))));
+			writeArrayKey(foundKey, found);
+			writeArrayKey(trackedKey, tracked);
+			writeArrayKey(foundLocationsKey, Array.from(new Set(foundLocations)));
+			writeArrayKey(trackedLocationsKey, Array.from(new Set(trackedLocations)));
 			renderMiniDashboard();
 		}
 
@@ -395,10 +420,10 @@
 				if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
 				const store = getTrackingStore();
 
-				const found = JSON.parse(store.getItem(foundKey) || "[]");
-				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-				const foundLocations = JSON.parse(store.getItem(foundLocationsKey) || "[]");
-				const trackedLocations = JSON.parse(store.getItem(trackedLocationsKey) || "[]");
+				const found = readArrayKey(foundKey);
+				const tracked = readArrayKey(trackedKey);
+				const foundLocations = readArrayKey(foundLocationsKey);
+				const trackedLocations = readArrayKey(trackedLocationsKey);
 
 				foundLocations.forEach(code => {
 					const cb = spiritsTbody.querySelector(`.found-checkbox[data-location="${code}"]`);
@@ -522,6 +547,11 @@
 					cb.checked = false;
 				}
 			});
+		});
+
+		window.addEventListener("elg-progress-loaded", () => {
+			restoreCheckboxState();
+			applyTrackingAccessState();
 		});
 	</script>
 	<footer class="site-footer">
