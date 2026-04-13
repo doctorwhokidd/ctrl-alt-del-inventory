@@ -88,7 +88,7 @@
 	}
 	</style>
 
-	<script src="auth-nav.js"></script>
+	<script src="auth-nav.js" defer></script>
 	<script>
 		const FINDINGS_DATA_URL = "data/findings.json";
 		const findingsTbody = document.getElementById("findings-tbody");
@@ -344,8 +344,8 @@
 			   const foundKey = getTrackingKey("findings_found");
 			   if (!trackedKey || !foundKey) return;
 			   const store = getTrackingStore();
-			   store.setItem(trackedKey, JSON.stringify(tracked));
-			   store.setItem(foundKey, JSON.stringify(found));
+			   writeArrayKey(trackedKey, tracked);
+			   writeArrayKey(foundKey, found);
 			   renderMiniDashboard();
 		   }
 
@@ -355,9 +355,9 @@
 				   const foundKey = getTrackingKey("findings_found");
 				   if (!trackedKey || !foundKey) return;
 				   const store = getTrackingStore();
-				   const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-				   const found = JSON.parse(store.getItem(foundKey) || "[]");
-				   // Restore tracked checkboxes
+		   const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+		   const found = JSON.parse(store.getItem(foundKey) || "[]");
+		   // Restore tracked checkboxes
 				   tracked.forEach(key => {
 					   const cb = findingsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
 					   if (cb) cb.checked = true;
@@ -411,28 +411,33 @@
 			renderMiniDashboard();
 		});
 
-		   window.addEventListener("elg-progress-changed", () => {
-			   restoreFindingState();
-			   applyTrackingAccessState();
-			   // Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
-			   const trackedKey = getTrackingKey("findings_tracked");
-			   const store = getTrackingStore();
-			   let tracked = [];
-			   try {
-				   tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-			   } catch (_) {}
-			   // Normalize tracked keys for robust comparison
-			   const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
-			   findingsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
-				   // Use the same normalization as tracked
-				   const cbKey = String(cb.dataset.key).toLowerCase();
-				   if (!trackedSet.has(cbKey)) {
-					   cb.checked = false;
-				   }
-			   });
-			   // Always reorder after dashboard event
-			   reorderByTracked(findingsTbody);
+	   window.addEventListener("elg-progress-changed", () => {
+		   restoreFindingState();
+		   applyTrackingAccessState();
+		   // Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
+		   const trackedKey = getTrackingKey("findings_tracked");
+		   const store = getTrackingStore();
+		   let tracked = [];
+		   try {
+			   tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+		   } catch (_) {}
+		   // Normalize tracked keys for robust comparison
+		   const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
+		   findingsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
+			   // Use the same normalization as tracked
+			   const cbKey = String(cb.dataset.key).toLowerCase();
+			   if (!trackedSet.has(cbKey)) {
+				   cb.checked = false;
+			   }
 		   });
+		   // Always reorder after dashboard event
+		   reorderByTracked(findingsTbody);
+	   });
+
+	   window.addEventListener("elg-progress-loaded", () => {
+		   restoreFindingState();
+		   applyTrackingAccessState();
+	   });
 	</script>
 	<footer class="site-footer">
 		<div class="container">

@@ -92,7 +92,7 @@
 	}
 	</style>
 
-	<script src="auth-nav.js"></script>
+	<script src="auth-nav.js" defer></script>
 	<script>
 		const RELICS_DATA_URL = "data/relics.json";
 		const relicsTbody = document.getElementById("relics-tbody");
@@ -377,8 +377,8 @@
 			   const foundKey = getTrackingKey("relics_found");
 			   if (!trackedKey || !foundKey) return;
 			   const store = getTrackingStore();
-			   store.setItem(trackedKey, JSON.stringify(tracked));
-			   store.setItem(foundKey, JSON.stringify(found));
+			   writeArrayKey(trackedKey, tracked);
+			   writeArrayKey(foundKey, found);
 			   renderMiniDashboard();
 		   }
 
@@ -388,8 +388,8 @@
 				   const foundKey = getTrackingKey("relics_found");
 				   if (!trackedKey || !foundKey) return;
 				   const store = getTrackingStore();
-				   const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-				   const found = JSON.parse(store.getItem(foundKey) || "[]");
+				   const tracked = readArrayKey(trackedKey);
+				   const found = readArrayKey(foundKey);
 				   tracked.forEach(key => {
 					   const cb = relicsTbody.querySelector(`.track-checkbox[data-key=\"${cssEscape(String(key))}\"]`);
 					   if (cb) cb.checked = true;
@@ -479,6 +479,11 @@
 					cb.checked = false;
 				}
 			});
+		});
+
+		window.addEventListener("elg-progress-loaded", () => {
+			restoreRelicState();
+			applyRelicFilterAndRender();
 		});
 	</script>
 	<footer class="site-footer">

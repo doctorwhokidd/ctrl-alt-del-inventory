@@ -109,6 +109,31 @@
         </div>
     </footer>
 
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
+
+        try {
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "your-api-key",
+                authDomain: "ender-lilies-api.firebaseapp.com",
+                projectId: "ender-lilies-api",
+                storageBucket: "ender-lilies-api.appspot.com",
+                messagingSenderId: "your-sender-id",
+                appId: "your-app-id"
+            };
+
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            window.firebaseAuth = getAuth(app);
+            window.firebaseDb = getFirestore(app);
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+        }
+    </script>
     <script src="auth-nav.js" defer></script>
     <script>
         window.addEventListener("DOMContentLoaded", () => {
