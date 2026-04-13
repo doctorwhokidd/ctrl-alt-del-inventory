@@ -169,7 +169,22 @@
 
 		function renderMiniDashboard() {
 			if (!relicsMiniPanel || !dashboardTotals || !window.Auth || typeof window.Auth.renderCollectionMiniDashboard !== "function") return;
-			window.Auth.renderCollectionMiniDashboard(relicsMiniPanel, dashboardTotals);
+			// Always recalculate found/tracked counts from storage for instant update
+			let foundCount = 0;
+			let trackedCount = 0;
+			try {
+				const foundKey = getTrackingKey("relics_found");
+				const trackedKey = getTrackingKey("relics_tracked");
+				const store = getTrackingStore();
+				const found = JSON.parse(store.getItem(foundKey) || "[]");
+				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+				foundCount = Array.isArray(found) ? found.length : 0;
+				trackedCount = Array.isArray(tracked) ? tracked.length : 0;
+			} catch (_) {}
+			const dashboard = { ...dashboardTotals };
+			dashboard.relics_found = foundCount;
+			dashboard.relics_tracked = trackedCount;
+			window.Auth.renderCollectionMiniDashboard(relicsMiniPanel, dashboard);
 		}
 
 		initRelicsPage();

@@ -168,7 +168,22 @@
 
 		function renderMiniDashboard() {
 			if (!itemsMiniPanel || !dashboardTotals || !window.Auth || typeof window.Auth.renderCollectionMiniDashboard !== "function") return;
-			window.Auth.renderCollectionMiniDashboard(itemsMiniPanel, dashboardTotals);
+			// Always recalculate found/tracked counts from storage for instant update
+			let foundCount = 0;
+			let trackedCount = 0;
+			try {
+				const foundKey = getTrackingKey("items_found");
+				const trackedKey = getTrackingKey("items_tracked");
+				const store = getTrackingStore();
+				const found = JSON.parse(store.getItem(foundKey) || "[]");
+				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+				foundCount = Array.isArray(found) ? found.length : 0;
+				trackedCount = Array.isArray(tracked) ? tracked.length : 0;
+			} catch (_) {}
+			const dashboard = { ...dashboardTotals };
+			dashboard.items_found = foundCount;
+			dashboard.items_tracked = trackedCount;
+			window.Auth.renderCollectionMiniDashboard(itemsMiniPanel, dashboard);
 		}
 
 		initItemsPage();
@@ -365,8 +380,19 @@
 			const foundKey = getTrackingKey("items_found");
 			if (!trackedKey || !foundKey) return;
 			const store = getTrackingStore();
-			writeArrayKey(trackedKey, tracked);
-			writeArrayKey(foundKey, found);
+			store.setItem(trackedKey, JSON.stringify(tracked));
+			store.setItem(foundKey, JSON.stringify(found));
+			// If logged in, also sync to Firestore
+			if (window.Auth && window.Auth.isLoggedIn && window.Auth.isLoggedIn() && window.firebaseDb) {
+				const session = window.Auth.getSession && window.Auth.getSession();
+				if (session && session.id) {
+					const docRef = window.firebaseDb.collection('users').doc(session.id);
+					const data = {};
+					data[trackedKey] = tracked;
+					data[foundKey] = found;
+					docRef.set(data, { merge: true }).catch(err => console.error('Error saving to Firestore:', err));
+				}
+			}
 			renderMiniDashboard();
 		}
 
