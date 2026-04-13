@@ -357,10 +357,12 @@
 				   const store = getTrackingStore();
 				   const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
 				   const found = JSON.parse(store.getItem(foundKey) || "[]");
+				   // Restore tracked checkboxes
 				   tracked.forEach(key => {
 					   const cb = findingsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
 					   if (cb) cb.checked = true;
 				   });
+				   // Restore found checkboxes
 				   found.forEach(key => {
 					   const cb = findingsTbody.querySelector(`.found-checkbox[data-key="${cssEscape(String(key))}"]`);
 					   if (cb) {
@@ -374,6 +376,7 @@
 					   const cb = row.querySelector('.found-checkbox');
 					   if (cb && !cb.checked) row.classList.remove("row-found");
 				   });
+				   // Always reorder after restoring
 				   reorderByTracked(findingsTbody);
 			   } catch (_) {}
 		   }
@@ -408,26 +411,28 @@
 			renderMiniDashboard();
 		});
 
-		window.addEventListener("elg-progress-changed", () => {
-			restoreFindingState();
-			applyTrackingAccessState();
-			// Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
-			const trackedKey = getTrackingKey("findings_tracked");
-			const store = getTrackingStore();
-			let tracked = [];
-			try {
-				tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-			} catch (_) {}
-			// Normalize tracked keys for robust comparison
-			const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
-			findingsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
-				// Use the same normalization as tracked
-				const cbKey = String(cb.dataset.key).toLowerCase();
-				if (!trackedSet.has(cbKey)) {
-					cb.checked = false;
-				}
-			});
-		});
+		   window.addEventListener("elg-progress-changed", () => {
+			   restoreFindingState();
+			   applyTrackingAccessState();
+			   // Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
+			   const trackedKey = getTrackingKey("findings_tracked");
+			   const store = getTrackingStore();
+			   let tracked = [];
+			   try {
+				   tracked = JSON.parse(store.getItem(trackedKey) || "[]");
+			   } catch (_) {}
+			   // Normalize tracked keys for robust comparison
+			   const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
+			   findingsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
+				   // Use the same normalization as tracked
+				   const cbKey = String(cb.dataset.key).toLowerCase();
+				   if (!trackedSet.has(cbKey)) {
+					   cb.checked = false;
+				   }
+			   });
+			   // Always reorder after dashboard event
+			   reorderByTracked(findingsTbody);
+		   });
 	</script>
 	<footer class="site-footer">
 		<div class="container">
