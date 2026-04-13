@@ -104,6 +104,26 @@
 		let spiritsFilter = "";
 		let dashboardTotals = null;
 
+		function cssEscape(value) {
+			if (window.CSS && typeof window.CSS.escape === "function") return window.CSS.escape(value);
+			return String(value).replace(/(["\\#.:\[\]\(\)])/g, "\\$1");
+		}
+
+		function escapeHtml(value) {
+			return String(value ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+		}
+
+		function escapeAttr(value) {
+			return String(value ?? "")
+				.replace(/&/g, "&amp;")
+				.replace(/"/g, "&quot;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;");
+		}
+
 		function getProgressKey(baseKey) {
 			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
 				return window.Auth.getProgressKey(baseKey);
