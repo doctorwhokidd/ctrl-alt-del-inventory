@@ -296,6 +296,10 @@
                         renderStats(totals);
                     }
                 });
+                // Also update dashboard on elg-progress-changed event
+                window.addEventListener("elg-progress-changed", () => {
+                    renderStats(totals);
+                });
 
                 if (recentRoot) {
                     recentRoot.addEventListener("click", event => {
