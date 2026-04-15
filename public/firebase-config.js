@@ -1,31 +1,51 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getDatabase, ref, set } from "firebase/database";
-
+// firebase-config.js
 const firebaseConfig = {
   apiKey: "AIzaSyD5M8ALX8T48jb15VRTSp4F_9Y0_RXiExE",
   authDomain: "ender-lilies-api.firebaseapp.com",
   projectId: "ender-lilies-api",
-  storageBucket: "ender-lilies-api.appspot.com",
+  storageBucket: "ender-lilies-api.appspot.com", // corrected
   messagingSenderId: "511479857369",
-  appId: "1:511479857369:web:c0d9727977f63096f4bec8"
+  appId: "1:511479857369:web:c0d9727977f63096f4bec8",
+  databaseURL: "https://ender-lilies-api-default-rtdb.firebaseio.com" // add this for Realtime DB
 };
 
-// ✅ Initialize Firebase once
-const app = initializeApp(firebaseConfig);
+// Initialize Firebase (compat style)
+firebase.initializeApp(firebaseConfig);
 
-// ✅ Services
-const auth = getAuth(app);
-const db = getDatabase(app);
+// Make services available globally
+window.firebaseAuth = firebase.auth();
+window.firebaseDb   = firebase.database();
 
-// Example login with demo account
-signInWithEmailAndPassword(auth, "bob@mail.com", "bobpass")
-  .then((userCredential) => {
-    console.log("Logged in:", userCredential.user);
-  })
-  .catch((error) => {
-    console.error("Login failed:", error.message);
-  });
+
+
+// import { initializeApp } from "firebase/app";
+// import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+// import { getDatabase, ref, set } from "firebase/database";
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyD5M8ALX8T48jb15VRTSp4F_9Y0_RXiExE",
+//   authDomain: "ender-lilies-api.firebaseapp.com",
+//   projectId: "ender-lilies-api",
+//   storageBucket: "ender-lilies-api.appspot.com",
+//   messagingSenderId: "511479857369",
+//   appId: "1:511479857369:web:c0d9727977f63096f4bec8"
+// };
+
+// // ✅ Initialize Firebase once
+// const app = initializeApp(firebaseConfig);
+
+// // ✅ Services
+// const auth = getAuth(app);
+// const db = getDatabase(app);
+
+// // Example login with demo account
+// signInWithEmailAndPassword(auth, "bob@mail.com", "bobpass")
+//   .then((userCredential) => {
+//     console.log("Logged in:", userCredential.user);
+//   })
+//   .catch((error) => {
+//     console.error("Login failed:", error.message);
+//   });
 
 
 
