@@ -92,6 +92,14 @@
 	}
 
 	function readSession() {
+		if (window.currentUser) {
+			return {
+				id: window.currentUser.uid,
+				email: window.currentUser.email,
+				displayName: window.currentUser.displayName || window.currentUser.email
+			};
+		}
+		// Fallback to local storage for demo
 		const session = safeParseJson(localStorage.getItem(SESSION_KEY) || "null", null);
 		if (!session || !session.id) return null;
 		return session;
@@ -113,9 +121,10 @@
 	}
 
 	function getFirestoreUserDocRef(userId) {
-		if (!userId || !window.firebaseDb || typeof window.firebaseDb.collection !== "function") return null;
+		const uid = userId || (window.currentUser ? window.currentUser.uid : null);
+		if (!uid || !window.firebaseDb || typeof window.firebaseDb.collection !== "function") return null;
 		try {
-			return window.firebaseDb.collection('users').doc(userId);
+			return window.firebaseDb.collection('users').doc(uid);
 		} catch (_) {
 			return null;
 		}
@@ -187,20 +196,35 @@
 				return;
 			}
 
-			const users = readUsers();
-			const ident = normalizeLookup(identifier);
-			const user = users.find(item => normalizeLookup(item.username) === ident || normalizeLookup(item.email) === ident);
-			if (!user || user.password !== password) {
-				setStatus(form, "Invalid login credentials.", true);
+			if (!window.firebaseAuth) {
+				setStatus(form, "Firebase not initialized.", true);
 				return;
 			}
 
-			writeSession(buildSessionFromUser(user));
-			Auth.loadProgressFromFirestore();
-			setStatus(form, "Login successful. Redirecting...", false);
-			const params = new URLSearchParams(window.location.search);
-			const redirect = params.get("redirect");
-			window.location.href = redirect || "index.html";
+			window.firebaseAuth.signInWithEmailAndPassword(identifier, password)
+				.then(userCredential => {
+					const user = userCredential.user;
+					// Save user profile to Firestore if not exists
+					const userDoc = window.firebaseDb.collection('users').doc(user.uid);
+					userDoc.get().then(doc => {
+						if (!doc.exists) {
+							userDoc.set({
+								email: user.email,
+								displayName: user.displayName || user.email,
+								createdAt: Date.now()
+							});
+						}
+					});
+					Auth.loadProgressFromFirestore();
+					setStatus(form, "Login successful. Redirecting...", false);
+					const params = new URLSearchParams(window.location.search);
+					const redirect = params.get("redirect");
+					window.location.href = redirect || "index.html";
+				})
+				.catch(error => {
+					console.error('Login error:', error);
+					setStatus(form, "Invalid login credentials.", true);
+				});
 		});
 	}
 
@@ -227,30 +251,34 @@
 				return;
 			}
 
-			const users = readUsers();
-			const emailLookup = normalizeLookup(email);
-			const usernameLookup = normalizeLookup(username);
-			const existing = users.find(item => normalizeLookup(item.email) === emailLookup || normalizeLookup(item.username) === usernameLookup);
-			if (existing) {
-				setStatus(form, "Email or username already exists.", true);
+			if (!window.firebaseAuth) {
+				setStatus(form, "Firebase not initialized.", true);
 				return;
 			}
 
-			const newUser = {
-				id: deriveUserId(username, email),
-				firstName,
-				lastName,
-				email,
-				username,
-				password,
-				createdAt: Date.now(),
-			};
-
-			users.push(newUser);
-			writeUsers(users);
-			writeSession(buildSessionFromUser(newUser));
-			setStatus(form, "Account created. Redirecting...", false);
-			window.location.href = "index.html";
+			window.firebaseAuth.createUserWithEmailAndPassword(email, password)
+				.then(userCredential => {
+					const user = userCredential.user;
+					// Save user profile to Firestore
+					window.firebaseDb.collection('users').doc(user.uid).set({
+						firstName,
+						lastName,
+						email,
+						username,
+						displayName: username,
+						createdAt: Date.now()
+					});
+					setStatus(form, "Account created. Redirecting...", false);
+					window.location.href = "index.html";
+				})
+				.catch(error => {
+					console.error('Signup error:', error);
+					if (error.code === 'auth/email-already-in-use') {
+						setStatus(form, "Email already exists.", true);
+					} else {
+						setStatus(form, "Error creating account.", true);
+					}
+				});
 		});
 	}
 
@@ -530,12 +558,29 @@
 		},
 		logout() {
 			this.saveAllProgressToFirestore();
-			writeSession(null);
+			if (window.firebaseAuth) {
+				window.firebaseAuth.signOut();
+			} else {
+				writeSession(null);
+			}
 			window.dispatchEvent(new CustomEvent('elg-auth-changed'));
 		},
 	};
 
 	window.Auth = Auth;
+
+	if (window.firebaseAuth) {
+		window.firebaseAuth.onAuthStateChanged(user => {
+			if (user) {
+				// User is signed in
+				window.currentUser = user;
+			} else {
+				// User is signed out
+				window.currentUser = null;
+			}
+			window.dispatchEvent(new CustomEvent('elg-auth-changed'));
+		});
+	}
 
 	ensureDemoUser();
 	updateNavAuthState();
