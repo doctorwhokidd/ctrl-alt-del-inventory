@@ -389,6 +389,10 @@
 			const tracked = [];
 			const foundLocations = [];
 			const trackedLocations = [];
+			const writeArrayKey = (key, array) => {
+				const store = getTrackingStore();
+				store.setItem(key, JSON.stringify(array));
+			};	
 			document.querySelectorAll(".found-checkbox:checked").forEach(cb => {
 				found.push(Number(cb.dataset.index));
 				if (cb.dataset.location) foundLocations.push(cb.dataset.location);

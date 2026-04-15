@@ -100,9 +100,10 @@
 	function writeSession(session) {
 		if (!session) {
 			localStorage.removeItem(SESSION_KEY);
-			return;
+		} else {
+			localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 		}
-		localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+		window.dispatchEvent(new CustomEvent('elg-auth-changed'));
 	}
 
 	function readArrayKey(rawKey) {
@@ -111,17 +112,29 @@
 		return Array.isArray(value) ? value : [];
 	}
 
+	function getFirestoreUserDocRef(userId) {
+		if (!userId || !window.firebaseDb || typeof window.firebaseDb.collection !== "function") return null;
+		try {
+			return window.firebaseDb.collection('users').doc(userId);
+		} catch (_) {
+			return null;
+		}
+	}
+
 	function writeArrayKey(rawKey, value) {
 		if (!rawKey) return;
 		localStorage.setItem(rawKey, JSON.stringify(Array.isArray(value) ? value : []));
-		// Also save to Firestore if logged in and it's a progress key
+		window.dispatchEvent(new CustomEvent('elg-progress-changed', { detail: { key: rawKey } }));
+
 		const session = readSession();
-		if (session && session.id && window.firebaseDb && rawKey.includes('__' + session.id)) {
-			const docRef = window.firebaseDb.collection('users').doc(session.id);
-			docRef.set({
-				[rawKey]: Array.isArray(value) ? value : []
-			}, { merge: true }).catch(err => console.error('Error saving to Firestore:', err));
-		}
+		if (!session || !session.id) return;
+
+		const docRef = getFirestoreUserDocRef(session.id);
+		if (!docRef) return;
+
+		docRef.set({
+			[rawKey]: Array.isArray(value) ? value : []
+		}, { merge: true }).catch(err => console.error('Error saving to Firestore:', err));
 	}
 
 	function deriveUserId(username, email) {
@@ -407,9 +420,13 @@
 				timestamp: Number(entry.timestamp) || Date.now(),
 			}].concat(existing.filter(item => item && item.id !== entry.id)).slice(0, 12);
 
-			storage.setItem(key, JSON.stringify(next));
-		},
-		getRecentActivity() {
+		storage.setItem(key, JSON.stringify(next));
+		window.dispatchEvent(new CustomEvent('elg-progress-changed', { detail: { key } }));
+		if (this.isLoggedIn()) {
+			this.saveAllProgressToFirestore();
+		}
+	},
+	getRecentActivity() {
 			const key = this.getProgressKey(RECENT_ACTIVITY_KEY) || GUEST_RECENT_ACTIVITY_KEY;
 			const storage = this.isLoggedIn() ? localStorage : sessionStorage;
 			const value = safeParseJson(storage.getItem(key) || "[]", []);
@@ -422,6 +439,10 @@
 			const value = safeParseJson(storage.getItem(key) || "[]", []);
 			const next = Array.isArray(value) ? value.filter(entry => String(entry && entry.id ? entry.id : "") !== String(entryId)) : [];
 			storage.setItem(key, JSON.stringify(next));
+			window.dispatchEvent(new CustomEvent('elg-progress-changed', { detail: { key } }));
+			if (this.isLoggedIn()) {
+				this.saveAllProgressToFirestore();
+			}
 		},
 		undoProgressEntry(entry) {
 			if (!entry || !this.isLoggedIn()) return;
@@ -465,14 +486,14 @@
 		},
 		loadProgressFromFirestore() {
 			const session = readSession();
-			if (!session || !session.id || !window.firebaseDb) return;
-			const userId = session.id;
-			const docRef = window.firebaseDb.collection('users').doc(userId);
+			if (!session || !session.id) return;
+			const docRef = getFirestoreUserDocRef(session.id);
+			if (!docRef) return;
 			docRef.get().then(doc => {
 				if (doc.exists) {
 					const data = doc.data();
 					for (const key in data) {
-						if (key.includes('__' + userId)) {
+						if (key.includes('__' + session.id)) {
 							localStorage.setItem(key, JSON.stringify(data[key]));
 						}
 					}
@@ -483,16 +504,22 @@
 		},
 		saveAllProgressToFirestore() {
 			const session = readSession();
-			if (!session || !session.id || !window.firebaseDb) return;
-			const userId = session.id;
-			const progressKeys = ['spirits_found', 'relics_found', 'items_found', 'findings_found', RECENT_ACTIVITY_KEY];
+			if (!session || !session.id) return;
+			const docRef = getFirestoreUserDocRef(session.id);
+			if (!docRef) return;
+			const progressKeys = [
+				'spirits_found', 'spirits_tracked', 'spirits_found_locations', 'spirits_tracked_locations',
+				'relics_found', 'relics_tracked',
+				'items_found', 'items_tracked',
+				'findings_found', 'findings_tracked',
+				RECENT_ACTIVITY_KEY
+			];
 			const data = {};
 			progressKeys.forEach(key => {
 				const scopedKey = this.getProgressKey(key);
 				const value = readArrayKey(scopedKey);
 				data[scopedKey] = value;
 			});
-			const docRef = window.firebaseDb.collection('users').doc(userId);
 			docRef.set(data, { merge: true }).catch(err => console.error('Error saving all progress to Firestore:', err));
 		},
 		requireLogin(redirectPath) {
@@ -504,6 +531,7 @@
 		logout() {
 			this.saveAllProgressToFirestore();
 			writeSession(null);
+			window.dispatchEvent(new CustomEvent('elg-auth-changed'));
 		},
 	};
 
@@ -514,7 +542,14 @@
 	setupLoginForm();
 	setupSignupForm();
 
+	window.addEventListener('elg-auth-changed', updateNavAuthState);
+	window.addEventListener('storage', event => {
+		if (event.key === SESSION_KEY) {
+			updateNavAuthState();
+		}
+	});
+
 	window.addEventListener('beforeunload', () => {
-		Auth.saveAllProgressToFirestore();
+		// Removed async save to avoid incomplete saves on quick navigation
 	});
 })();
