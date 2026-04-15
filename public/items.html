@@ -8,6 +8,14 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="stylesheet" href="style.css">
 	<meta name="description" content="Browse all Items in Ender Lilies with uses, quantities, and locations.">
+
+	<!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="websitelogo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="websitelogo.png">
+
+    <!-- Manifest -->
+     <link rel="manifest" href="/manifest.json">
+     <meta name="theme-color" content="#2c2c2c">
 </head>
 <body class="items-page">
 	<header class="site-header">
@@ -92,7 +100,7 @@
 
 	<script src="auth-nav.js" defer></script>
 	<script>
-		const ITEMS_DATA_URL = "data/items.json";
+		const ITEMS_DATA_URL = "/api/items";
 		const itemsTbody = document.getElementById("items-tbody");
 		const itemDetailSection = document.getElementById("item-detail-section");
 		const itemSearchInput = document.getElementById("items-search");
@@ -144,23 +152,32 @@
 		}
 
 		async function fetchDashboardCount(url) {
+		const fallbackUrl = url.startsWith("/api/") ? `data/${url.split("/").pop()}.json` : null;
+		try {
+			const response = await fetch(url, { cache: "force-cache" });
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const data = await response.json();
+			return Array.isArray(data) ? data.length : 0;
+		} catch (_) {
+			if (!fallbackUrl) return 0;
 			try {
-				const response = await fetch(url, { cache: "force-cache" });
-				if (!response.ok) return 0;
-				const data = await response.json();
-				return Array.isArray(data) ? data.length : 0;
+				const fallbackResponse = await fetch(fallbackUrl, { cache: "force-cache" });
+				if (!fallbackResponse.ok) return 0;
+				const fallbackData = await fallbackResponse.json();
+				return Array.isArray(fallbackData) ? fallbackData.length : 0;
 			} catch (_) {
 				return 0;
 			}
 		}
+	}
 
 		async function ensureDashboardTotals() {
 			if (dashboardTotals) return dashboardTotals;
 			const [spirits, relics, items, findings] = await Promise.all([
-				fetchDashboardCount("data/spirits.json"),
-				fetchDashboardCount("data/relics.json"),
-				fetchDashboardCount("data/items.json"),
-				fetchDashboardCount("data/findings.json"),
+				fetchDashboardCount("/api/spirits"),
+				fetchDashboardCount("/api/relics"),
+				fetchDashboardCount("/api/items"),
+				fetchDashboardCount("/api/findings"),
 			]);
 			dashboardTotals = { spirits, relics, items, findings };
 			return dashboardTotals;
@@ -189,18 +206,37 @@
 		initItemsPage();
 		ensureDashboardTotals().then(renderMiniDashboard);
 
+async function fetchDataWithFallback(primaryUrl, fallbackUrl) {
+		try {
+			const response = await fetch(primaryUrl, { cache: "force-cache" });
+			if (response.ok) {
+				const data = await response.json();
+				if (Array.isArray(data)) return data;
+				throw new Error("Primary data is not an array");
+			}
+		} catch (_error) {
+			// ignore and try fallback
+		}
+		const fallbackResponse = await fetch(fallbackUrl, { cache: "force-cache" });
+		if (!fallbackResponse.ok) {
+			throw new Error(`Failed fallback fetch ${fallbackUrl}: HTTP ${fallbackResponse.status}`);
+		}
+		const fallbackData = await fallbackResponse.json();
+		if (!Array.isArray(fallbackData)) {
+			throw new Error("Fallback data is not an array");
+		}
+		return fallbackData;
+	}
+
 		async function initItemsPage() {
 			try {
-				const response = await fetch(ITEMS_DATA_URL, { cache: "force-cache" });
-				if (!response.ok) throw new Error(`HTTP ${response.status}`);
-				const data = await response.json();
-				if (!Array.isArray(data)) throw new Error("Items JSON is not an array");
+				const data = await fetchDataWithFallback(ITEMS_DATA_URL, "data/items.json");
 				itemsData = data;
 				applyItemFilterAndRender();
 			} catch (error) {
-				itemsTbody.innerHTML = '<tr><td colspan="4" class="table-error">Failed to load items data</td></tr>';
+				itemsTbody.innerHTML = '<tr><td colspan="6" class="table-error">Failed to load items data</td></tr>';
 				itemMeta.textContent = "Failed to load items.";
-				console.error("Failed to load items:", error);
+				console.error("Failed to load items data:", error);
 			}
 		}
 
@@ -299,7 +335,7 @@
 
 		   function renderItemsTable(indices) {
 			   if (indices.length === 0) {
-				   itemsTbody.innerHTML = '<tr><td colspan="5" class="table-error">No items match your search.</td></tr>';
+				   itemsTbody.innerHTML = '<tr><td colspan="6" class="table-error">No items match your search.</td></tr>';
 				   return;
 			   }
 			   const rows = [];

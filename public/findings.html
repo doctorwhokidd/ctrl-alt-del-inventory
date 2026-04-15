@@ -8,6 +8,14 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="stylesheet" href="style.css">
 	<meta name="description" content="Browse all findings in Ender Lilies, track what you discovered, and review full entry details.">
+
+	<!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="websitelogo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="websitelogo.png">
+
+    <!-- Manifest -->
+     <link rel="manifest" href="/manifest.json">
+     <meta name="theme-color" content="#2c2c2c">
 </head>
 <body class="findings-page">
 	<header class="site-header">
@@ -23,6 +31,15 @@
 				<a href="about.html">About</a>
 				<a href="contact.html">Contact</a>
 				<a href="login.html" class="nav-login">Log In</a>
+
+				<script>
+                const user = localStorage.getItem("elg_session_v1");
+
+                const status = document.getElementById("loginStatus");
+                if (status) {
+	            status.textContent = user ? "Logged in" : "Not logged in";
+                }
+                </script>
 			</nav>
 		</div>
 	</header>
@@ -90,7 +107,7 @@
 
 	<script src="auth-nav.js" defer></script>
 	<script>
-		const FINDINGS_DATA_URL = "data/findings.json";
+		const FINDINGS_DATA_URL = "/api/findings";
 		const findingsTbody = document.getElementById("findings-tbody");
 		const findingDetailSection = document.getElementById("finding-detail-section");
 		const findingsSearchInput = document.getElementById("findings-search");
@@ -101,13 +118,6 @@
 		let findingsFilter = "";
 		let dashboardTotals = null;
 
-		function getProgressKey(baseKey) {
-			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
-				return window.Auth.getProgressKey(baseKey);
-			}
-			return null;
-		}
-
 		function isTrackingEnabled() {
 			return Boolean(window.Auth && typeof window.Auth.isLoggedIn === "function" && window.Auth.isLoggedIn());
 		}
@@ -115,6 +125,35 @@
 		function getTrackingStore() {
 			// Use localStorage for logged in users, sessionStorage for guests
 			return isTrackingEnabled() ? localStorage : sessionStorage;
+		}
+
+		function getProgressKey(baseKey) {
+			if (window.Auth && typeof window.Auth.getProgressKey === "function") {
+				return window.Auth.getProgressKey(baseKey);
+			}
+			return null;
+		}
+
+		function safeParseJson(raw, fallback) {
+			try {
+				return JSON.parse(raw);
+			} catch (_) {
+				return fallback;
+			}
+		}
+
+		function writeArrayKey(rawKey, value) {
+			if (!rawKey) return;
+			const store = getTrackingStore();
+			try {
+				store.setItem(rawKey, JSON.stringify(Array.isArray(value) ? value : []));
+			} catch (_) {}
+		}
+
+		function readArrayKey(rawKey) {
+			if (!rawKey) return [];
+			const store = getTrackingStore();
+			return safeParseJson(store.getItem(rawKey) || "[]", []);
 		}
 
 		function getTrackingKey(baseKey) {
@@ -142,23 +181,32 @@
 		}
 
 		async function fetchDashboardCount(url) {
+		const fallbackUrl = url.startsWith("/api/") ? `data/${url.split("/").pop()}.json` : null;
+		try {
+			const response = await fetch(url, { cache: "force-cache" });
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const data = await response.json();
+			return Array.isArray(data) ? data.length : 0;
+		} catch (_) {
+			if (!fallbackUrl) return 0;
 			try {
-				const response = await fetch(url, { cache: "force-cache" });
-				if (!response.ok) return 0;
-				const data = await response.json();
-				return Array.isArray(data) ? data.length : 0;
+				const fallbackResponse = await fetch(fallbackUrl, { cache: "force-cache" });
+				if (!fallbackResponse.ok) return 0;
+				const fallbackData = await fallbackResponse.json();
+				return Array.isArray(fallbackData) ? fallbackData.length : 0;
 			} catch (_) {
 				return 0;
 			}
 		}
+	}
 
 		async function ensureDashboardTotals() {
 			if (dashboardTotals) return dashboardTotals;
 			const [spirits, relics, items, findings] = await Promise.all([
-				fetchDashboardCount("data/spirits.json"),
-				fetchDashboardCount("data/relics.json"),
-				fetchDashboardCount("data/items.json"),
-				fetchDashboardCount("data/findings.json"),
+				fetchDashboardCount("/api/spirits"),
+				fetchDashboardCount("/api/relics"),
+				fetchDashboardCount("/api/items"),
+				fetchDashboardCount("/api/findings"),
 			]);
 			dashboardTotals = { spirits, relics, items, findings };
 			return dashboardTotals;
@@ -187,19 +235,37 @@
 		initFindingsPage();
 		ensureDashboardTotals().then(renderMiniDashboard);
 
-		async function initFindingsPage() {
-			try {
-				const response = await fetch(FINDINGS_DATA_URL, { cache: "force-cache" });
-				if (!response.ok) throw new Error(`HTTP ${response.status}`);
+async function fetchDataWithFallback(primaryUrl, fallbackUrl) {
+		try {
+			const response = await fetch(primaryUrl);
+			if (response.ok) {
 				const data = await response.json();
-				if (!Array.isArray(data)) throw new Error("Findings JSON is not an array");
-				findingsData = data;
-				applyFindingsFilterAndRender();
-			} catch (error) {
-				findingsTbody.innerHTML = '<tr><td colspan="4" class="table-error">Failed to load findings data</td></tr>';
-				findingsMeta.textContent = "Failed to load findings.";
-				console.error("Failed to load findings:", error);
+				if (Array.isArray(data)) return data;
+				throw new Error("Primary data is not an array");
 			}
+		} catch (_error) {
+			// ignore and try fallback
+		}
+		const fallbackResponse = await fetch(fallbackUrl);
+		if (!fallbackResponse.ok) {
+			throw new Error(`Failed fallback fetch ${fallbackUrl}: HTTP ${fallbackResponse.status}`);
+		}
+		const fallbackData = await fallbackResponse.json();
+		if (!Array.isArray(fallbackData)) {
+			throw new Error("Fallback data is not an array");
+		}
+		return fallbackData;
+	}
+
+	async function initFindingsPage() {
+		try {
+			const data = await fetchDataWithFallback(FINDINGS_DATA_URL, "data/findings.json");
+			findingsData = data;
+			applyFindingsFilterAndRender();
+		} catch (error) {
+			findingsTbody.innerHTML = '<tr><td colspan="4" class="table-error">Failed to load findings data</td></tr>';
+			findingsMeta.textContent = "Failed to load findings.";
+			console.error("Failed to load findings data:", error);
 		}
 
 		findingsSearchInput.addEventListener("input", event => {
@@ -298,36 +364,36 @@
 			findingsMeta.textContent = `${matchingIndices.length} / ${findingsData.length} findings shown`;
 		}
 
-		   function renderFindingsTable(indices) {
-			   if (indices.length === 0) {
-				   findingsTbody.innerHTML = '<tr><td colspan="4" class="table-error">No findings match your search.</td></tr>';
-				   return;
-			   }
-
-			   // Build rows and sort tracked to top
-			   const rows = [];
-			   for (const index of indices) {
-				   const finding = findingsData[index];
-				   const name = finding.Name || "Finding";
-				   const row = document.createElement("tr");
-				   row.dataset.index = String(index);
-				   row.innerHTML = `
-					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
-					   <td class="name-col">${escapeHtml(name)}</td>
-					   <td class="location-col">${escapeHtml(finding.Location || "N/A")}</td>
-					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
-				   `;
-				   rows.push(row);
-			   }
-
-			   // Restore state before sorting
-			   findingsTbody.innerHTML = "";
-			   rows.forEach(r => findingsTbody.appendChild(r));
-			   restoreFindingState();
-			   // Now sort tracked to top
-			   reorderByTracked(findingsTbody);
-			   applyTrackingAccessState();
+		function renderFindingsTable(indices) {
+		   if (indices.length === 0) {
+			   findingsTbody.innerHTML = '<tr><td colspan="4" class="table-error">No findings match your search.</td></tr>';
+			   return;
 		   }
+		   
+		   // Build rows and sort tracked to top
+		   const rows = [];
+		   for (const index of indices) {
+			   const finding = findingsData[index];
+			   const name = finding.Name || "Finding";
+			   const row = document.createElement("tr");
+			   row.dataset.index = String(index);
+			   row.innerHTML = `
+				   <td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+				   <td class="name-col">${escapeHtml(name)}</td>
+				   <td class="location-col">${escapeHtml(finding.Location || "N/A")}</td>
+				   <td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+			   `;
+			   rows.push(row);
+		   }
+
+		   // Restore state before sorting
+		   findingsTbody.innerHTML = "";
+		   rows.forEach(r => findingsTbody.appendChild(r));
+		   restoreFindingState();
+		   // Now sort tracked to top
+		   reorderByTracked(findingsTbody);
+		   applyTrackingAccessState();
+		}
 
 		function showFindingDetail(finding) {
 			const name = finding.Name || "Unknown Finding";
@@ -453,6 +519,7 @@
 		   restoreFindingState();
 		   applyTrackingAccessState();
 	   });
+		}
 	</script>
 	<footer class="site-footer">
 		<div class="container">

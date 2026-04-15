@@ -495,17 +495,21 @@
 			const docRef = window.firebaseDb.collection('users').doc(userId);
 			docRef.set(data, { merge: true }).catch(err => console.error('Error saving all progress to Firestore:', err));
 		},
-		requireLogin(redirectPath) {
-			if (readSession()) return true;
-			const target = normalizeText(redirectPath || window.location.pathname.split("/").pop() || "index.html");
-			window.location.href = "login.html?redirect=" + encodeURIComponent(target);
-			return false;
-		},
+		requireLogin() {
+	    return true; // temporarily disable login protection
+        },
 		logout() {
-			this.saveAllProgressToFirestore();
 			writeSession(null);
 		},
 	};
+
+		// requireLogin(redirectPath) {
+		// 	if (readSession()) return true;
+		// 	const target = normalizeText(redirectPath || window.location.pathname.split("/").pop() || "index.html");
+		// 	window.location.href = "login.html?redirect=" + encodeURIComponent(target);
+		// 	return false;
+		// },
+		
 
 	window.Auth = Auth;
 
@@ -514,7 +518,7 @@
 	setupLoginForm();
 	setupSignupForm();
 
-	window.addEventListener('beforeunload', () => {
-		Auth.saveAllProgressToFirestore();
-	});
+	// window.addEventListener('beforeunload', () => {
+	// 	Auth.saveAllProgressToFirestore();
+	// });
 })();
