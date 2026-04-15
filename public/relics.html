@@ -8,6 +8,14 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="stylesheet" href="style.css">
 	<meta name="description" content="Browse all Relics in Ender Lilies with locations, effects, and tracking.">
+
+	<!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="websitelogo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="websitelogo.png">
+
+    <!-- Manifest -->
+     <link rel="manifest" href="/manifest.json">
+     <meta name="theme-color" content="#2c2c2c">
 </head>
 <body class="relics-page">
 	<header class="site-header">
@@ -94,7 +102,7 @@
 
 	<script src="auth-nav.js" defer></script>
 	<script>
-		const RELICS_DATA_URL = "data/relics.json";
+		const RELICS_DATA_URL = "/api/relics";
 		const relicsTbody = document.getElementById("relics-tbody");
 		const relicDetailSection = document.getElementById("relic-detail-section");
 		const relicSearchInput = document.getElementById("relics-search");
@@ -158,10 +166,10 @@
 		async function ensureDashboardTotals() {
 			if (dashboardTotals) return dashboardTotals;
 			const [spirits, relics, items, findings] = await Promise.all([
-				fetchDashboardCount("data/spirits.json"),
-				fetchDashboardCount("data/relics.json"),
-				fetchDashboardCount("data/items.json"),
-				fetchDashboardCount("data/findings.json"),
+				fetchDashboardCount("/api/spirits"),
+				fetchDashboardCount("/api/relics"),
+				fetchDashboardCount("/api/items"),
+				fetchDashboardCount("/api/findings"),
 			]);
 			dashboardTotals = { spirits, relics, items, findings };
 			return dashboardTotals;
@@ -190,18 +198,37 @@
 		initRelicsPage();
 		ensureDashboardTotals().then(renderMiniDashboard);
 
+async function fetchDataWithFallback(primaryUrl, fallbackUrl) {
+		try {
+			const response = await fetch(primaryUrl, { cache: "force-cache" });
+			if (response.ok) {
+				const data = await response.json();
+				if (Array.isArray(data)) return data;
+				throw new Error("Primary data is not an array");
+			}
+		} catch (_error) {
+			// ignore and try fallback
+		}
+		const fallbackResponse = await fetch(fallbackUrl, { cache: "force-cache" });
+		if (!fallbackResponse.ok) {
+			throw new Error(`Failed fallback fetch ${fallbackUrl}: HTTP ${fallbackResponse.status}`);
+		}
+		const fallbackData = await fallbackResponse.json();
+		if (!Array.isArray(fallbackData)) {
+			throw new Error("Fallback data is not an array");
+		}
+		return fallbackData;
+	}
+
 		async function initRelicsPage() {
 			try {
-				const response = await fetch(RELICS_DATA_URL, { cache: "force-cache" });
-				if (!response.ok) throw new Error(`HTTP ${response.status}`);
-				const data = await response.json();
-				if (!Array.isArray(data)) throw new Error("Relics JSON is not an array");
+				const data = await fetchDataWithFallback(RELICS_DATA_URL, "data/relics.json");
 				relicsData = data;
 				applyRelicFilterAndRender();
 			} catch (error) {
-				relicsTbody.innerHTML = '<tr><td colspan="5" class="table-error">Failed to load relics data</td></tr>';
+				relicsTbody.innerHTML = '<tr><td colspan="6" class="table-error">Failed to load relics data</td></tr>';
 				relicMeta.textContent = "Failed to load relics.";
-				console.error("Failed to load relics:", error);
+				console.error("Failed to load relics data:", error);
 			}
 		}
 

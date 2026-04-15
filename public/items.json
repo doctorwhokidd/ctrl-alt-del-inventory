@@ -1,0 +1,51 @@
+[
+    {
+        "Name": "Stone Tablet Fragment",
+        "Amount": 7,
+        "Locations": "B17, C19, D23, E15, F21, H25, J5",
+        "Use": "Restore the Aegis Curio",
+        "Icon": "https://static.wikia.nocookie.net/enderlilies/images/a/a0/Tablet.png",
+        "Description": "A fragment of a stone tablet engraved with and acient spell conjured once spoke. Assembling all the fragments will require a certain magical rite. "
+    },
+    {
+        "Name": "Priestess' Wish",
+        "Amount": 8,
+        "Locations": "A13, B14, C10, D8, E21, F15, H21, I13",
+        "Use": "Increases restoration of Healing Prayer",
+        "Icon": "https://static.wikia.nocookie.net/enderlilies/images/8/8f/Priestess%27_Wish.png",
+        "Description": "A fleeting wish left behinf by a White Priestess at the moment of her death."   
+    },
+    {
+        "Name": "Amulet Fragment",
+        "Amount": 34,
+        "Locations": "A3, A5, A11, B2, B3, B6, B8, B10, C3, C4, C6, C11, C12, C17, D4, D7, D10, D14, D16, E5, E7, E12, E16, E19, F2, F8, F14, F17, H8, H13, I7, I12, I14, J2",
+        "Use": "Increases max HP by 5",
+        "Icon": "https://static.wikia.nocookie.net/enderlilies/images/c/cb/Amulet_Fragment.png",
+        "Description": "Part of an amulet worn by a White Priestess. The tiny shattered fragment still glows with a faint light."
+    },
+    {
+        "Name": "Amulet Gem",
+        "Amount": 6,
+        "Locations": "B4, C18, E18, F13, H2, I10",
+        "Use": "Increases max HP by 20",
+        "Icon": "https://static.wikia.nocookie.net/enderlilies/images/5/5a/Amulet_Gem.png",
+        "Description": "A magic stone used to create an amulet worn by a White Priestess. Grants increased protection from the Blighted."
+    },
+    {
+        "Name": "Chain of Sorcery",
+        "Amount": 18,
+        "Locations": "A10, B4, B9, C4, C11, D8, D14, E5, E16, E18, F7, F9, H7, H8, H16, H26, I3, I9",
+        "Use": "Increases relic slots by 1",
+        "Icon": "https://static.wikia.nocookie.net/enderlilies/images/8/84/Chain_of_Sorcery.png",
+        "Description": "A magical chain that links with the power contained in a relic."
+    },
+    {
+        "Name": "Ancient Soul",
+        "Amount": 3,
+        "Locations": "D15, H22, J5",
+        "Use": "Used to enhance the Umbral Knight",
+        "Icon": "https://static.wikia.nocookie.net/enderlilies/images/f/f1/Ancient_Soul.png",
+        "Description": "Powerful residue shed from ancient people unlike those of the kingdom. Allows for the Umbral Knight's skills to be enhanced at Respites."
+    }
+
+]

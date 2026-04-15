@@ -14,6 +14,14 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link rel="stylesheet" href="style.css">
 	<meta name="description" content="Browse all Spirits in Ender Lilies with details, locations, and skills.">
+
+	<!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="websitelogo.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="websitelogo.png">
+
+    <!-- Manifest -->
+     <link rel="manifest" href="/manifest.json">
+     <meta name="theme-color" content="#2c2c2c">
 </head>
 <body class="spirits-page">
 	<header class="site-header">
@@ -91,34 +99,9 @@
 		</div>
 	</main>
 
-	<!-- Firebase SDK -->
-	<script type="module">
-		import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-		import { getAuth } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
-		import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-
-		try {
-			// Firebase configuration
-			const firebaseConfig = {
-				apiKey: "your-api-key",
-				authDomain: "ender-lilies-api.firebaseapp.com",
-				projectId: "ender-lilies-api",
-				storageBucket: "ender-lilies-api.appspot.com",
-				messagingSenderId: "your-sender-id",
-				appId: "your-app-id"
-			};
-
-			// Initialize Firebase
-			const app = initializeApp(firebaseConfig);
-			window.firebaseAuth = getAuth(app);
-			window.firebaseDb = getFirestore(app);
-		} catch (error) {
-			console.error('Firebase initialization failed:', error);
-		}
-	</script>
 	<script src="auth-nav.js" defer></script>
 	<script>
-		const SPIRITS_DATA_URL = "data/spirits.json";
+		const SPIRITS_DATA_URL = "/api/spirits";
 		const spiritsTbody = document.getElementById("spirits-tbody");
 		const detailSection = document.getElementById("detail-section");
 		const spiritsSearchInput = document.getElementById("spirits-search");
@@ -190,11 +173,19 @@
 		}
 
 		async function fetchDashboardCount(url) {
+		const fallbackUrl = url.startsWith("/api/") ? `data/${url.split("/").pop()}.json` : null;
+		try {
+			const response = await fetch(url, { cache: "force-cache" });
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const data = await response.json();
+			return Array.isArray(data) ? data.length : 0;
+		} catch (_) {
+			if (!fallbackUrl) return 0;
 			try {
-				const response = await fetch(url, { cache: "force-cache" });
-				if (!response.ok) return 0;
-				const data = await response.json();
-				return Array.isArray(data) ? data.length : 0;
+				const fallbackResponse = await fetch(fallbackUrl, { cache: "force-cache" });
+				if (!fallbackResponse.ok) return 0;
+				const fallbackData = await fallbackResponse.json();
+				return Array.isArray(fallbackData) ? fallbackData.length : 0;
 			} catch (_) {
 				return 0;
 			}
@@ -203,10 +194,10 @@
 		async function ensureDashboardTotals() {
 			if (dashboardTotals) return dashboardTotals;
 			const [spirits, relics, items, findings] = await Promise.all([
-				fetchDashboardCount("data/spirits.json"),
-				fetchDashboardCount("data/relics.json"),
-				fetchDashboardCount("data/items.json"),
-				fetchDashboardCount("data/findings.json"),
+				fetchDashboardCount("/api/spirits"),
+				fetchDashboardCount("/api/relics"),
+				fetchDashboardCount("/api/items"),
+				fetchDashboardCount("/api/findings"),
 			]);
 			dashboardTotals = { spirits, relics, items, findings };
 			return dashboardTotals;
@@ -236,89 +227,102 @@
 		initSpiritsPage();
 		ensureDashboardTotals().then(renderMiniDashboard);
 
-		async function initSpiritsPage() {
-			try {
-				const response = await fetch(SPIRITS_DATA_URL, { cache: "force-cache" });
-				if (!response.ok) {
-					throw new Error(`HTTP ${response.status}`);
-				}
-
+async function fetchDataWithFallback(primaryUrl, fallbackUrl) {
+		try {
+			const response = await fetch(primaryUrl, { cache: "force-cache" });
+			if (response.ok) {
 				const data = await response.json();
-				if (!Array.isArray(data)) {
-					throw new Error("Spirits JSON is not an array");
-				}
-
-				spiritsData = data;
-				applySpiritsFilterAndRender();
-			} catch (error) {
-				spiritsTbody.innerHTML = '<tr><td colspan="6" class="table-error">Failed to load spirits data</td></tr>';
-				spiritsMeta.textContent = "Failed to load spirits.";
-				console.error("Failed to load spirits.json:", error);
+				if (Array.isArray(data)) return data;
+				throw new Error("Primary data is not an array");
 			}
+		} catch (_error) {
+			// ignore and try fallback
+		}
+		const fallbackResponse = await fetch(fallbackUrl, { cache: "force-cache" });
+		if (!fallbackResponse.ok) {
+			throw new Error(`Failed fallback fetch ${fallbackUrl}: HTTP ${fallbackResponse.status}`);
+		}
+		const fallbackData = await fallbackResponse.json();
+		if (!Array.isArray(fallbackData)) {
+			throw new Error("Fallback data is not an array");
+		}
+		return fallbackData;
+	}
+
+	async function initSpiritsPage() {
+		try {
+			const data = await fetchDataWithFallback(SPIRITS_DATA_URL, "data/spirits.json");
+			spiritsData = data;
+			applySpiritsFilterAndRender();
+		} catch (error) {
+			spiritsTbody.innerHTML = '<tr><td colspan="6" class="table-error">Failed to load spirits data</td></tr>';
+			spiritsMeta.textContent = "Failed to load spirits.";
+			console.error("Failed to load spirits data:", error);
 		}
 
 		spiritsSearchInput.addEventListener("input", event => {
 			spiritsFilter = String(event.target.value || "").trim().toLowerCase();
 			applySpiritsFilterAndRender();
 		});
+	}
 
-		function applySpiritsFilterAndRender() {
-			const matchingIndices = [];
-			for (let i = 0; i < spiritsData.length; i += 1) {
-				const spirit = spiritsData[i];
-				const haystack = `${spirit.Name || ""} ${spirit.Skill || ""} ${spirit.Location || ""} ${spirit.Lore || ""}`.toLowerCase();
-				if (!spiritsFilter || haystack.includes(spiritsFilter)) {
-					matchingIndices.push(i);
-				}
+	function applySpiritsFilterAndRender() {
+		const matchingIndices = [];
+		for (let i = 0; i < spiritsData.length; i += 1) {
+			const spirit = spiritsData[i];
+			const haystack = `${spirit.Name || ""} ${spirit.Skill || ""} ${spirit.Location || ""} ${spirit.Lore || ""}`.toLowerCase();
+			if (!spiritsFilter || haystack.includes(spiritsFilter)) {
+				matchingIndices.push(i);
 			}
-			renderSpiritsTable(matchingIndices);
-			spiritsMeta.textContent = `${matchingIndices.length} / ${spiritsData.length} spirits shown`;
+		}
+		renderSpiritsTable(matchingIndices);
+		spiritsMeta.textContent = `${matchingIndices.length} / ${spiritsData.length} spirits shown`;
+	}
+
+	function renderSpiritsTable(indices) {
+		if (indices.length === 0) {
+			spiritsTbody.innerHTML = '<tr><td colspan="6" class="table-error">No spirits match your search.</td></tr>';
+			return;
 		}
 
-		   function renderSpiritsTable(indices) {
-			   if (indices.length === 0) {
-				   spiritsTbody.innerHTML = '<tr><td colspan="6" class="table-error">No spirits match your search.</td></tr>';
-				   return;
-			   }
+		// Build rows and sort tracked to top
+		const rows = [];
+		for (const index of indices) {
+			const spirit = spiritsData[index];
+			const name = spirit.Name || "Spirit";
+			const row = document.createElement("tr");
+			row.dataset.index = String(index);
+			row.innerHTML = `
+				<td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+				<td class="icon-col"></td>
+				<td class="name-col">${escapeHtml(name)}</td>
+				<td class="skill-col">${escapeHtml(spirit.Skill || "N/A")}</td>
+				<td class="location-col">${escapeHtml(spirit.Location || "N/A")}</td>
+				<td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+			`;
+			const iconTd = row.querySelector(".icon-col");
+			const iconImg = document.createElement("img");
+			iconImg.className = "spirit-icon";
+			iconImg.alt = `${name} icon`;
+			iconImg.loading = "lazy";
+			iconImg.decoding = "async";
+			(function(n) {
+				const ph = getPlaceholderImage(n, 40);
+				iconImg.onerror = function() { this.onerror = null; this.src = ph; };
+				iconImg.src = spirit.Icon || ph;
+			})(name);
+			iconTd.appendChild(iconImg);
+			rows.push(row);
+		}
 
-			   // Build rows and sort tracked to top
-			   const rows = [];
-			   for (const index of indices) {
-				   const spirit = spiritsData[index];
-				   const name = spirit.Name || "Spirit";
-				   const row = document.createElement("tr");
-				   row.dataset.index = String(index);
-				   row.innerHTML = `
-					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
-					   <td class="icon-col"></td>
-					   <td class="name-col">${escapeHtml(name)}</td>
-					   <td class="skill-col">${escapeHtml(spirit.Skill || "N/A")}</td>
-					   <td class="location-col">${escapeHtml(spirit.Location || "N/A")}</td>
-					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
-				   `;
-				   const iconTd = row.querySelector(".icon-col");
-				   const iconImg = document.createElement("img");
-				   iconImg.className = "spirit-icon";
-				   iconImg.alt = `${name} icon`;
-				   iconImg.loading = "lazy";
-				   iconImg.decoding = "async";
-				   (function(n) {
-					   const ph = getPlaceholderImage(n, 40);
-					   iconImg.onerror = function() { this.onerror = null; this.src = ph; };
-					   iconImg.src = spirit.Icon || ph;
-				   })(name);
-				   iconTd.appendChild(iconImg);
-				   rows.push(row);
-			   }
-
-			   // Restore state before sorting
-			   spiritsTbody.innerHTML = "";
-			   rows.forEach(r => spiritsTbody.appendChild(r));
-			   restoreCheckboxState();
-			   // Now sort tracked to top
-			   reorderByTracked(spiritsTbody);
-			   applyTrackingAccessState();
-		   }
+		// Restore state before sorting
+		spiritsTbody.innerHTML = "";
+		rows.forEach(r => spiritsTbody.appendChild(r));
+		restoreCheckboxState();
+		// Now sort tracked to top
+		reorderByTracked(spiritsTbody);
+		applyTrackingAccessState();
+	}
 
 		spiritsTbody.addEventListener("click", event => {
 			const row = event.target.closest("tr");
@@ -418,8 +422,6 @@
 
 			store.setItem(foundKey, JSON.stringify(found));
 			store.setItem(trackedKey, JSON.stringify(tracked));
-			store.setItem(foundLocationsKey, JSON.stringify(Array.from(new Set(foundLocations))));
-			store.setItem(trackedLocationsKey, JSON.stringify(Array.from(new Set(trackedLocations))));
 			renderMiniDashboard();
 		}
 
@@ -432,8 +434,6 @@
 
 				const found = JSON.parse(store.getItem(foundKey) || "[]");
 				const tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-				const foundLocations = JSON.parse(store.getItem(foundLocationsKey) || "[]");
-				const trackedLocations = JSON.parse(store.getItem(trackedLocationsKey) || "[]");
 
 				tracked.forEach(key => {
 					const cb = spiritsTbody.querySelector(`.track-checkbox[data-key="${cssEscape(String(key))}"]`);
@@ -553,6 +553,7 @@
 			restoreCheckboxState();
 			applyTrackingAccessState();
 		});
+		}
 	</script>
 	<footer class="site-footer">
 		<div class="container">

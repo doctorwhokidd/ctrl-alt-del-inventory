@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Start Firebase Emulators",
+			"type": "shell",
+			"command": "firebase emulators:start"
+		},
+		{
+			"label": "Start Firebase Emulators",
+			"type": "shell",
+			"command": "firebase emulators:start"
+		}
+	]
+}
