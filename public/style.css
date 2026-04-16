@@ -1668,7 +1668,8 @@ img {
 
 /* Spirits Left Section Formatting */
 .spirits-page .table-wrapper {
-	overflow-x: hidden;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 .spirits-page #spirits-table {

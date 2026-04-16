@@ -17,6 +17,24 @@ window.firebaseAuth = firebase.auth();
 window.firebaseDb = firebase.firestore();
 window.firebaseRtdb = typeof firebase.database === "function" ? firebase.database() : null;
 
+// Clean up stale service workers and caches from older deployments so
+// updated Hosting files load consistently across Firebase domains.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.getRegistrations()
+      .then(registrations => Promise.all(registrations.map(registration => registration.unregister())))
+      .catch(() => {});
+  });
+}
+
+if ("caches" in window) {
+  window.addEventListener("load", () => {
+    caches.keys()
+      .then(keys => Promise.all(keys.map(key => caches.delete(key))))
+      .catch(() => {});
+  });
+}
+
 
 
 // import { initializeApp } from "firebase/app";
