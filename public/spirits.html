@@ -157,11 +157,24 @@
 			return `guest_${String(baseKey || "")}`;
 		}
 
+		function readArrayKey(rawKey) {
+			if (!rawKey) return [];
+			const store = getTrackingStore();
+			if (!store) return [];
+			try {
+				const value = JSON.parse(store.getItem(rawKey) || "[]");
+				return Array.isArray(value) ? value : [];
+			} catch (_) {
+				return [];
+			}
+		}
+
 		function applyTrackingAccessState() {
 			const enabled = isTrackingEnabled();
 			const checkboxes = spiritsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
 			checkboxes.forEach(cb => {
 				cb.disabled = false;
+				cb.style.cursor = "pointer";
 				cb.title = enabled ? "" : "Guest mode: progress is temporary for this session";
 			});
 			if (spiritsAccessNote) {
@@ -259,12 +272,12 @@
 				   const row = document.createElement("tr");
 				   row.dataset.index = String(index);
 				   row.innerHTML = `
-					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-index="${index}" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
 					   <td class="icon-col"></td>
 					   <td class="name-col">${escapeHtml(name)}</td>
 					   <td class="skill-col">${escapeHtml(spirit.Skill || "N/A")}</td>
 					   <td class="location-col">${escapeHtml(spirit.Location || "N/A")}</td>
-					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-index="${index}" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
 				   `;
 				   const iconTd = row.querySelector(".icon-col");
 				   const iconImg = document.createElement("img");
@@ -320,6 +333,8 @@
 						   row.classList.remove("row-found");
 					   }
 				   }
+				   saveCheckboxState();
+				   reorderByTracked(spiritsTbody);
 				   // Record found/unfound activity
 				   if (spirit && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
 					   window.Auth.recordRecentActivity({
@@ -331,12 +346,14 @@
 						   timestamp: Date.now(),
 					   });
 				   }
-				   saveCheckboxState();
+                   window.dispatchEvent(new Event("elg-progress-changed"));
 			   } else if (event.target.matches(".track-checkbox")) {
 				   const checkbox = event.target;
 				   const row = checkbox.closest("tr[data-index]");
 				   const index = row ? Number(row.dataset.index) : NaN;
 				   const spirit = !Number.isNaN(index) ? spiritsData[index] : null;
+				   saveCheckboxState();
+                   reorderByTracked(spiritsTbody);
 				   // Record tracked/untracked activity
 				   if (spirit && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
 					   window.Auth.recordRecentActivity({
@@ -348,8 +365,7 @@
 						   timestamp: Date.now(),
 					   });
 				   }
-				   saveCheckboxState();
-				   reorderByTracked(spiritsTbody);
+                   window.dispatchEvent(new Event("elg-progress-changed"));
 			   }
 		   });
 
@@ -379,11 +395,11 @@
 				const store = getTrackingStore();
 				store.setItem(key, JSON.stringify(array));
 			};	
-			document.querySelectorAll(".found-checkbox:checked").forEach(cb => {
+			spiritsTbody.querySelectorAll(".found-checkbox:checked").forEach(cb => {
 				found.push(Number(cb.dataset.index));
 				if (cb.dataset.location) foundLocations.push(cb.dataset.location);
 			});
-			document.querySelectorAll(".track-checkbox:checked").forEach(cb => {
+			spiritsTbody.querySelectorAll(".track-checkbox:checked").forEach(cb => {
 				tracked.push(Number(cb.dataset.index));
 				if (cb.dataset.location) trackedLocations.push(cb.dataset.location);
 			});
@@ -393,6 +409,7 @@
 			const trackedLocationsKey = getTrackingKey("spirits_tracked_locations");
 			if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
 			const store = getTrackingStore();
+
 
 			writeArrayKey(foundKey, found);
 			writeArrayKey(trackedKey, tracked);
@@ -409,6 +426,14 @@
 				const trackedLocationsKey = getTrackingKey("spirits_tracked_locations");
 				if (!foundKey || !trackedKey || !foundLocationsKey || !trackedLocationsKey) return;
 				const store = getTrackingStore();
+				if (!store) return;
+
+				spiritsTbody.querySelectorAll(".found-checkbox, .track-checkbox").forEach(cb => {
+					cb.checked = false;
+				});
+				spiritsTbody.querySelectorAll("tr[data-index]").forEach(row => {
+					row.classList.remove("row-found");
+				});
 
 				const found = readArrayKey(foundKey);
 				const tracked = readArrayKey(trackedKey);
@@ -431,11 +456,6 @@
 						   const row = cb.closest("tr[data-index]");
 						   if (row) row.classList.add("row-found");
 					   }
-				   });
-				   // Remove row-found from all others
-				   spiritsTbody.querySelectorAll("tr[data-index]").forEach(row => {
-					   const cb = row.querySelector('.found-checkbox');
-					   if (cb && !cb.checked) row.classList.remove("row-found");
 				   });
 				tracked.forEach(i => {
 					const cb = spiritsTbody.querySelector(`.track-checkbox[data-index="${i}"]`);
@@ -523,20 +543,6 @@
 		window.addEventListener("elg-progress-changed", () => {
 			restoreCheckboxState();
 			applyTrackingAccessState();
-			// Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
-			const trackedKey = getTrackingKey("spirits_tracked");
-			const store = getTrackingStore();
-			let tracked = [];
-			try {
-				tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-			} catch (_) {}
-			const trackedSet = new Set(tracked.map(i => Number(i)));
-			spiritsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
-				const idx = cb.closest('tr[data-index]')?.dataset.index;
-				if (idx && !trackedSet.has(Number(idx))) {
-					cb.checked = false;
-				}
-			});
 		});
 
 		window.addEventListener("elg-progress-loaded", () => {

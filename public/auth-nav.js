@@ -376,7 +376,7 @@
 						   typeDisplay = typeMap[typeKey] || (entry.type.charAt(0).toUpperCase() + entry.type.slice(1).toLowerCase());
 					   }
 					   const locationText = entry.location ? ` <span class="collection-mini-location">${escapeHtml(entry.location)}</span>` : "";
-					   const untrackButton = loggedIn && actionLower === "tracked"
+					   const untrackButton = actionLower === "tracked"
 						   ? `<button class="collection-mini-untrack" data-id="${escapeAttr(entry.id)}" data-action="${escapeAttr(entry.action)}" data-type="${escapeAttr(entry.type)}" data-name="${escapeAttr(entry.name)}" title="Untrack/undo this entry">Untrack</button>`
 						   : "";
 					   return `<li class="collection-mini-recent-item"><span class="collection-mini-recent-text"><strong class="${actionClass}">${escapeHtml(actionDisplay)}</strong> ${escapeHtml(typeDisplay)}: ${escapeHtml(entry.name)}${locationText}</span>${untrackButton}</li>`;
@@ -412,23 +412,20 @@
 					const name = String(button.dataset.name || "");
 					const entryId = String(button.dataset.id || "");
 
-					if (this.isLoggedIn()) {
-						this.undoProgressEntry({ action, type, name, entryId });
-						this.removeRecentActivity(entryId);
-						// Add an 'Untracked' entry to recent activity
-						this.recordRecentActivity({
-							id: `${type}-${name}-${Date.now()}`,
-							type: type.charAt(0).toUpperCase() + type.slice(1),
-							action: "Untracked",
-							name: name,
-							location: "",
-							timestamp: Date.now()
-						});
-						if (root.__dashTotalCounts) {
-							this.renderCollectionMiniDashboard(root, root.__dashTotalCounts);
-						}
-						window.dispatchEvent(new CustomEvent("elg-progress-changed"));
+					this.undoProgressEntry({ action, type, name, entryId });
+					this.removeRecentActivity(entryId);
+					this.recordRecentActivity({
+						id: `${type}-${name}-${Date.now()}`,
+						type: type.charAt(0).toUpperCase() + type.slice(1),
+						action: "Untracked",
+						name: name,
+						location: "",
+						timestamp: Date.now()
+					});
+					if (root.__dashTotalCounts) {
+						this.renderCollectionMiniDashboard(root, root.__dashTotalCounts);
 					}
+					window.dispatchEvent(new CustomEvent("elg-progress-changed"));
 				});
 			}
 		},
@@ -473,7 +470,7 @@
 			}
 		},
 		undoProgressEntry(entry) {
-			if (!entry || !this.isLoggedIn()) return;
+			if (!entry) return;
 			const type = String(entry.type || "").toLowerCase();
 			const entryName = String(entry.name || "");
 			const entryId = String(entry.entryId || "");
@@ -490,9 +487,12 @@
 
 			const targetKey = `${collectionKey}_tracked`;
 
-			const scopedKey = this.getProgressKey(targetKey);
-			if (!scopedKey) return;
-			const existing = readArrayKey(scopedKey);
+			const storageKey = this.isLoggedIn() ? this.getProgressKey(targetKey) : `guest_${targetKey}`;
+			if (!storageKey) return;
+			const storage = this.isLoggedIn() ? localStorage : sessionStorage;
+			const existing = this.isLoggedIn()
+				? readArrayKey(storageKey)
+				: safeParseJson(storage.getItem(storageKey) || "[]", []);
 
 			let next = existing;
 			if (type === "spirit") {
@@ -507,7 +507,12 @@
 				next = existing.filter(item => String(item) !== entryName);
 			}
 
-			writeArrayKey(scopedKey, next);
+			if (this.isLoggedIn()) {
+				writeArrayKey(storageKey, next);
+			} else {
+				storage.setItem(storageKey, JSON.stringify(Array.isArray(next) ? next : []));
+				window.dispatchEvent(new CustomEvent('elg-progress-changed', { detail: { key: storageKey } }));
+			}
 		},
 		showNotification(message) {
 			showToast(message);

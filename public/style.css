@@ -1866,3 +1866,16 @@ img {
 		padding: 0.55rem 0.42rem;
 	}
 }
+
+.footer-socials .social-link svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor; /* inherit text color */
+  vertical-align: middle;
+}
+.footer-socials .social-link {
+  color: #fff; /* visible color */
+  margin: 0 8px;
+  display: inline-block;
+}
+

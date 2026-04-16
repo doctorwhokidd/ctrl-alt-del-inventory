@@ -134,11 +134,24 @@
 			return `guest_${String(baseKey || "")}`;
 		}
 
+		function readArrayKey(rawKey) {
+			if (!rawKey) return [];
+			const store = getTrackingStore();
+			if (!store) return [];
+			try {
+				const value = JSON.parse(store.getItem(rawKey) || "[]");
+				return Array.isArray(value) ? value : [];
+			} catch (_) {
+				return [];
+			}
+		}
+
 		function applyTrackingAccessState() {
 			const enabled = isTrackingEnabled();
 			const checkboxes = findingsTbody.querySelectorAll(".found-checkbox, .track-checkbox");
 			checkboxes.forEach(cb => {
 				cb.disabled = false;
+				cb.style.cursor = "pointer";
 				cb.title = enabled ? "" : "Guest mode: progress is temporary for this session";
 			});
 			if (findingsAccessNote) {
@@ -216,6 +229,8 @@
 						   row.classList.remove("row-found");
 					   }
 				   }
+				   saveFindingState();
+				   reorderByTracked(findingsTbody);
 				   // Record found/unfound activity
 				   if (finding && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
 					   window.Auth.recordRecentActivity({
@@ -227,12 +242,14 @@
 						   timestamp: Date.now(),
 					   });
 				   }
-				   saveFindingState();
+				   window.dispatchEvent(new Event("elg-progress-changed"));
 			   } else if (event.target.matches(".track-checkbox")) {
 				   const checkbox = event.target;
 				   const row = checkbox.closest("tr[data-index]");
 				   const index = row ? Number(row.dataset.index) : NaN;
 				   const finding = !Number.isNaN(index) ? findingsData[index] : null;
+				   saveFindingState();
+				   reorderByTracked(findingsTbody);
 				   // Record tracked/untracked activity
 				   if (finding && window.Auth && typeof window.Auth.recordRecentActivity === "function") {
 					   window.Auth.recordRecentActivity({
@@ -244,8 +261,7 @@
 						   timestamp: Date.now(),
 					   });
 				   }
-				   saveFindingState();
-				   reorderByTracked(findingsTbody);
+				   window.dispatchEvent(new Event("elg-progress-changed"));
 			   }
 		   });
 
@@ -308,10 +324,10 @@
 				   const row = document.createElement("tr");
 				   row.dataset.index = String(index);
 				   row.innerHTML = `
-					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
+					   <td class="track-col"><input type="checkbox" class="track-checkbox" data-index="${index}" data-key="${escapeAttr(name)}" aria-label="Track ${escapeAttr(name)}"></td>
 					   <td class="name-col">${escapeHtml(name)}</td>
 					   <td class="location-col">${escapeHtml(finding.Location || "N/A")}</td>
-					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
+					   <td class="found-col"><input type="checkbox" class="found-checkbox" data-index="${index}" data-key="${escapeAttr(name)}" aria-label="Mark ${escapeAttr(name)} as found"></td>
 				   `;
 				   rows.push(row);
 			   }
@@ -349,12 +365,18 @@
 		   function saveFindingState() {
 			   const tracked = [];
 			   const found = [];
-			   document.querySelectorAll("#findings-tbody .track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
-			   document.querySelectorAll("#findings-tbody .found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
+			   const writeArrayKey = (key, array) => {
+				   const store = getTrackingStore();
+				   if (!store || !key) return;
+				   store.setItem(key, JSON.stringify(array));
+			   };
+			   findingsTbody.querySelectorAll(".track-checkbox:checked").forEach(cb => tracked.push(cb.dataset.key));
+			   findingsTbody.querySelectorAll(".found-checkbox:checked").forEach(cb => found.push(cb.dataset.key));
 			   const trackedKey = getTrackingKey("findings_tracked");
 			   const foundKey = getTrackingKey("findings_found");
 			   if (!trackedKey || !foundKey) return;
 			   const store = getTrackingStore();
+			   if (!store) return;
 			   writeArrayKey(trackedKey, tracked);
 			   writeArrayKey(foundKey, found);
 			   renderMiniDashboard();
@@ -366,6 +388,13 @@
 				   const foundKey = getTrackingKey("findings_found");
 				   if (!trackedKey || !foundKey) return;
 				   const store = getTrackingStore();
+				   if (!store) return;
+				   findingsTbody.querySelectorAll(".found-checkbox, .track-checkbox").forEach(cb => {
+					   cb.checked = false;
+				   });
+				   findingsTbody.querySelectorAll("tr[data-index]").forEach(row => {
+					   row.classList.remove("row-found");
+				   });
 				   const tracked = readArrayKey(trackedKey);
 				   const found = readArrayKey(foundKey);
 				   tracked.forEach(key => {
@@ -379,11 +408,6 @@
 						   const row = cb.closest("tr[data-index]");
 						   if (row) row.classList.add("row-found");
 					   }
-				   });
-				   // Remove row-found from all others
-				   findingsTbody.querySelectorAll("tr[data-index]").forEach(row => {
-					   const cb = row.querySelector('.found-checkbox');
-					   if (cb && !cb.checked) row.classList.remove("row-found");
 				   });
 				   reorderByTracked(findingsTbody);
 			   } catch (_) {}
@@ -422,22 +446,6 @@
 		window.addEventListener("elg-progress-changed", () => {
 			restoreFindingState();
 			applyTrackingAccessState();
-			// Uncheck any checkboxes that are no longer tracked (after dashboard untrack)
-			const trackedKey = getTrackingKey("findings_tracked");
-			const store = getTrackingStore();
-			let tracked = [];
-			try {
-				tracked = JSON.parse(store.getItem(trackedKey) || "[]");
-			} catch (_) {}
-			// Normalize tracked keys for robust comparison
-			const trackedSet = new Set(tracked.map(k => String(k).toLowerCase()));
-			findingsTbody.querySelectorAll('.track-checkbox').forEach(cb => {
-				// Use the same normalization as tracked
-				const cbKey = String(cb.dataset.key).toLowerCase();
-				if (!trackedSet.has(cbKey)) {
-					cb.checked = false;
-				}
-			});
 		});
 
 		window.addEventListener("elg-progress-loaded", () => {
