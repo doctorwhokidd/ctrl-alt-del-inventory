@@ -21,7 +21,6 @@
         <div class="container nav-container">
             <a class="site-brand" href="index.html">Ender Lilies Grimoire</a>
             <nav class="site-nav" aria-label="Primary navigation">
-                <a href="index.html" aria-current="page">Home</a>
                 <a href="spirits.html">Spirits</a>
                 <a href="relics.html">Relics</a>
                 <a href="items.html">Items</a>
@@ -69,7 +68,7 @@
                             <p>The game blends melee combat with collectible spirits, abilities and items that expand movement and combat options. The atmosphere and soundtrack are a major part of the experience, giving every area a distinct emotional tone.</p>
                         </ul>
                     </div>
-					<div class="home-stats" id="home-stats" aria-live="polite">
+					<div class="home-stats" id="home-stats" aria-live="polite" style="display:none;">
 						<p class="home-stats-loading">Loading statistics...</p>
 					</div>
                     <div class="home-recent home-recent-section" id="home-recent" aria-live="polite" style="display:none;"></div>
@@ -187,7 +186,11 @@
                     if (factsRoot) factsRoot.style.display = "block";
                     if (heroActions) heroActions.style.display = "";
                     statsRoot.style.display = "none";
-                    if (recentRoot) recentRoot.style.display = "none";
+                    statsRoot.innerHTML = '<p class="home-stats-loading">Loading statistics...</p>';
+                    if (recentRoot) {
+                        recentRoot.style.display = "none";
+                        recentRoot.innerHTML = "";
+                    }
                     return;
                 }
 
@@ -261,6 +264,10 @@
                 }
             }
 
+            function renderForCurrentState(totalCounts) {
+                renderStats(totalCounts);
+            }
+
             (async () => {
                 const [spiritsCount, relicsCount, itemsCount, findingsCount] = await Promise.all([
                     fetchCount(DATASETS.spirits),
@@ -275,12 +282,24 @@
                     items: itemsCount,
                     findings: findingsCount,
                 };
-                renderStats(totals);
+                renderForCurrentState(totals);
 
                 window.addEventListener("storage", event => {
                     if (!event.key || event.key.includes("_found") || event.key.includes("_tracked") || event.key.includes("recent_activity") || event.key === "elg_session_v1") {
-                        renderStats(totals);
+                        renderForCurrentState(totals);
                     }
+                });
+
+                window.addEventListener("elg-auth-changed", () => {
+                    renderForCurrentState(totals);
+                });
+
+                window.addEventListener("elg-progress-changed", () => {
+                    renderForCurrentState(totals);
+                });
+
+                window.addEventListener("elg-progress-loaded", () => {
+                    renderForCurrentState(totals);
                 });
 
                 if (recentRoot) {
@@ -313,7 +332,7 @@
                                 timestamp: Date.now()
                             });
                         }
-                        renderStats(totals);
+                        renderForCurrentState(totals);
                         window.dispatchEvent(new CustomEvent("elg-progress-changed"));
                     });
                 }

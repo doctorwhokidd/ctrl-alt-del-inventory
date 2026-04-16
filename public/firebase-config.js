@@ -14,7 +14,8 @@ firebase.initializeApp(firebaseConfig);
 
 // Make services available globally
 window.firebaseAuth = firebase.auth();
-window.firebaseDb   = firebase.database();
+window.firebaseDb = firebase.firestore();
+window.firebaseRtdb = typeof firebase.database === "function" ? firebase.database() : null;
 
 
 

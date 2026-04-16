@@ -3,8 +3,22 @@
 
 	const USERS_KEY = "elg_users_v1";
 	const SESSION_KEY = "elg_session_v1";
+	const FIRST_VISIT_KEY = "elg_first_visit_complete_v1";
 	const RECENT_ACTIVITY_KEY = "recent_activity";
 	const GUEST_RECENT_ACTIVITY_KEY = "guest_recent_activity";
+	const GUEST_PROGRESS_KEYS = [
+		"guest_spirits_found",
+		"guest_spirits_tracked",
+		"guest_spirits_found_locations",
+		"guest_spirits_tracked_locations",
+		"guest_relics_found",
+		"guest_relics_tracked",
+		"guest_items_found",
+		"guest_items_tracked",
+		"guest_findings_found",
+		"guest_findings_tracked",
+		GUEST_RECENT_ACTIVITY_KEY,
+	];
 	const DEMO_USER = {
 		id: "demo-bob",
 		firstName: "Bob",
@@ -82,6 +96,21 @@
 		localStorage.setItem(USERS_KEY, JSON.stringify(users));
 	}
 
+	function clearGuestProgress() {
+		GUEST_PROGRESS_KEYS.forEach(key => {
+			sessionStorage.removeItem(key);
+		});
+	}
+
+	function initializeFirstVisitState() {
+		const hasInitialized = localStorage.getItem(FIRST_VISIT_KEY);
+		if (hasInitialized) return;
+
+		clearGuestProgress();
+		localStorage.removeItem(SESSION_KEY);
+		localStorage.setItem(FIRST_VISIT_KEY, String(Date.now()));
+	}
+
 	function ensureDemoUser() {
 		const users = readUsers();
 		const hasDemo = users.some(item => normalizeLookup(item.username) === normalizeLookup(DEMO_USER.username)
@@ -112,6 +141,21 @@
 			localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 		}
 		window.dispatchEvent(new CustomEvent('elg-auth-changed'));
+	}
+
+	function buildSessionFromFirebaseUser(user, profile) {
+		if (!user || !user.uid) return null;
+		return {
+			id: user.uid,
+			email: user.email || "",
+			username: normalizeText(profile && profile.username),
+			displayName: normalizeText(
+				(profile && (profile.displayName || profile.firstName || profile.username))
+				|| user.displayName
+				|| user.email
+				|| "Player"
+			),
+		};
 	}
 
 	function readArrayKey(rawKey) {
@@ -161,6 +205,29 @@
 		};
 	}
 
+	function syncSessionFromFirebaseUser(user) {
+		if (!user || !user.uid) {
+			writeSession(null);
+			return;
+		}
+
+		const fallbackSession = buildSessionFromFirebaseUser(user, null);
+		writeSession(fallbackSession);
+
+		const userDocRef = getFirestoreUserDocRef(user.uid);
+		if (!userDocRef) return;
+
+		userDocRef.get()
+			.then(doc => {
+				if (!doc.exists) return;
+				const nextSession = buildSessionFromFirebaseUser(user, doc.data());
+				if (nextSession) {
+					writeSession(nextSession);
+				}
+			})
+			.catch(err => console.error('Error syncing Firebase session:', err));
+	}
+
 	function createStatusNode(form) {
 		let node = form.querySelector(".auth-status");
 		if (!node) {
@@ -177,6 +244,29 @@
 		const node = createStatusNode(form);
 		node.textContent = message || "";
 		node.style.color = isError ? "#ffb4b4" : "#b9f0c7";
+	}
+
+	function getFriendlyAuthError(error) {
+		const code = String(error && error.code ? error.code : "");
+		switch (code) {
+			case "auth/invalid-email":
+				return "That email address is not valid.";
+			case "auth/user-not-found":
+				return "No account was found for that email in this Firebase project.";
+			case "auth/wrong-password":
+			case "auth/invalid-credential":
+				return "That email/password combination was rejected.";
+			case "auth/user-disabled":
+				return "This account has been disabled in Firebase Authentication.";
+			case "auth/too-many-requests":
+				return "Too many login attempts. Please wait a moment and try again.";
+			case "auth/network-request-failed":
+				return "Network error while contacting Firebase. Check your connection and try again.";
+			default:
+				return error && error.message
+					? `Login failed: ${error.message}`
+					: "Login failed. Please check your Firebase email/password account.";
+		}
 	}
 
 	function setupLoginForm() {
@@ -223,7 +313,7 @@
 				})
 				.catch(error => {
 					console.error('Login error:', error);
-					setStatus(form, "Invalid login credentials.", true);
+					setStatus(form, getFriendlyAuthError(error), true);
 				});
 		});
 	}
@@ -346,6 +436,22 @@
 
 			const guestValue = safeParseJson(sessionStorage.getItem(`guest_${normalizedBaseKey}`) || "[]", []);
 			return Array.isArray(guestValue) ? guestValue : [];
+		},
+		persistProgressArray(baseKey, value) {
+			const normalizedBaseKey = String(baseKey || "").trim();
+			if (!normalizedBaseKey) return;
+			const normalizedValue = Array.isArray(value) ? value : [];
+
+			if (this.isLoggedIn()) {
+				const scopedKey = this.getProgressKey(normalizedBaseKey);
+				if (!scopedKey) return;
+				writeArrayKey(scopedKey, normalizedValue);
+				return;
+			}
+
+			const guestKey = `guest_${normalizedBaseKey}`;
+			sessionStorage.setItem(guestKey, JSON.stringify(normalizedValue));
+			window.dispatchEvent(new CustomEvent('elg-progress-changed', { detail: { key: guestKey } }));
 		},
 		renderCollectionMiniDashboard(root, totalCounts) {
 			if (!root || !totalCounts) return;
@@ -579,14 +685,18 @@
 			if (user) {
 				// User is signed in
 				window.currentUser = user;
+				syncSessionFromFirebaseUser(user);
+				Auth.loadProgressFromFirestore();
 			} else {
 				// User is signed out
 				window.currentUser = null;
+				writeSession(null);
 			}
 			window.dispatchEvent(new CustomEvent('elg-auth-changed'));
 		});
 	}
 
+	initializeFirstVisitState();
 	ensureDemoUser();
 	updateNavAuthState();
 	setupLoginForm();

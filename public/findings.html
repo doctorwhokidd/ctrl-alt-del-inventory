@@ -159,9 +159,6 @@
 					? "Tracking mode: progress saves to your account."
 					: "Guest tracking mode: progress is temporary until you log in.";
 			}
-			if (!enabled && findingsMeta) {
-				findingsMeta.textContent = "Guest mode active. Log in to save progress for later.";
-			}
 			renderMiniDashboard();
 		}
 

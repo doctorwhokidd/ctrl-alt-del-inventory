@@ -21,7 +21,6 @@
         <div class="container nav-container">
             <a class="site-brand" href="index.html">Ender Lilies Grimoire</a>
             <nav class="site-nav" aria-label="Primary navigation">
-                <a href="index.html">Home</a>
                 <a href="spirits.html">Spirits</a>
                 <a href="relics.html">Relics</a>
                 <a href="items.html">Items</a>
@@ -50,13 +49,6 @@
 
                     <button class="btn auth-submit" type="submit">Log In</button>
                 </form>
-
-                <div class="demo-credentials" aria-label="Demo login credentials">
-                    <p class="demo-credentials-title">Demo Account</p>
-                    <p><strong>Username:</strong> bob</p>
-                    <p><strong>Email:</strong> bob@mail.com</p>
-                    <p><strong>Password:</strong> bobpass</p>
-                </div>
 
                 <p class="auth-footnote">No account yet? <a href="signup.html" class="auth-link">Create one</a></p>
             </article>
@@ -99,43 +91,10 @@
     <!-- Firebase SDKs (compat style) -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <!-- Firebase config -->
     <script src="firebase-config.js"></script>
-
-    <!-- Login handler -->
-    <script>
-      document.getElementById("login-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const email = document.getElementById("login-identifier").value;
-        const password = document.getElementById("password").value;
-
-        window.firebaseAuth
-          .signInWithEmailAndPassword(email, password)
-          .then((userCredential) => {
-            console.log("Logged in:", userCredential.user);
-
-            // Example: write login info to Realtime DB
-            const userId = userCredential.user.uid;
-            window.firebaseDb.ref("users/" + userId).set({
-              email: email,
-              lastLogin: new Date().toISOString()
-            });
-
-            //Instead of alert, you can redirect:
-            window.location.href = "index.html"; 
-          })
-          .catch((error) => {
-            console.error("Login failed:", error);
-            // Optional: show error inline instead of alert
-            const form = document.querySelector(".auth-form");
-            const errorMsg = document.createElement("p");
-            errorMsg.style.color = "red";
-            errorMsg.textContent = "Login failed: " + error.message;
-            form.appendChild(errorMsg);
-          });
-      });
-    </script>
+    <script src="auth-nav.js" defer></script>
 </body>
 </html>
