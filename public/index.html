@@ -206,7 +206,7 @@
 
                 const getKey = typeof auth.getProgressKey === "function" ? auth.getProgressKey.bind(auth) : (() => null);
                 const session = typeof auth.getSession === "function" ? auth.getSession() : null;
-                const username = escapeHtml(session && session.username ? session.username : "user");
+                const signedInEmail = escapeHtml(session && session.email ? session.email : "user");
 
                 const spiritFound = readArrayForKey(getKey("spirits_found")).length;
                 const spiritTracked = readArrayForKey(getKey("spirits_tracked")).length;
@@ -246,7 +246,7 @@
                         : '<li class="home-recent-empty">No recent tracked or found activity yet.</li>';
 
                 statsRoot.innerHTML = `
-                    <p class="home-stats-note">Signed in as <strong>${username}</strong></p>
+                    <p class="home-stats-note">Signed in with email address <strong>${signedInEmail}</strong></p>
                     <div class="home-stats-grid">
                         <div class="home-stat-card"><span class="home-stat-label">Spirits</span><span class="home-stat-value">${spiritFound} / ${totalCounts.spirits}</span><span class="home-stat-sub">Tracked: ${spiritTracked}</span></div>
                         <div class="home-stat-card"><span class="home-stat-label">Relics</span><span class="home-stat-value">${relicFound} / ${totalCounts.relics}</span><span class="home-stat-sub">Tracked: ${relicTracked}</span></div>
