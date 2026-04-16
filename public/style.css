@@ -1075,7 +1075,13 @@ img {
 
 	.site-footer .container {
 		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
+		text-align: center;
+	}
+
+	.footer-socials {
+		justify-content: center;
+		width: 100%;
 	}
 }
 
@@ -1794,6 +1800,41 @@ img {
 }
 
 @media (max-width: 768px) {
+	.container {
+		width: min(var(--container-width), calc(100% - 1.4rem));
+	}
+
+	.page-content {
+		padding: 2rem 0 1.8rem;
+	}
+
+	.hero-copy {
+		padding: 1rem;
+	}
+
+	.hero-copy > p {
+		max-width: 100%;
+	}
+
+	.hero-sword {
+		min-width: 0;
+		width: 100%;
+	}
+
+	.hero-sword svg {
+		width: min(240px, 100%);
+	}
+
+	.home-facts {
+		padding: 0.85rem 0.9rem;
+	}
+
+	.home-stats,
+	.home-recent {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
 	.collection-table {
 		font-size: 0.85rem;
 	}
@@ -1804,7 +1845,17 @@ img {
 	}
 
 	.map-container {
+		width: 100%;
 		max-height: calc(100vh - 280px);
+	}
+
+	.map-content {
+		padding: 1rem 0.7rem 1.4rem;
+	}
+
+	.map-full-image {
+		width: 1000px;
+		height: auto;
 	}
 
 	   .spirit-icon {
@@ -1839,10 +1890,38 @@ img {
 
 	.table-wrapper {
 		max-height: 56vh;
+		-webkit-overflow-scrolling: touch;
 	}
 }
 
 @media (max-width: 640px) {
+	.site-brand {
+		font-size: 1.7rem;
+	}
+
+	.site-nav {
+		gap: 0.18rem;
+	}
+
+	.site-nav a,
+	.site-nav .nav-username {
+		font-size: 0.82rem;
+		padding: 0.44rem 0.52rem;
+	}
+
+	.hero-visual {
+		min-height: auto;
+	}
+
+	.hero-visual img {
+		width: 100%;
+		height: auto;
+	}
+
+	.home-facts-list {
+		padding-left: 0;
+	}
+
 	.collection-table-section {
 		min-height: 330px;
 	}
@@ -1868,9 +1947,33 @@ img {
 	.detail-placeholder {
 		min-height: 260px;
 	}
+
+	.footer-socials {
+		flex-wrap: wrap;
+	}
 }
 
 @media (max-width: 480px) {
+	.container {
+		width: min(var(--container-width), calc(100% - 1rem));
+	}
+
+	.site-brand {
+		font-size: 1.45rem;
+	}
+
+	.page-header {
+		margin-bottom: 1.5rem;
+	}
+
+	.page-subtitle,
+	.tracking-mode-note,
+	.hero-copy > p,
+	.home-facts-list,
+	.site-footer p {
+		font-size: 0.88rem;
+	}
+
 	.collection-table {
 		font-size: 0.81rem;
 	}
@@ -1878,6 +1981,20 @@ img {
 	.collection-table th,
 	.collection-table td {
 		padding: 0.55rem 0.42rem;
+	}
+
+	.collection-search {
+		padding: 0.52rem 0.6rem;
+	}
+
+	.detail-image {
+		width: 160px;
+		height: 160px;
+	}
+
+	.social-link {
+		width: 34px;
+		height: 34px;
 	}
 }
 
