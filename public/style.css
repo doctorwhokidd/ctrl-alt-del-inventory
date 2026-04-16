@@ -1039,6 +1039,15 @@ img {
 }
 
 @media (max-width: 760px) {
+	.site-brand {
+		font-size: 1.6rem;
+		line-height: 1.1;
+	}
+
+	.page-content {
+		padding-top: 3.4rem;
+	}
+
 	.nav-container {
 		flex-direction: column;
 		align-items: flex-start;
@@ -1896,7 +1905,7 @@ img {
 
 @media (max-width: 640px) {
 	.site-brand {
-		font-size: 1.7rem;
+		font-size: 1.35rem;
 	}
 
 	.site-nav {
@@ -1959,7 +1968,7 @@ img {
 	}
 
 	.site-brand {
-		font-size: 1.45rem;
+		font-size: 1.15rem;
 	}
 
 	.page-header {
